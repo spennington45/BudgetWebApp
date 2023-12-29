@@ -20,10 +20,20 @@ namespace budgetWebApp.Server.Controllers
             return GetTestData();
         }
 
-        [HttpGet]
-        public IEnumerable<Budget> GetBudgetById(long id)
+        [HttpGet("GetBudgetByUserId/{id}")]
+        [ProducesResponseType<Budget>(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult<IEnumerable<Budget>> GetBudgetByUserId(long id)
         {
-            return GetTestData().Where(x => x.BudgetId == id);
+            return GetTestData().Where(x => x.UserId == id).ToList();
+        }
+
+        [HttpGet("GetBudgetByBudgetId/{id}")]
+        [ProducesResponseType<Budget>(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult<Budget> GetBudgetByBudgetId(long id)
+        {
+            return GetTestData().FirstOrDefault(x => x.BudgetId == id);
         }
 
         private IEnumerable<Budget> GetTestData()
@@ -52,6 +62,32 @@ namespace budgetWebApp.Server.Controllers
                             {
                                 CategoryId = 1,
                                 CategoryName = "Test",
+                            }
+                        }
+                    }
+                },
+                new Budget
+                {
+                    BudgetId = 2,
+                    Date = DateTime.Now.AddMonths(-1),
+                    UserId = 1,
+                    User = new User
+                    {
+                        UserId = 1,
+                        FirstName = "Test",
+                        LastName = "Test",
+                    },
+                    BudgetLineItems = new List<BudgetLineItem>
+                    {
+                        new BudgetLineItem
+                        {
+                            BudgetId = 2,
+                            BugetLineItemId = 2,
+                            CatigoryId = 1,
+                            Catigory = new Category
+                            {
+                                CategoryId = 2,
+                                CategoryName = "Test2",
                             }
                         }
                     }
