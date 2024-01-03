@@ -4,6 +4,7 @@ export interface Budget {
   date: Date;
   budgetLineItems: Array<BudgetLineItems>;
   user: User;
+  displayDate?: string;
 }
 
 export interface APIResponse<T> {

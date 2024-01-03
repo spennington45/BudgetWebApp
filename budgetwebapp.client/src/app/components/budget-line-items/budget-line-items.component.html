@@ -1,0 +1,17 @@
+<div>
+  <h3>Budget Line Items</h3>
+  <table mat-table [dataSource]="budgetLineItems">
+
+    <!-- Columns definition -->
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  <div>
+    <h3>Pie Chart</h3>
+    <div style="width: 500px; height: 500px;">
+      <canvas baseChart [data]="pieChartData" [labels]="pieChartLabels" [chartType]="'pie'"></canvas>
+    </div>
+  </div>
+</div>
