@@ -5,25 +5,26 @@ export interface Budget {
   budgetLineItems: Array<BudgetLineItems>;
   user: User;
   displayDate?: string;
+  [key: string]: any;
 }
 
 export interface APIResponse<T> {
   results: Array<T>;
 }
 
-interface BudgetLineItems {
+export interface BudgetLineItems {
   bugetLineItemId: string;
   catigoryId: string;
   value: string;
   budgetId: string;
   category: Category;
 }
-interface User {
+export interface User {
   userId: string;
   firstName: string;
   lastName: string;
 }
-interface Category {
+export interface Category {
   categoryId: string;
   categoryName: string;
 }

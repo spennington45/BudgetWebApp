@@ -16,7 +16,7 @@ export class BudgetService {
     return this.http.get<APIResponse<Array<Budget>>>(`${env.BASE_URL}/GetBudgetByUserId/${id}`);
   }
 
-  getBudgetDetails(id: string): Observable<Budget> {
+  getBudgetDetails(id: string): Observable<APIResponse<Budget>> {
     return this.http.get<APIResponse<Budget>>(`${env.BASE_URL}/GetBudgetByBudgetId/${id}`);
   }
 }

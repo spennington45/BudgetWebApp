@@ -1,7 +1,4 @@
 <table mat-table [dataSource]="dataSource" matSort>
-
-  <!-- Columns definition -->
-
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="navigateToBudgetDetails(row)"></tr>
 </table>

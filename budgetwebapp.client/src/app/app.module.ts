@@ -1,12 +1,13 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { ChartsModule } from 'ng2-charts';
+import { NgChartsModule } from 'ng2-charts';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
 import { BudgetDetailsComponent } from './components/budget-details/budget-details.component';
 import { BudgetLineItemsComponent } from './components/budget-line-items/budget-line-items.component';
+import { MatTableModule } from '@angular/material/table'
 
 @NgModule({
   declarations: [
@@ -18,8 +19,11 @@ import { BudgetLineItemsComponent } from './components/budget-line-items/budget-
   imports: [
     BrowserModule,
     HttpClientModule,
-    ChartsModule,
-    AppRoutingModule
+    NgChartsModule,
+    AppRoutingModule,
+    NgChartsModule,
+    MatTableModule,
+
   ],
   providers: [],
   bootstrap: [AppComponent]

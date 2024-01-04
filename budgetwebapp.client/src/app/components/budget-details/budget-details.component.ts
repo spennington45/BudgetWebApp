@@ -8,8 +8,8 @@ import { ActivatedRoute } from '@angular/router';
   styleUrl: './budget-details.component.css'
 })
 export class BudgetDetailsComponent implements OnInit {
-  budgetId: string;
-  date: string;
+  budgetId: string = "";
+  date: string = "";
 
   constructor(private route: ActivatedRoute) { }
 
