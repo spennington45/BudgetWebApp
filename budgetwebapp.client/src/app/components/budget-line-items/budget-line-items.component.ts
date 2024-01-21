@@ -11,10 +11,10 @@ export class BudgetLineItemsComponent {
   @Input() budgetId: string = "";
   budgetLineItems: BudgetLineItems[] = []; // Replace with actual data
   categories: Category[] = []; // Replace with actual data
-
+  displayedColumns: string[] = ['budgetId', 'userId', 'displayDate', 'user']; 
   // Pie chart data
   pieChartLabels: string[] = [];
-  pieChartData: ChartData[] = [{ data: [], label: 'Budget Categories' }];
+  pieChartData: ChartData = { labels: [], datasets: [{ data: [], label: 'Budget Categories' }] };
   pieChartType: ChartType = 'pie';
 
   ngOnInit() {
@@ -34,7 +34,8 @@ export class BudgetLineItemsComponent {
 
     // Populate placeholder data for the pie chart
     this.pieChartLabels = this.categories.map(category => category.categoryName);
-    this.pieChartData[0].data = this.calculatePercentages();
+    this.pieChartData.labels = this.pieChartLabels;
+    this.pieChartData.datasets[0].data = this.calculatePercentages();
   }
 
   calculatePercentages(): number[] {
