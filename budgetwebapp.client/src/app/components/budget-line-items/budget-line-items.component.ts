@@ -9,9 +9,9 @@ import { ChartData, ChartType } from 'chart.js';
 })
 export class BudgetLineItemsComponent {
   @Input() budgetId: string = "";
-  budgetLineItems: BudgetLineItems[] = []; // Replace with actual data
-  categories: Category[] = []; // Replace with actual data
-  displayedColumns: string[] = ['budgetId', 'userId', 'displayDate', 'user']; 
+  budgetLineItems: BudgetLineItems[] = [];
+  categories: Category[] = [];
+  displayedColumns: string[] = ['bugetLineItemId', 'catigory', 'value']; 
   // Pie chart data
   pieChartLabels: string[] = [];
   pieChartData: ChartData = { labels: [], datasets: [{ data: [], label: 'Budget Categories' }] };
@@ -23,7 +23,6 @@ export class BudgetLineItemsComponent {
     this.budgetLineItems = [
       { bugetLineItemId: '1', catigoryId: '1', value: '100', budgetId: '1', category: { categoryId: '1', categoryName: 'Category A' } },
       { bugetLineItemId: '2', catigoryId: '2', value: '150', budgetId: '1', category: { categoryId: '2', categoryName: 'Category B' } },
-      // Add more line items as needed
     ];
 
     this.categories = [

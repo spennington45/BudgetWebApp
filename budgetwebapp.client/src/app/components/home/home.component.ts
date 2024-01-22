@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
-import { MatTableModule } from '@angular/material/table';
 import { Budget } from '../../models';
 
 import { Router } from '@angular/router';

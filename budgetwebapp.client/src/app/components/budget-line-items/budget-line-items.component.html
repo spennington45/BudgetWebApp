@@ -1,13 +1,28 @@
 <div>
   <div>
     <h3>Pie Chart</h3>
-    <div style="width: 500px; height: 500px;">
+    <div class="pie-chart-div">
       <canvas baseChart [data]="pieChartData" [labels]="pieChartLabels" [type]="pieChartType"></canvas>
     </div>
   </div>
 
   <h3>Budget Line Items</h3>
   <table mat-table [dataSource]="budgetLineItems">
+    <ng-container matColumnDef="bugetLineItemId">
+      <th mat-header-cell *matHeaderCellDef> bugetLineItemId </th>
+      <td mat-cell *matCellDef="let lineItem"> {{lineItem.bugetLineItemId}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="catigory">
+      <th mat-header-cell *matHeaderCellDef> catigory </th>
+      <td mat-cell *matCellDef="let lineItem"> {{lineItem.category.categoryName}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="value">
+      <th mat-header-cell *matHeaderCellDef> value </th>
+      <td mat-cell *matCellDef="let lineItem"> {{lineItem.value}} </td>
+    </ng-container>
+
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
