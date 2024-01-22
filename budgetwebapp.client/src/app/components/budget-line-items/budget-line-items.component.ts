@@ -21,8 +21,8 @@ export class BudgetLineItemsComponent {
     // Fetch actual data for budget line items and categories
     // For now, let's use placeholder data
     this.budgetLineItems = [
-      { bugetLineItemId: '1', catigoryId: '1', value: '100', budgetId: '1', category: { categoryId: '1', categoryName: 'Category A' } },
-      { bugetLineItemId: '2', catigoryId: '2', value: '150', budgetId: '1', category: { categoryId: '2', categoryName: 'Category B' } },
+      { bugetLineItemId: '1', catigoryId: '1', value: 100, budgetId: '1', category: { categoryId: '1', categoryName: 'Category A' } },
+      { bugetLineItemId: '2', catigoryId: '2', value: 150, budgetId: '1', category: { categoryId: '2', categoryName: 'Category B' } },
     ];
 
     this.categories = [

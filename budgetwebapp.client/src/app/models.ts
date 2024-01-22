@@ -15,7 +15,7 @@ export interface APIResponse<T> {
 export interface BudgetLineItems {
   bugetLineItemId: string;
   catigoryId: string;
-  value: string;
+  value: number;
   budgetId: string;
   category: Category;
 }
