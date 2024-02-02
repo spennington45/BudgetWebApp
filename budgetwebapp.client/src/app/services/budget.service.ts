@@ -11,12 +11,11 @@ export class BudgetService {
 
   constructor(private http: HttpClient) { }
 
-  getBudgetByUserId(id: string): Observable<APIResponse<Array<Budget>>> {
-    //let params = new HttpParams().set('ordering', ordering)
-    return this.http.get<APIResponse<Array<Budget>>>(`${env.BASE_URL}/GetBudgetByUserId/${id}`);
+  getBudgetByUserId(id: string): Observable<Array<Budget>>{
+    return this.http.get<Budget[]>(`${env.BASE_URL}/Budget/GetBudgetByUserId/${id}`);
   }
 
-  getBudgetDetails(id: string): Observable<APIResponse<Budget>> {
-    return this.http.get<APIResponse<Budget>>(`${env.BASE_URL}/GetBudgetByBudgetId/${id}`);
+  getBudgetDetails(id: string): Observable<Budget> {
+    return this.http.get<Budget>(`${env.BASE_URL}/Budget/GetBudgetByBudgetId/${id}`);
   }
 }

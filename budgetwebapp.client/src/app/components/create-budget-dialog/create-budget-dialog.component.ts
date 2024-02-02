@@ -4,10 +4,10 @@ import { MatDialogRef } from '@angular/material/dialog';
 @Component({
   selector: 'app-create-budget-dialog',
   templateUrl: './create-budget-dialog.component.html',
-  styleUrls: ['./create-budget-dialog.component.css']
+  styleUrls: ['./create-budget-dialog.component.css'],
 })
 export class CreateBudgetDialogComponent {
-  selectedDate: Date = new Date();
+  selectedDate: any;
 
   constructor(public dialogRef: MatDialogRef<CreateBudgetDialogComponent>) { }
 
@@ -16,8 +16,6 @@ export class CreateBudgetDialogComponent {
   }
 
   onSaveClick(): void {
-    const selectedYear = this.selectedDate.getFullYear();
-    const selectedMonth = this.selectedDate.getMonth();
-    this.dialogRef.close({ year: selectedYear, month: selectedMonth });
+    this.dialogRef.close(this.selectedDate);
   }
 }

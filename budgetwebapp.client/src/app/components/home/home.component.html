@@ -24,6 +24,18 @@
             <td mat-cell *matCellDef="let budget"> {{sumOfBudget(budget)}} </td>
           </ng-container>
 
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef> Actions </th>
+            <td mat-cell *matCellDef="let budget" (click)="$event.stopPropagation()">
+              <button mat-icon-button (click)="deleteBudget(budget)">
+                <mat-icon>delete</mat-icon>
+              </button>
+              <button mat-icon-button (click)="updateBudget(budget)">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="navigateToBudgetDetails(row)"></tr>
         </table>

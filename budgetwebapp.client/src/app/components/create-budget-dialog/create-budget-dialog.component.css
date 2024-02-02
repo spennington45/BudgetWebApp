@@ -5,8 +5,9 @@
   min-height: 100%;
 }
 
-.mat-dialog-container {
-  max-width: 400px;
-  padding: 20px;
-  box-sizing: border-box;
+.date-picker-dialog {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin-top: 10px;
 }
