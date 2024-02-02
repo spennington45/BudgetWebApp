@@ -1,6 +1,10 @@
 import { Component, Input } from '@angular/core';
 import { BudgetLineItems, Category } from '../../models';
 import { ChartData, ChartType } from 'chart.js';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { BudgetService } from '../../services/budget.service';
 
 @Component({
   selector: 'app-budget-line-items',
@@ -17,22 +21,38 @@ export class BudgetLineItemsComponent {
   pieChartData: ChartData = { labels: [], datasets: [{ data: [], label: 'Budget Categories' }] };
   pieChartType: ChartType = 'pie';
 
+  constructor(private router: Router, private dialog: MatDialog, private snackBar: MatSnackBar, private budgetService: BudgetService) { }
+
   ngOnInit() {
-    // Fetch actual data for budget line items and categories
-    // For now, let's use placeholder data
-    this.budgetLineItems = [
-      { bugetLineItemId: '1', catigoryId: '1', value: 100, budgetId: '1', category: { categoryId: '1', categoryName: 'Category A' } },
-      { bugetLineItemId: '2', catigoryId: '2', value: 150, budgetId: '1', category: { categoryId: '2', categoryName: 'Category B' } },
-    ];
+    // TODO Fetch actual data for budget line items and categories
+    this.getLineItemData();
+    //this.getPieChartData();
+  }
 
-    this.categories = [
-      { categoryId: '1', categoryName: 'Category A' },
-      { categoryId: '2', categoryName: 'Category B' },
-      // Add more categories as needed
-    ];
+  getLineItemData() {
+    this.budgetLineItems = [];
+    this.budgetService.getBudgetLineItemsByBudgetId(this.budgetId).subscribe(response => {
+      this.budgetLineItems = response;
+      // TODO Figure out a better way to do this ewww....
+      for (let i = 0; i < response.length; i++) {
+        let exists = false;
+        for (let j = 0; j < this.categories.length; j++) {
+          if (this.categories[j].categoryId === response[i].category.categoryId) {
+            exists = true;
+            break;
+          }
+        }
+        if (!exists) {
+          this.categories.push(response[i].category);
+        }
+      }
+      this.getPieChartData();
+    });
+  }
 
+  getPieChartData() {
     // Populate placeholder data for the pie chart
-    this.pieChartLabels = this.categories.map(category => category.categoryName);
+    this.pieChartLabels = this.categories.map(item => item.categoryName);
     this.pieChartData.labels = this.pieChartLabels;
     this.pieChartData.datasets[0].data = this.calculatePercentages();
   }

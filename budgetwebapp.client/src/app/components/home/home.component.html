@@ -27,10 +27,10 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef> Actions </th>
             <td mat-cell *matCellDef="let budget" (click)="$event.stopPropagation()">
-              <button mat-icon-button (click)="deleteBudget(budget)">
+              <button mat-icon-button title="Delete" (click)="deleteBudget(budget)">
                 <mat-icon>delete</mat-icon>
               </button>
-              <button mat-icon-button (click)="updateBudget(budget)">
+              <button mat-icon-button title="Edit" (click)="updateBudget(budget)">
                 <mat-icon>edit</mat-icon>
               </button>
             </td>

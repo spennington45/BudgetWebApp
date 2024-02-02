@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { APIResponse, Budget } from '../models';
-import { forkJoin, Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Budget, BudgetLineItems } from '../models';
+import { Observable } from 'rxjs';
 import { environment as env } from '../../environments/environment';
 
 @Injectable({
@@ -15,7 +15,7 @@ export class BudgetService {
     return this.http.get<Budget[]>(`${env.BASE_URL}/Budget/GetBudgetByUserId/${id}`);
   }
 
-  getBudgetDetails(id: string): Observable<Budget> {
-    return this.http.get<Budget>(`${env.BASE_URL}/Budget/GetBudgetByBudgetId/${id}`);
+  getBudgetLineItemsByBudgetId(id: string): Observable<Array<BudgetLineItems>> {
+    return this.http.get<BudgetLineItems[]>(`${env.BASE_URL}/Budget/GetBudgetLineItemsByBudgetId/${id}`);
   }
 }

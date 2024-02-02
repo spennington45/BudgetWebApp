@@ -47,13 +47,17 @@ public partial class BudgetContext : DbContext
 
             entity.ToTable("BudgetLineItem");
 
+            entity.Property(e => e.Label)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+
             entity.HasOne(d => d.Budget).WithMany(p => p.BudgetLineItems)
                 .HasForeignKey(d => d.BudgetId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BugetLineItem_Budget");
 
-            entity.HasOne(d => d.Catigory).WithMany(p => p.BudgetLineItems)
-                .HasForeignKey(d => d.CatigoryId)
+            entity.HasOne(d => d.Category).WithMany(p => p.BudgetLineItems)
+                .HasForeignKey(d => d.CategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BugetLineItem_Category");
         });

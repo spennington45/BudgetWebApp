@@ -5,7 +5,6 @@ import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { CreateBudgetDialogComponent } from '../create-budget-dialog/create-budget-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Observable } from 'rxjs';
 import { BudgetService } from '../../services/budget.service';
 
 @Component({

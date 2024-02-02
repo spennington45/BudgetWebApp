@@ -29,13 +29,13 @@ namespace budgetWebApp.Server.Controllers
             return GetTestData().Where(x => x.UserId == id).ToList();
         }
 
-        [HttpGet("GetBudgetByBudgetId/{id}")]
+        [HttpGet("GetBudgetLineItemsByBudgetId/{id}")]
         [ProducesResponseType<Budget>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<Budget> GetBudgetByBudgetId(long id)
+        public ActionResult<IEnumerable<BudgetLineItem>> GetBudgetLineItemsByBudgetId(long id)
         {
             _logger.LogInformation($"Request budget for budget id {id}");
-            return GetTestData().FirstOrDefault(x => x.BudgetId == id);
+            return GetTestData().FirstOrDefault(x => x.BudgetId == id)!.BudgetLineItems.ToList();
         }
 
         private IEnumerable<Budget> GetTestData()
@@ -59,9 +59,9 @@ namespace budgetWebApp.Server.Controllers
                         {
                             BudgetId = 1,
                             BugetLineItemId = 1,
-                            CatigoryId = 1,
+                            CategoryId = 1,
                             Value = 100,
-                            Catigory = new Category
+                            Category = new Category
                             {
                                 CategoryId = 1,
                                 CategoryName = "Test",
@@ -71,9 +71,9 @@ namespace budgetWebApp.Server.Controllers
                         {
                             BudgetId = 1,
                             BugetLineItemId = 3,
-                            CatigoryId = 1,
+                            CategoryId = 1,
                             Value = -150,
-                            Catigory = new Category
+                            Category = new Category
                             {
                                 CategoryId = 1,
                                 CategoryName = "Test",
@@ -98,9 +98,9 @@ namespace budgetWebApp.Server.Controllers
                         {
                             BudgetId = 2,
                             BugetLineItemId = 2,
-                            CatigoryId = 1,
+                            CategoryId = 1,
                             Value = 100,
-                            Catigory = new Category
+                            Category = new Category
                             {
                                 CategoryId = 2,
                                 CategoryName = "Test2",
@@ -110,9 +110,9 @@ namespace budgetWebApp.Server.Controllers
                         {
                             BudgetId = 2,
                             BugetLineItemId = 4,
-                            CatigoryId = 1,
+                            CategoryId = 1,
                             Value = 150,
-                            Catigory = new Category
+                            Category = new Category
                             {
                                 CategoryId = 2,
                                 CategoryName = "Test2",
@@ -122,9 +122,60 @@ namespace budgetWebApp.Server.Controllers
                         {
                             BudgetId = 2,
                             BugetLineItemId = 5,
-                            CatigoryId = 1,
+                            CategoryId = 1,
                             Value = -75,
-                            Catigory = new Category
+                            Category = new Category
+                            {
+                                CategoryId = 1,
+                                CategoryName = "Test",
+                            }
+                        },
+                    }
+                },
+                new Budget
+                {
+                    BudgetId = 3,
+                    Date = DateTime.Now.AddYears(-1),
+                    UserId = 1,
+                    User = new User
+                    {
+                        UserId = 1,
+                        FirstName = "Test",
+                        LastName = "Test",
+                    },
+                    BudgetLineItems = new List<BudgetLineItem>
+                    {
+                        new BudgetLineItem
+                        {
+                            BudgetId = 3,
+                            BugetLineItemId = 6,
+                            CategoryId = 1,
+                            Value = 100,
+                            Category = new Category
+                            {
+                                CategoryId = 2,
+                                CategoryName = "Test2",
+                            }
+                        },
+                        new BudgetLineItem
+                        {
+                            BudgetId = 3,
+                            BugetLineItemId = 7,
+                            CategoryId = 1,
+                            Value = 150,
+                            Category = new Category
+                            {
+                                CategoryId = 1,
+                                CategoryName = "Test",
+                            }
+                        },
+                        new BudgetLineItem
+                        {
+                            BudgetId = 3,
+                            BugetLineItemId = 8,
+                            CategoryId = 1,
+                            Value = -75,
+                            Category = new Category
                             {
                                 CategoryId = 2,
                                 CategoryName = "Test2",
