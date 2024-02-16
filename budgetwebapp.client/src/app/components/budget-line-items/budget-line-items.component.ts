@@ -16,7 +16,7 @@ export class BudgetLineItemsComponent {
   @Input() budgetId: string = "";
   budgetLineItems: BudgetLineItems[] = [];
   categories: Category[] = [];
-  displayedColumns: string[] = ['bugetLineItemId', 'catigory', 'value']; 
+  displayedColumns: string[] = ['label', 'value', 'catigory', 'sourceType', ]; 
   // Pie chart data
   pieChartLabels: string[] = [];
   pieChartData: ChartData = { labels: [], datasets: [{ data: [], label: 'Budget Categories' }] };

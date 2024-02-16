@@ -18,6 +18,7 @@ export interface BudgetLineItems {
   value: number;
   budgetId: string;
   sourceTypeId: string;
+  label: string;
   category: Category;
   sourceType: SourceType;
 }

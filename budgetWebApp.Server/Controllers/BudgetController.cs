@@ -1,4 +1,6 @@
-﻿using budgetWebApp.Server.Models;
+﻿using budgetWebApp.Server.Helpers;
+using budgetWebApp.Server.Interfaces;
+using budgetWebApp.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace budgetWebApp.Server.Controllers
@@ -8,16 +10,18 @@ namespace budgetWebApp.Server.Controllers
     public class BudgetController
     {
         private readonly ILogger<BudgetController> _logger;
+        private readonly IBudgetRepository _budgetRepository;
 
-        public BudgetController(ILogger<BudgetController> logger)
+        public BudgetController(ILogger<BudgetController> logger, IBudgetRepository budgetRepository)
         {
             _logger = logger;
+            _budgetRepository = budgetRepository;
         }
 
         [HttpGet]
         public IEnumerable<Budget> Get()
         {
-            return GetTestData();
+            return TestDataHelper.GetTestData();
         }
 
         [HttpGet("GetBudgetByUserId/{id}")]
@@ -26,7 +30,7 @@ namespace budgetWebApp.Server.Controllers
         public ActionResult<IEnumerable<Budget>> GetBudgetByUserId(long id)
         {
             _logger.LogInformation($"Request budget for user id {id}");
-            return GetTestData().Where(x => x.UserId == id).ToList();
+            return TestDataHelper.GetTestData().Where(x => x.UserId == id).ToList();
         }
 
         [HttpGet("GetBudgetLineItemsByBudgetId/{id}")]
@@ -35,155 +39,13 @@ namespace budgetWebApp.Server.Controllers
         public ActionResult<IEnumerable<BudgetLineItem>> GetBudgetLineItemsByBudgetId(long id)
         {
             _logger.LogInformation($"Request budget for budget id {id}");
-            return GetTestData().FirstOrDefault(x => x.BudgetId == id)!.BudgetLineItems.ToList();
+            return TestDataHelper.GetTestData().FirstOrDefault(x => x.BudgetId == id)!.BudgetLineItems.ToList();
         }
 
-        private IEnumerable<Budget> GetTestData()
+        [HttpGet("Test")]
+        public IEnumerable<Budget> Test()
         {
-            return new List<Budget>
-            {
-                new Budget
-                {
-                    BudgetId = 1,
-                    Date = DateTime.Now,
-                    UserId = 1,
-                    User = new User
-                    {
-                        UserId = 1,
-                        FirstName = "Test",
-                        LastName = "Test",
-                    },
-                    BudgetLineItems = new List<BudgetLineItem> 
-                    {
-                        new BudgetLineItem
-                        {
-                            BudgetId = 1,
-                            BugetLineItemId = 1,
-                            CategoryId = 1,
-                            Value = 100,
-                            Category = new Category
-                            {
-                                CategoryId = 1,
-                                CategoryName = "Test",
-                            }
-                        },
-                        new BudgetLineItem
-                        {
-                            BudgetId = 1,
-                            BugetLineItemId = 3,
-                            CategoryId = 1,
-                            Value = -150,
-                            Category = new Category
-                            {
-                                CategoryId = 1,
-                                CategoryName = "Test",
-                            }
-                        }
-                    }
-                },
-                new Budget
-                {
-                    BudgetId = 2,
-                    Date = DateTime.Now.AddMonths(-1),
-                    UserId = 1,
-                    User = new User
-                    {
-                        UserId = 1,
-                        FirstName = "Test",
-                        LastName = "Test",
-                    },
-                    BudgetLineItems = new List<BudgetLineItem>
-                    {
-                        new BudgetLineItem
-                        {
-                            BudgetId = 2,
-                            BugetLineItemId = 2,
-                            CategoryId = 1,
-                            Value = 100,
-                            Category = new Category
-                            {
-                                CategoryId = 2,
-                                CategoryName = "Test2",
-                            }
-                        },
-                        new BudgetLineItem
-                        {
-                            BudgetId = 2,
-                            BugetLineItemId = 4,
-                            CategoryId = 1,
-                            Value = 150,
-                            Category = new Category
-                            {
-                                CategoryId = 2,
-                                CategoryName = "Test2",
-                            }
-                        },
-                        new BudgetLineItem
-                        {
-                            BudgetId = 2,
-                            BugetLineItemId = 5,
-                            CategoryId = 1,
-                            Value = -75,
-                            Category = new Category
-                            {
-                                CategoryId = 1,
-                                CategoryName = "Test",
-                            }
-                        },
-                    }
-                },
-                new Budget
-                {
-                    BudgetId = 3,
-                    Date = DateTime.Now.AddYears(-1),
-                    UserId = 1,
-                    User = new User
-                    {
-                        UserId = 1,
-                        FirstName = "Test",
-                        LastName = "Test",
-                    },
-                    BudgetLineItems = new List<BudgetLineItem>
-                    {
-                        new BudgetLineItem
-                        {
-                            BudgetId = 3,
-                            BugetLineItemId = 6,
-                            CategoryId = 1,
-                            Value = 100,
-                            Category = new Category
-                            {
-                                CategoryId = 2,
-                                CategoryName = "Test2",
-                            }
-                        },
-                        new BudgetLineItem
-                        {
-                            BudgetId = 3,
-                            BugetLineItemId = 7,
-                            CategoryId = 1,
-                            Value = 150,
-                            Category = new Category
-                            {
-                                CategoryId = 1,
-                                CategoryName = "Test",
-                            }
-                        },
-                        new BudgetLineItem
-                        {
-                            BudgetId = 3,
-                            BugetLineItemId = 8,
-                            CategoryId = 1,
-                            Value = -75,
-                            Category = new Category
-                            {
-                                CategoryId = 2,
-                                CategoryName = "Test2",
-                            }
-                        },
-                    }
-                }
-            };
+            return _budgetRepository.GetBudgets();
         }
     }
 }
