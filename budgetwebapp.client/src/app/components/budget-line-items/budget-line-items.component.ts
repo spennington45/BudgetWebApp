@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { BudgetLineItems, Category } from '../../models';
 import { ChartData, ChartType } from 'chart.js';
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BudgetService } from '../../services/budget.service';
@@ -11,6 +11,7 @@ import { BudgetService } from '../../services/budget.service';
   templateUrl: './budget-line-items.component.html',
   styleUrls: ['./budget-line-items.component.css']
 })
+
 export class BudgetLineItemsComponent {
   @Input() budgetId: string = "";
   budgetLineItems: BudgetLineItems[] = [];

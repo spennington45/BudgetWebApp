@@ -11,5 +11,9 @@ public partial class User
 
     public string? LastName { get; set; }
 
+    public virtual ICollection<BudgetTotal> BudgetTotals { get; set; } = new List<BudgetTotal>();
+
     public virtual ICollection<Budget> Budgets { get; set; } = new List<Budget>();
+
+    public virtual ICollection<RecurringExpense> RecurringExpenses { get; set; } = new List<RecurringExpense>();
 }

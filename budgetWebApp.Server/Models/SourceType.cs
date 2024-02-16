@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace budgetWebApp.Server.Models;
 
-public partial class Category
+public partial class SourceType
 {
-    public int CategoryId { get; set; }
+    public int SourceTypeId { get; set; }
 
-    public string CategoryName { get; set; } = null!;
+    public string SourceName { get; set; } = null!;
 
     public virtual ICollection<BudgetLineItem> BudgetLineItems { get; set; } = new List<BudgetLineItem>();
 

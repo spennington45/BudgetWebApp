@@ -17,7 +17,9 @@ export interface BudgetLineItems {
   catigoryId: string;
   value: number;
   budgetId: string;
+  sourceTypeId: string;
   category: Category;
+  sourceType: SourceType;
 }
 export interface User {
   userId: string;
@@ -27,4 +29,21 @@ export interface User {
 export interface Category {
   categoryId: string;
   categoryName: string;
+}
+export interface SourceType {
+  sourceTypeId: string;
+  sourceName: string;
+}
+export interface RecurringExpense {
+  recurringExpensesId: string;
+  categoryId: string;
+  value: string;
+  label: string;
+  sourceTypeId: string;
+  userId: string;
+}
+export interface BudgetTotal {
+  budgetTotalId: string;
+  totalValue: string;
+  userId: string;
 }

@@ -19,7 +19,13 @@ public partial class BudgetContext : DbContext
 
     public virtual DbSet<BudgetLineItem> BudgetLineItems { get; set; }
 
+    public virtual DbSet<BudgetTotal> BudgetTotals { get; set; }
+
     public virtual DbSet<Category> Categories { get; set; }
+
+    public virtual DbSet<RecurringExpense> RecurringExpenses { get; set; }
+
+    public virtual DbSet<SourceType> SourceTypes { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
@@ -60,6 +66,20 @@ public partial class BudgetContext : DbContext
                 .HasForeignKey(d => d.CategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BugetLineItem_Category");
+
+            entity.HasOne(d => d.SourceType).WithMany(p => p.BudgetLineItems)
+                .HasForeignKey(d => d.SourceTypeId)
+                .HasConstraintName("FK_BudgetLineItem_SourceType");
+        });
+
+        modelBuilder.Entity<BudgetTotal>(entity =>
+        {
+            entity.ToTable("BudgetTotal");
+
+            entity.HasOne(d => d.User).WithMany(p => p.BudgetTotals)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_BudgetTotal_User");
         });
 
         modelBuilder.Entity<Category>(entity =>
@@ -67,6 +87,38 @@ public partial class BudgetContext : DbContext
             entity.ToTable("Category");
 
             entity.Property(e => e.CategoryName).HasMaxLength(150);
+        });
+
+        modelBuilder.Entity<RecurringExpense>(entity =>
+        {
+            entity.HasKey(e => e.RecurringExpensesId);
+
+            entity.Property(e => e.Label)
+                .HasMaxLength(250)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Category).WithMany(p => p.RecurringExpenses)
+                .HasForeignKey(d => d.CategoryId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RecurringExpenses_Category");
+
+            entity.HasOne(d => d.SourceType).WithMany(p => p.RecurringExpenses)
+                .HasForeignKey(d => d.SourceTypeId)
+                .HasConstraintName("FK_RecurringExpenses_SourceType");
+
+            entity.HasOne(d => d.User).WithMany(p => p.RecurringExpenses)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RecurringExpenses_User");
+        });
+
+        modelBuilder.Entity<SourceType>(entity =>
+        {
+            entity.ToTable("SourceType");
+
+            entity.Property(e => e.SourceName)
+                .HasMaxLength(250)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<User>(entity =>
