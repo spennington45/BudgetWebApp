@@ -19,6 +19,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
 
 
 @NgModule({
@@ -46,6 +48,8 @@ import { MatIconModule } from '@angular/material/icon';
     MatInputModule,
     MatSnackBarModule,
     MatIconModule,
+    MatSelectModule,
+    MatButtonModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

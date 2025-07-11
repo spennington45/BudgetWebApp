@@ -47,5 +47,48 @@ namespace budgetWebApp.Server.Controllers
         {
             return _budgetRepository.GetBudgets();
         }
+
+        [HttpGet("GetSourceTypes")]
+        [ProducesResponseType<SourceType>(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult<IEnumerable<SourceType>> GetSourceTypes()
+        {
+            _logger.LogInformation("Request for source types");
+            return TestDataHelper.GetTestData()
+                .SelectMany(b => b.BudgetLineItems)
+                .Select(li => li.SourceType)
+                .GroupBy(st => st.SourceTypeId)
+                .Select(g => g.First())
+                .ToList();
+        }
+
+        [HttpPost("CreateBudgetLineItem")]
+        [ProducesResponseType(typeof(BudgetLineItem), StatusCodes.Status200OK)]
+        public ActionResult<BudgetLineItem> CreateBudgetLineItem([FromBody] BudgetLineItem newItem)
+        {
+            _logger.LogInformation("Creating new line item");
+            // Assume BudgetId comes from the client, or is inferred server-side
+            return newItem;
+        }
+
+
+        [HttpPut("UpdateBudgetLineItem/{id}")]
+        [ProducesResponseType(typeof(BudgetLineItem), StatusCodes.Status200OK)]
+        public ActionResult<BudgetLineItem> UpdateBudgetLineItem(long id, [FromBody] BudgetLineItem updatedItem)
+        {
+            _logger.LogInformation($"Updating line item {id}");
+            // Simulate update
+            return updatedItem;
+        }
+
+        [HttpDelete("DeleteBudgetLineItem/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult DeleteBudgetLineItem(long id)
+        {
+            _logger.LogInformation($"Deleting line item {id}");
+            // Simulate delete
+            return Ok();
+        }
+
     }
 }
