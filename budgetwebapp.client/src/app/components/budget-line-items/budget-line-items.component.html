@@ -1,126 +1,127 @@
-<div>
-  <div>
-    <h3>Pie Chart</h3>
-    <div class="pie-chart-div">
-      <canvas baseChart [data]="pieChartData" [labels]="pieChartLabels" [type]="pieChartType">
-      </canvas>
-    </div>
+<div class="chart-container">
+  <div class="chart-wrapper">
+    <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="'pie'">
+    </canvas>
   </div>
 
-  <h3>Budget Line Items</h3>
-  <button mat-raised-button color="primary" (click)="addNewLineItem()">Add New Line Item</button>
-  <table mat-table [dataSource]="budgetLineItems">
-    <tr *ngIf="newLineItem">
-      <td>
-        <input [(ngModel)]="newLineItem.label" placeholder="Label" required />
-      </td>
-      <td>
-        <input [(ngModel)]="newLineItem.value" type="number" min="0" placeholder="Value" required />
-      </td>
-      <td>
-        <mat-select [(ngModel)]="newLineItem.category" placeholder="Category" required>
+  <div class="chart-wrapper">
+    <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'">
+    </canvas>
+  </div>
+</div>
+
+<h3>Budget Line Items</h3>
+<button mat-raised-button color="primary" (click)="addNewLineItem()">Add New Line Item</button>
+<table mat-table [dataSource]="budgetLineItems">
+  <tr *ngIf="newLineItem">
+    <td>
+      <input [(ngModel)]="newLineItem.label" placeholder="Label" required />
+    </td>
+    <td>
+      <input [(ngModel)]="newLineItem.value" type="number" min="0" placeholder="Value" required />
+    </td>
+    <td>
+      <mat-select [(ngModel)]="newLineItem.category" placeholder="Category" required>
+        <mat-option *ngFor="let cat of categories" [value]="cat">
+          {{cat.categoryName}}
+        </mat-option>
+      </mat-select>
+    </td>
+    <td>
+      <mat-select [(ngModel)]="newLineItem.sourceType" placeholder="Source Type" required>
+        <mat-option *ngFor="let source of sourceTypes" [value]="source">
+          {{source.sourceName}}
+        </mat-option>
+      </mat-select>
+    </td>
+    <td>
+      <button mat-icon-button color="primary" (click)="saveNewLineItem()" [disabled]="!isNewLineItemValid()">
+        <mat-icon>check</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" (click)="cancelNewLineItem()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </td>
+  </tr>
+
+  <ng-container matColumnDef="label">
+    <th mat-header-cell *matHeaderCellDef> Label </th>
+    <td mat-cell *matCellDef="let lineItem">
+      <ng-container *ngIf="editingLineItemId === lineItem.budgetLineItemId; else labelView">
+        <input [(ngModel)]="lineItem.label" />
+      </ng-container>
+      <ng-template #labelView>
+        {{lineItem.label}}
+      </ng-template>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="value">
+    <th mat-header-cell *matHeaderCellDef> Value </th>
+    <td mat-cell *matCellDef="let lineItem">
+      <ng-container *ngIf="editingLineItemId === lineItem.budgetLineItemId; else valueView">
+        <input [(ngModel)]="lineItem.value" type="number" />
+      </ng-container>
+      <ng-template #valueView>
+        {{lineItem.value}}
+      </ng-template>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="catigory">
+    <th mat-header-cell *matHeaderCellDef> Catigory </th>
+    <td mat-cell *matCellDef="let lineItem">
+      <ng-container *ngIf="editingLineItemId === lineItem.budgetLineItemId; else categoryView">
+        <mat-select [(ngModel)]="lineItem.category">
           <mat-option *ngFor="let cat of categories" [value]="cat">
             {{cat.categoryName}}
           </mat-option>
         </mat-select>
-      </td>
-      <td>
-        <mat-select [(ngModel)]="newLineItem.sourceType" placeholder="Source Type" required>
+      </ng-container>
+      <ng-template #categoryView>
+        {{lineItem.category?.categoryName}}
+      </ng-template>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="sourceType">
+    <th mat-header-cell *matHeaderCellDef> Source </th>
+    <td mat-cell *matCellDef="let lineItem">
+      <ng-container *ngIf="editingLineItemId === lineItem.budgetLineItemId; else sourceView">
+        <mat-select [(ngModel)]="lineItem.sourceType">
           <mat-option *ngFor="let source of sourceTypes" [value]="source">
             {{source.sourceName}}
           </mat-option>
         </mat-select>
-      </td>
-      <td>
-        <button mat-icon-button color="primary" (click)="saveNewLineItem()" [disabled]="!isNewLineItemValid()">
+      </ng-container>
+      <ng-template #sourceView>
+        {{lineItem.sourceType?.sourceName}}
+      </ng-template>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef> Actions </th>
+    <td mat-cell *matCellDef="let lineItem">
+      <ng-container *ngIf="editingLineItemId === lineItem.budgetLineItemId; else actionButtons">
+        <button mat-icon-button color="primary" (click)="saveEdit(lineItem)">
           <mat-icon>check</mat-icon>
         </button>
-        <button mat-icon-button color="warn" (click)="cancelNewLineItem()">
+        <button mat-icon-button color="warn" (click)="cancelEdit()">
           <mat-icon>close</mat-icon>
         </button>
-      </td>
-    </tr>
+      </ng-container>
+      <ng-template #actionButtons>
+        <button mat-icon-button color="accent" (click)="startEdit(lineItem)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteLineItem(lineItem)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </ng-template>
+    </td>
+  </ng-container>
 
-    <!-- Column Definitions -->
-    <ng-container matColumnDef="label">
-      <th mat-header-cell *matHeaderCellDef> Label </th>
-      <td mat-cell *matCellDef="let lineItem">
-        <ng-container *ngIf="editingLineItemId === lineItem.budgetLineItemId; else labelView">
-          <input [(ngModel)]="lineItem.label" />
-        </ng-container>
-        <ng-template #labelView>
-          {{lineItem.label}}
-        </ng-template>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="value">
-      <th mat-header-cell *matHeaderCellDef> Value </th>
-      <td mat-cell *matCellDef="let lineItem">
-        <ng-container *ngIf="editingLineItemId === lineItem.budgetLineItemId; else valueView">
-          <input [(ngModel)]="lineItem.value" type="number" />
-        </ng-container>
-        <ng-template #valueView>
-          {{lineItem.value}}
-        </ng-template>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="catigory">
-      <th mat-header-cell *matHeaderCellDef> Catigory </th>
-      <td mat-cell *matCellDef="let lineItem">
-        <ng-container *ngIf="editingLineItemId === lineItem.budgetLineItemId; else categoryView">
-          <mat-select [(ngModel)]="lineItem.category">
-            <mat-option *ngFor="let cat of categories" [value]="cat">
-              {{cat.categoryName}}
-            </mat-option>
-          </mat-select>
-        </ng-container>
-        <ng-template #categoryView>
-          {{lineItem.category?.categoryName}}
-        </ng-template>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="sourceType">
-      <th mat-header-cell *matHeaderCellDef> Source </th>
-      <td mat-cell *matCellDef="let lineItem">
-        <ng-container *ngIf="editingLineItemId === lineItem.budgetLineItemId; else sourceView">
-          <mat-select [(ngModel)]="lineItem.sourceType">
-            <mat-option *ngFor="let source of sourceTypes" [value]="source">
-              {{source.sourceName}}
-            </mat-option>
-          </mat-select>
-        </ng-container>
-        <ng-template #sourceView>
-          {{lineItem.sourceType?.sourceName}}
-        </ng-template>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef> Actions </th>
-      <td mat-cell *matCellDef="let lineItem">
-        <ng-container *ngIf="editingLineItemId === lineItem.budgetLineItemId; else actionButtons">
-          <button mat-icon-button color="primary" (click)="saveEdit(lineItem)">
-            <mat-icon>check</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="cancelEdit()">
-            <mat-icon>close</mat-icon>
-          </button>
-        </ng-container>
-        <ng-template #actionButtons>
-          <button mat-icon-button color="accent" (click)="startEdit(lineItem)">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="deleteLineItem(lineItem)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </ng-template>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
-</div>
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+</table>

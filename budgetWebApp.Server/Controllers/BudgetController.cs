@@ -81,14 +81,14 @@ namespace budgetWebApp.Server.Controllers
             return updatedItem;
         }
 
-        [HttpDelete("DeleteBudgetLineItem/{id}")]
+        /*[HttpDelete("DeleteBudgetLineItem/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult DeleteBudgetLineItem(long id)
         {
             _logger.LogInformation($"Deleting line item {id}");
             // Simulate delete
             return Ok();
-        }
+        }*/
 
     }
 }
