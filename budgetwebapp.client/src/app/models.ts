@@ -13,7 +13,7 @@ export interface APIResponse<T> {
 }
 
 export interface BudgetLineItems {
-  budgetLineItemId: string;
+  budgetLineItemId: number;
   catigoryId: string;
   value: number;
   budgetId: string;

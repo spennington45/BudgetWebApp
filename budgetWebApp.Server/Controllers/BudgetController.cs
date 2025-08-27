@@ -90,5 +90,18 @@ namespace budgetWebApp.Server.Controllers
             return Ok();
         }*/
 
+        [HttpGet("GetCategories")]
+        [ProducesResponseType<SourceType>(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult<IEnumerable<Category>> GetCategories()
+        {
+            _logger.LogInformation("Request for source types");
+            return TestDataHelper.GetTestData()
+                .SelectMany(b => b.BudgetLineItems)
+                .Select(li => li.Category)
+                .GroupBy(st => st.CategoryId)
+                .Select(g => g.First())
+                .ToList();
+        }
     }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Budget, BudgetLineItems, SourceType } from '../models';
+import { Budget, BudgetLineItems, Category, SourceType } from '../models';
 import { Observable } from 'rxjs';
 import { environment as env } from '../../environments/environment';
 
@@ -27,11 +27,15 @@ export class BudgetService {
     return this.http.delete<void>(`${env.BASE_URL}/Budget/DeleteBudgetLineItem/${id}`);
   }
 
-  updateBudgetLineItem(id: string, lineItem: BudgetLineItems): Observable<BudgetLineItems> {
+  updateBudgetLineItem(id: number, lineItem: BudgetLineItems): Observable<BudgetLineItems> {
     return this.http.put<BudgetLineItems>(`${env.BASE_URL}/Budget/UpdateBudgetLineItem/${id}`, lineItem);
   }
 
   getSourceTypes(): Observable<SourceType[]> {
     return this.http.get<SourceType[]>(`${env.BASE_URL}/Budget/GetSourceTypes`);
+  }
+
+  getCategories(): Observable<Category[]> {
+    return this.http.get<Category[]>(`${env.BASE_URL}/Budget/GetCategories`);
   }
 }

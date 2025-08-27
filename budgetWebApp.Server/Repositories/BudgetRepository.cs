@@ -1,5 +1,6 @@
 ﻿using budgetWebApp.Server.Interfaces;
 using budgetWebApp.Server.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace budgetWebApp.Server.Repositories
 {
@@ -7,19 +8,43 @@ namespace budgetWebApp.Server.Repositories
     {
         private readonly BudgetContext _context;
 
-        public BudgetRepository()
+        public BudgetRepository(BudgetContext context)
         {
-            _context = new BudgetContext();
+            _context = context;
         }
 
-        public IEnumerable<Budget> GetBudgets()
+        public async Task<IEnumerable<Budget>> GetBudgetsAsync()
         {
-            return _context.Budgets;
+            return await _context.Budgets.ToListAsync();
         }
 
-        public Budget GetBudgetByBudgetId(long id)
+        public async Task<Budget> GetBudgetByBudgetIdAsync(long id)
         {
-            return _context.Budgets.FirstOrDefault(budget => budget.BudgetId == id);
+            return await _context.Budgets.FirstOrDefaultAsync(budget => budget.BudgetId == id);
+        }
+
+        public async Task<Budget> AddBudgetAsync(Budget budget)
+        {
+            var newBudget = await _context.Budgets.AddAsync(budget);
+            await _context.SaveChangesAsync();
+            return newBudget.Entity;
+        }
+
+        public async Task<Budget> UpdateBudget(Budget budget)
+        {
+            var updatedBudget = _context.Budgets.Update(budget);
+            await _context.SaveChangesAsync();
+            return updatedBudget.Entity;
+        }
+
+        public async Task DeleteBudgetAsync(long id)
+        {
+            var budget = await GetBudgetByBudgetIdAsync(id);
+            if (budget != null)
+            {
+                _context.Budgets.Remove(budget); 
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

@@ -73,7 +73,7 @@ export class BudgetLineItemsComponent implements OnInit {
   displayedColumns: string[] = ['label', 'value', 'catigory', 'sourceType', 'actions'];
 
   newLineItem: BudgetLineItems | null = null;
-  editingLineItemId: string | null = null;
+  editingLineItemId: number | null = null;
 
   pieChartLabels: string[] = [];
   pieChartData: ChartData<'pie', number[], string> = {
@@ -128,6 +128,14 @@ export class BudgetLineItemsComponent implements OnInit {
     this.budgetService.getSourceTypes().subscribe(response => {
       this.sourceTypes = response;
     });
+    this.sourceTypes = [...this.sourceTypes];
+  }
+
+  getCategories() {
+    this.budgetService.getCategories().subscribe(response => {
+      this.categories = response;
+    });
+    this.categories = [...this.categories];
   }
 
   getChartData() {
@@ -182,6 +190,7 @@ export class BudgetLineItemsComponent implements OnInit {
 
     this.pieChartData = { ...this.pieChartData };
     this.barChartData = { ...this.barChartData };
+    console.log(this.budgetLineItems);
   }
 
   getColorForCategory(category: string): string {
@@ -218,7 +227,7 @@ export class BudgetLineItemsComponent implements OnInit {
   }
 
   addNewLineItem() {
-    const tempId = 'temp-new' + Math.random();
+    const tempId = Math.random();
     this.newLineItem = {
       budgetLineItemId: tempId,
       catigoryId: '',
