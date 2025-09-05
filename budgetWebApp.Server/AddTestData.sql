@@ -1,162 +1,196 @@
-INSERT INTO [User] (UserId, FirstName, LastName)
-VALUES (1, 'Sam', 'Inner');
+BEGIN TRY
+BEGIN TRANSACTION;
 
-INSERT INTO Category (CategoryId, CategoryName)
-VALUES 
-(1, 'Food'),
-(2, 'Travel'),
-(3, 'Rent'),
-(4, 'Utilities'),
-(5, 'Entertainment'),
-(6, 'Salary'),
-(7, 'Freelance');
+    DECLARE @UserId INT;
+    DECLARE @BudgetId_July INT, @BudgetId_August INT, @BudgetId_Sept INT, @BudgetId_Oct INT;
+    DECLARE @BudgetId_Nov INT, @BudgetId_Dec INT, @BudgetId_Jan INT, @BudgetId_Feb INT;
+    DECLARE @BudgetId_Mar INT, @BudgetId_Apr INT, @BudgetId_May INT, @BudgetId_June INT;
 
-INSERT INTO SourceType (SourceTypeId, SourceName)
-VALUES 
-(1, 'Credit Card'),
-(2, 'Bank Account'),
-(3, 'Cash'),
-(4, 'Income'); -- Used for income line items
+    PRINT 'Add Users';
+    INSERT INTO [User] (FirstName, LastName, Email)
+    VALUES ('Sam', 'Inner', 'sam.inner@gmail.com');
 
-INSERT INTO Budget (BudgetId, Date, UserId)
-VALUES
-(1, '2024-07-01', 1),
-(2, '2024-08-01', 1),
-(3, '2024-09-01', 1),
-(4, '2024-10-01', 1),
-(5, '2024-11-01', 1),
-(6, '2024-12-01', 1),
-(7, '2025-01-01', 1),
-(8, '2025-02-01', 1),
-(9, '2025-03-01', 1),
-(10, '2025-04-01', 1),
-(11, '2025-05-01', 1),
-(12, '2025-06-01', 1);
+    SET @UserId = SCOPE_IDENTITY();  
 
--- BudgetId 1 (July)
-INSERT INTO BudgetLineItem (BugetLineItemId, BudgetId, CategoryId, Label, Value, SourceTypeId) VALUES
-(1, 1, 6, 'Salary', 4200, 4),
-(2, 1, 7, 'Freelance', 1800, 4),
-(3, 1, 1, 'Food Expense', -500, 1),
-(4, 1, 2, 'Travel Expense', -750, 2),
-(5, 1, 3, 'Rent Expense', -1200, 3),
-(6, 1, 4, 'Utilities Expense', -300, 1),
-(7, 1, 5, 'Entertainment Expense', -400, 2);
+    PRINT 'Add Categories';
+    INSERT INTO Category (CategoryName)
+    VALUES 
+    ('Food'),
+    ('Travel'),
+    ('Rent'),
+    ('Utilities'),
+    ('Entertainment'),
+    ('Salary'),
+    ('Freelance');
 
--- BudgetId 2 (August)
-INSERT INTO BudgetLineItem VALUES
-(8, 2, 6, 'Salary', 4300, 4),
-(9, 2, 1, 'Food Expense', -550, 1),
-(10, 2, 2, 'Travel Expense', -600, 2),
-(11, 2, 3, 'Rent Expense', -1200, 3),
-(12, 2, 4, 'Utilities Expense', -310, 1),
-(13, 2, 5, 'Entertainment Expense', -450, 2);
+    PRINT 'Add Source Types';
+    INSERT INTO SourceType (SourceName)
+    VALUES 
+    ('Credit Card'),
+    ('Bank Account'),
+    ('Cash'),
+    ('Income');
 
--- BudgetId 3 (September)
-INSERT INTO BudgetLineItem VALUES
-(14, 3, 6, 'Salary', 4100, 4),
-(15, 3, 7, 'Freelance', 2200, 4),
-(16, 3, 1, 'Food Expense', -480, 1),
-(17, 3, 2, 'Travel Expense', -700, 2),
-(18, 3, 3, 'Rent Expense', -1200, 3),
-(19, 3, 4, 'Utilities Expense', -290, 1),
-(20, 3, 5, 'Entertainment Expense', -500, 2);
+    PRINT 'Add Budgets';
+    INSERT INTO Budget (Date, UserId) VALUES ('2024-07-01', @UserId);
+    SET @BudgetId_July = SCOPE_IDENTITY();
 
--- BudgetId 4 (October)
-INSERT INTO BudgetLineItem VALUES
-(21, 4, 6, 'Salary', 4400, 4),
-(22, 4, 1, 'Food Expense', -530, 1),
-(23, 4, 2, 'Travel Expense', -650, 2),
-(24, 4, 3, 'Rent Expense', -1200, 3),
-(25, 4, 4, 'Utilities Expense', -320, 1),
-(26, 4, 5, 'Entertainment Expense', -470, 2);
+    INSERT INTO Budget (Date, UserId) VALUES ('2024-08-01', @UserId);
+    SET @BudgetId_August = SCOPE_IDENTITY();
 
--- BudgetId 5 (November)
-INSERT INTO BudgetLineItem VALUES
-(27, 5, 6, 'Salary', 4250, 4),
-(28, 5, 7, 'Freelance', 2000, 4),
-(29, 5, 1, 'Food Expense', -510, 1),
-(30, 5, 2, 'Travel Expense', -720, 2),
-(31, 5, 3, 'Rent Expense', -1200, 3),
-(32, 5, 4, 'Utilities Expense', -310, 1),
-(33, 5, 5, 'Entertainment Expense', -430, 2);
+    INSERT INTO Budget (Date, UserId) VALUES ('2024-09-01', @UserId);
+    SET @BudgetId_Sept = SCOPE_IDENTITY();
 
--- BudgetId 6 (December)
-INSERT INTO BudgetLineItem VALUES
-(34, 6, 6, 'Salary', 4500, 4),
-(35, 6, 1, 'Food Expense', -560, 1),
-(36, 6, 2, 'Travel Expense', -800, 2),
-(37, 6, 3, 'Rent Expense', -1200, 3),
-(38, 6, 4, 'Utilities Expense', -330, 1),
-(39, 6, 5, 'Entertainment Expense', -490, 2);
+    INSERT INTO Budget (Date, UserId) VALUES ('2024-10-01', @UserId);
+    SET @BudgetId_Oct = SCOPE_IDENTITY();
 
--- BudgetId 7 (January)
-INSERT INTO BudgetLineItem VALUES
-(40, 7, 6, 'Salary', 4300, 4),
-(41, 7, 7, 'Freelance', 2100, 4),
-(42, 7, 1, 'Food Expense', -520, 1),
-(43, 7, 2, 'Travel Expense', -680, 2),
-(44, 7, 3, 'Rent Expense', -1200, 3),
-(45, 7, 4, 'Utilities Expense', -300, 1),
-(46, 7, 5, 'Entertainment Expense', -460, 2);
+    INSERT INTO Budget (Date, UserId) VALUES ('2024-11-01', @UserId);
+    SET @BudgetId_Nov = SCOPE_IDENTITY();
 
--- BudgetId 8 (February)
-INSERT INTO BudgetLineItem VALUES
-(47, 8, 6, 'Salary', 4400, 4),
-(48, 8, 1, 'Food Expense', -540, 1),
-(49, 8, 2, 'Travel Expense', -710, 2),
-(50, 8, 3, 'Rent Expense', -1200, 3),
-(51, 8, 4, 'Utilities Expense', -310, 1),
-(52, 8, 5, 'Entertainment Expense', -480, 2);
+    INSERT INTO Budget (Date, UserId) VALUES ('2024-12-01', @UserId);
+    SET @BudgetId_Dec = SCOPE_IDENTITY();
 
--- BudgetId 9 (March)
-INSERT INTO BudgetLineItem VALUES
-(53, 9, 6, 'Salary', 4350, 4),
-(54, 9, 7, 'Freelance', 1900, 4),
-(55, 9, 1, 'Food Expense', -500, 1),
-(56, 9, 2, 'Travel Expense', -750, 2),
-(57, 9, 3, 'Rent Expense', -1200, 3),
-(58, 9, 4, 'Utilities Expense', -320, 1),
-(59, 9, 5, 'Entertainment Expense', -470, 2);
+    INSERT INTO Budget (Date, UserId) VALUES ('2025-01-01', @UserId);
+    SET @BudgetId_Jan = SCOPE_IDENTITY();
 
--- BudgetId 10 (April)
-INSERT INTO BudgetLineItem VALUES
-(60, 10, 6, 'Salary', 4450, 4),
-(61, 10, 1, 'Food Expense', -510, 1),
-(62, 10, 2, 'Travel Expense', -690, 2),
-(63, 10, 3, 'Rent Expense', -1200, 3),
-(64, 10, 4, 'Utilities Expense', -310, 1),
-(65, 10, 5, 'Entertainment Expense', -460, 2);
+    INSERT INTO Budget (Date, UserId) VALUES ('2025-02-01', @UserId);
+    SET @BudgetId_Feb = SCOPE_IDENTITY();
 
--- BudgetId 11 (May)
-INSERT INTO BudgetLineItem VALUES
-(66, 11, 6, 'Salary', 4300, 4),
-(67, 11, 7, 'Freelance', 2300, 4),
-(68, 11, 1, 'Food Expense', -520, 1),
-(69, 11, 2, 'Travel Expense', -740, 2),
-(70, 11, 3, 'Rent Expense', -1200, 3),
-(71, 11, 4, 'Utilities Expense', -300, 1),
-(72, 11, 5, 'Entertainment Expense', -450, 2);
+    INSERT INTO Budget (Date, UserId) VALUES ('2025-03-01', @UserId);
+    SET @BudgetId_Mar = SCOPE_IDENTITY();
 
--- BudgetId 12 (June)
-INSERT INTO BudgetLineItem VALUES
-(73, 12, 6, 'Salary', 4550, 4),
-(74, 12, 1, 'Food Expense', -530, 1),
-(75, 12, 2, 'Travel Expense', -780, 2),
-(76, 12, 3, 'Rent Expense', -1200, 3),
-(77, 12, 4, 'Utilities Expense', -310, 1),
-(78, 12, 5, 'Entertainment Expense', -490, 2);
+    INSERT INTO Budget (Date, UserId) VALUES ('2025-04-01', @UserId);
+    SET @BudgetId_Apr = SCOPE_IDENTITY();
 
-INSERT INTO BudgetTotal (UserId, TotalValue)
-VALUES (1, 15770.00);
+    INSERT INTO Budget (Date, UserId) VALUES ('2025-05-01', @UserId);
+    SET @BudgetId_May = SCOPE_IDENTITY();
 
-INSERT INTO RecurringExpense (RecurringExpensesId, Label, CategoryId, SourceTypeId, UserId)
-VALUES
-(1, 'Monthly Rent', 3, 2, 1),
-(2, 'Electric Bill', 4, 1, 1),
-(3, 'Water Bill', 4, 2, 1),
-(4, 'Netflix Subscription', 5, 1, 1),
-(5, 'Spotify Subscription', 5, 1, 1),
-(6, 'Grocery Delivery Membership', 1, 2, 1),
-(7, 'Gym Membership', 5, 3, 1),
-(8, 'Mobile Phone Plan', 4, 2, 1);
+    INSERT INTO Budget (Date, UserId) VALUES ('2025-06-01', @UserId);
+    SET @BudgetId_June = SCOPE_IDENTITY();
+
+    PRINT 'Add Budget Totals';
+    INSERT INTO BudgetTotal (UserId, TotalValue)
+    VALUES (@UserId, 15770.00);
+
+    PRINT 'Add Recurring Expenses';
+    INSERT INTO RecurringExpense (Label, CategoryId, SourceTypeId, UserId, [Value])
+    VALUES
+    ('Monthly Rent', 3, 2, @UserId, 1500.00),
+    ('Electric Bill', 4, 1, @UserId, 75.25),
+    ('Water Bill', 4, 2, @UserId, 36.84),
+    ('Netflix Subscription', 5, 1, @UserId, 15.99),
+    ('Spotify Subscription', 5, 1, @UserId, 9.99),
+    ('Grocery Delivery Membership', 1, 2, @UserId, 15.49),
+    ('Gym Membership', 5, 3, @UserId, 25.00),
+    ('Mobile Phone Plan', 4, 2, @UserId, 125.48);
+
+    PRINT 'Add Budget Line Items';
+    INSERT INTO BudgetLineItem (BudgetId, CategoryId, Label, [Value], SourceTypeId) VALUES
+    (@BudgetId_July, 6, 'Salary', 4200, 4),
+    (@BudgetId_July, 7, 'Freelance', 1800, 4),
+    (@BudgetId_July, 1, 'Food Expense', -500, 1),
+    (@BudgetId_July, 2, 'Travel Expense', -750, 2),
+    (@BudgetId_July, 3, 'Rent Expense', -1200, 3),
+    (@BudgetId_July, 4, 'Utilities Expense', -300, 1),
+    (@BudgetId_July, 5, 'Entertainment Expense', -400, 2);
+
+    INSERT INTO BudgetLineItem (BudgetId, CategoryId, Label, [Value], SourceTypeId) VALUES
+    (@BudgetId_August, 6, 'Salary', 4300, 4),
+    (@BudgetId_August, 1, 'Food Expense', -550, 1),
+    (@BudgetId_August, 2, 'Travel Expense', -600, 2),
+    (@BudgetId_August, 3, 'Rent Expense', -1200, 3),
+    (@BudgetId_August, 4, 'Utilities Expense', -310, 1),
+    (@BudgetId_August, 5, 'Entertainment Expense', -450, 2);
+
+    INSERT INTO BudgetLineItem (BudgetId, CategoryId, Label, [Value], SourceTypeId) VALUES
+    (@BudgetId_Sept, 6, 'Salary', 4100, 4),
+    (@BudgetId_Sept, 7, 'Freelance', 2200, 4),
+    (@BudgetId_Sept, 1, 'Food Expense', -480, 1),
+    (@BudgetId_Sept, 2, 'Travel Expense', -700, 2),
+    (@BudgetId_Sept, 3, 'Rent Expense', -1200, 3),
+    (@BudgetId_Sept, 4, 'Utilities Expense', -290, 1),
+    (@BudgetId_Sept, 5, 'Entertainment Expense', -500, 2);
+
+    INSERT INTO BudgetLineItem (BudgetId, CategoryId, Label, [Value], SourceTypeId) VALUES
+    (@BudgetId_Oct, 6, 'Salary', 4400, 4),
+    (@BudgetId_Oct, 1, 'Food Expense', -530, 1),
+    (@BudgetId_Oct, 2, 'Travel Expense', -650, 2),
+    (@BudgetId_Oct, 3, 'Rent Expense', -1200, 3),
+    (@BudgetId_Oct, 4, 'Utilities Expense', -320, 1),
+    (@BudgetId_Oct, 5, 'Entertainment Expense', -470, 2);
+
+    INSERT INTO BudgetLineItem (BudgetId, CategoryId, Label, [Value], SourceTypeId) VALUES
+    (@BudgetId_Nov, 6, 'Salary', 4250, 4),
+    (@BudgetId_Nov, 7, 'Freelance', 2000, 4),
+    (@BudgetId_Nov, 1, 'Food Expense', -510, 1),
+    (@BudgetId_Nov, 2, 'Travel Expense', -720, 2),
+    (@BudgetId_Nov, 3, 'Rent Expense', -1200, 3),
+    (@BudgetId_Nov, 4, 'Utilities Expense', -310, 1),
+    (@BudgetId_Nov, 5, 'Entertainment Expense', -430, 2);
+
+    INSERT INTO BudgetLineItem (BudgetId, CategoryId, Label, [Value], SourceTypeId) VALUES
+    (@BudgetId_Dec, 6, 'Salary', 4500, 4),
+    (@BudgetId_Dec, 1, 'Food Expense', -560, 1),
+    (@BudgetId_Dec, 2, 'Travel Expense', -800, 2),
+    (@BudgetId_Dec, 3, 'Rent Expense', -1200, 3),
+    (@BudgetId_Dec, 4, 'Utilities Expense', -330, 1),
+    (@BudgetId_Dec, 5, 'Entertainment Expense', -490, 2);
+
+    INSERT INTO BudgetLineItem (BudgetId, CategoryId, Label, [Value], SourceTypeId) VALUES
+    (@BudgetId_Jan, 6, 'Salary', 4300, 4),
+    (@BudgetId_Jan, 7, 'Freelance', 2100, 4),
+    (@BudgetId_Jan, 1, 'Food Expense', -520, 1),
+    (@BudgetId_Jan, 2, 'Travel Expense', -680, 2),
+    (@BudgetId_Jan, 3, 'Rent Expense', -1200, 3),
+    (@BudgetId_Jan, 4, 'Utilities Expense', -300, 1),
+    (@BudgetId_Jan, 5, 'Entertainment Expense', -460, 2);
+
+    INSERT INTO BudgetLineItem (BudgetId, CategoryId, Label, [Value], SourceTypeId) VALUES
+    (@BudgetId_Feb, 6, 'Salary', 4400, 4),
+    (@BudgetId_Feb, 1, 'Food Expense', -540, 1),
+    (@BudgetId_Feb, 2, 'Travel Expense', -710, 2),
+    (@BudgetId_Feb, 3, 'Rent Expense', -1200, 3),
+    (@BudgetId_Feb, 4, 'Utilities Expense', -310, 1),
+    (@BudgetId_Feb, 5, 'Entertainment Expense', -480, 2);
+
+    INSERT INTO BudgetLineItem (BudgetId, CategoryId, Label, [Value], SourceTypeId) VALUES
+    (@BudgetId_Mar, 6, 'Salary', 4350, 4),
+    (@BudgetId_Mar, 7, 'Freelance', 1900, 4),
+    (@BudgetId_Mar, 1, 'Food Expense', -500, 1),
+    (@BudgetId_Mar, 2, 'Travel Expense', -750, 2),
+    (@BudgetId_Mar, 3, 'Rent Expense', -1200, 3),
+    (@BudgetId_Mar, 4, 'Utilities Expense', -320, 1),
+    (@BudgetId_Mar, 5, 'Entertainment Expense', -470, 2);
+
+    INSERT INTO BudgetLineItem (BudgetId, CategoryId, Label, [Value], SourceTypeId) VALUES
+    (@BudgetId_Apr, 6, 'Salary', 4450, 4),
+    (@BudgetId_Apr, 1, 'Food Expense', -510, 1),
+    (@BudgetId_Apr, 2, 'Travel Expense', -690, 2),
+    (@BudgetId_Apr, 3, 'Rent Expense', -1200, 3),
+    (@BudgetId_Apr, 4, 'Utilities Expense', -310, 1),
+    (@BudgetId_Apr, 5, 'Entertainment Expense', -460, 2);
+
+    INSERT INTO BudgetLineItem (BudgetId, CategoryId, Label, [Value], SourceTypeId) VALUES
+    (@BudgetId_May, 6, 'Salary', 4300, 4),
+    (@BudgetId_May, 7, 'Freelance', 2300, 4),
+    (@BudgetId_May, 1, 'Food Expense', -520, 1),
+    (@BudgetId_May, 2, 'Travel Expense', -740, 2),
+    (@BudgetId_May, 3, 'Rent Expense', -1200, 3),
+    (@BudgetId_May, 4, 'Utilities Expense', -300, 1),
+    (@BudgetId_May, 5, 'Entertainment Expense', -450, 2);
+
+    INSERT INTO BudgetLineItem (BudgetId, CategoryId, Label, [Value], SourceTypeId) VALUES
+    (@BudgetId_June, 6, 'Salary', 4550, 4),
+    (@BudgetId_June, 1, 'Food Expense', -530, 1),
+    (@BudgetId_June, 2, 'Travel Expense', -780, 2),
+    (@BudgetId_June, 3, 'Rent Expense', -1200, 3),
+    (@BudgetId_June, 4, 'Utilities Expense', -310, 1),
+    (@BudgetId_June, 5, 'Entertainment Expense', -490, 2);
+
+    COMMIT TRANSACTION;
+    PRINT 'Commited';
+END TRY
+BEGIN CATCH
+    ROLLBACK TRANSACTION;
+    PRINT 'Error occurred: ' + ERROR_MESSAGE();
+END CATCH;

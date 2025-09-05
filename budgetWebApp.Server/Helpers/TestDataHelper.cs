@@ -12,7 +12,8 @@ namespace budgetWebApp.Server.Helpers
             {
                 UserId = 1,
                 FirstName = "Test",
-                LastName = "Test"
+                LastName = "Test",
+                Email = "Test",
             };
 
             var categories = new List<Category>

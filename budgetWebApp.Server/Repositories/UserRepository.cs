@@ -1,23 +1,35 @@
 ﻿using budgetWebApp.Server.Interfaces;
 using budgetWebApp.Server.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace budgetWebApp.Server.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        public Task<User> AddUserAsync(User user)
+        private readonly BudgetContext _context;
+
+        public UserRepository(BudgetContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
+        }
+
+        public async Task<User> AddUserAsync(User user)
+        {
+            var newUser = await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+            return newUser.Entity;
         }
 
         public Task<User> GetUserByUserIdAsync(long id)
         {
-            throw new NotImplementedException();
+            return _context.Users.FirstOrDefaultAsync(x => x.UserId == id);
         }
 
-        public Task<User> UpdateUserAsync(User user)
+        public async Task<User> UpdateUserAsync(User user)
         {
-            throw new NotImplementedException();
+            var updatedUser = _context.Update(user);
+            await _context.SaveChangesAsync();
+            return updatedUser.Entity;
         }
     }
 }

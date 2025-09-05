@@ -20,14 +20,16 @@ namespace budgetWebApp.Server.Repositories
             return newCategory.Entity;
         }
 
-        public async Task DeleteCategoryAsync(long id)
+        public async Task<bool> DeleteCategoryAsync(long id)
         {
             var category = await GetCategoryByCategoryIdAsync(id);
             if (category != null)
             {
                 _context.Categories.Remove(category);
                 await _context.SaveChangesAsync();
+                return true;
             }
+            return false;
         }
 
         public async Task<Category> GetCategoryByCategoryIdAsync(long id)

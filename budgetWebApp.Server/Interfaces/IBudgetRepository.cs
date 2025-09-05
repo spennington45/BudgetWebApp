@@ -4,14 +4,14 @@ namespace budgetWebApp.Server.Interfaces
 {
     public interface IBudgetRepository
     {
-        Task<IEnumerable<Budget>> GetBudgetsAsync();
+        Task<IEnumerable<Budget>> GetBudgetsByUserIdAsync(long id);
 
         Task<Budget> GetBudgetByBudgetIdAsync(long id);
 
         Task<Budget> AddBudgetAsync(Budget budget);
 
-        Task<Budget> UpdateBudget(Budget budget);
+        Task<Budget> UpdateBudgetAsync(Budget budget);
 
-        Task DeleteBudgetAsync(long id);
+        Task<bool> DeleteBudgetAsync(long id);
     }
 }

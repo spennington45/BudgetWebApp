@@ -1,7 +1,7 @@
 ﻿#!/bin/bash
 
 # Connection details
-SERVER="(localdb)\\development"
+SERVER="(localdb)\\MSSQLLocalDB"
 DATABASE="Budget"
 CREATE_SCRIPT="DbSetup.sql"
 DATA_SCRIPT="AddTestData.sql"

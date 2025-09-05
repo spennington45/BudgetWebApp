@@ -12,6 +12,6 @@ namespace budgetWebApp.Server.Interfaces
 
         Task<SourceType> UpdateSourceType(SourceType sourceType);
 
-        Task DeleteSourceTypeAsync(long id);
+        Task<bool> DeleteSourceTypeAsync(long id);
     }
 }

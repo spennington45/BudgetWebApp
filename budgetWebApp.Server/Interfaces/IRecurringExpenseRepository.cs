@@ -10,6 +10,8 @@ namespace budgetWebApp.Server.Interfaces
 
         Task<RecurringExpense> UpdateRecurringExpense(RecurringExpense recurringExpense);
 
-        Task DeleteRecurringExpenseAsync(long id);
+        Task<bool> DeleteRecurringExpenseAsync(long id);
+
+        Task<RecurringExpense> GetRecurringExpensesByRecurringExpenseIdAsync(long id);
     }
 }

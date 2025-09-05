@@ -1,5 +1,6 @@
 ﻿using budgetWebApp.Server.Interfaces;
 using budgetWebApp.Server.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace budgetWebApp.Server.Repositories
 {
@@ -12,24 +13,39 @@ namespace budgetWebApp.Server.Repositories
             _context = context;
         }
 
-        public Task<RecurringExpense> AddRecurringExpenseAsync(RecurringExpense recurringExpense)
+        public async Task<RecurringExpense> AddRecurringExpenseAsync(RecurringExpense recurringExpense)
         {
-            throw new NotImplementedException();
+            var newRecurringExpense = await _context.RecurringExpenses.AddAsync(recurringExpense);
+            await _context.SaveChangesAsync();
+            return newRecurringExpense.Entity;
         }
 
-        public Task DeleteRecurringExpenseAsync(long id)
+        public async Task<bool> DeleteRecurringExpenseAsync(long id)
         {
-            throw new NotImplementedException();
+            var expence = await GetRecurringExpensesByRecurringExpenseIdAsync(id);
+            if (expence != null) {
+                _context.Remove(expence);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
         }
 
-        public Task<IEnumerable<RecurringExpense>> GetRecurringExpensesByUserIdAsync(long id)
+        public async Task<IEnumerable<RecurringExpense>> GetRecurringExpensesByUserIdAsync(long id)
         {
-            throw new NotImplementedException();
+            return await _context.RecurringExpenses.Where(x => x.UserId == id).ToListAsync();
         }
 
-        public Task<RecurringExpense> UpdateRecurringExpense(RecurringExpense recurringExpense)
+        public async Task<RecurringExpense> UpdateRecurringExpense(RecurringExpense recurringExpense)
         {
-            throw new NotImplementedException();
+            var updatedRecurringExpense = _context.RecurringExpenses.Update(recurringExpense);
+            await _context.SaveChangesAsync();
+            return updatedRecurringExpense.Entity;
+        }
+
+        public async Task<RecurringExpense> GetRecurringExpensesByRecurringExpenseIdAsync(long id)
+        {
+            return await _context.RecurringExpenses.FirstOrDefaultAsync(x => x.RecurringExpenseId == id);
         }
     }
 }

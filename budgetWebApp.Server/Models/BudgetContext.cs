@@ -31,12 +31,14 @@ public partial class BudgetContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=(localdb)\\development;Database=Budget;Trusted_Connection=True");
+        => optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=Budget;Trusted_Connection=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Budget>(entity =>
         {
+            entity.HasKey(e => e.BudgetId).HasName("PK__Budget__E38E792457DF958A");
+
             entity.ToTable("Budget");
 
             entity.Property(e => e.Date).HasColumnType("datetime");
@@ -49,13 +51,14 @@ public partial class BudgetContext : DbContext
 
         modelBuilder.Entity<BudgetLineItem>(entity =>
         {
-            entity.HasKey(e => e.BugetLineItemId).HasName("PK_BugetLineItem");
+            entity.HasKey(e => e.BugetLineItemId).HasName("PK__BudgetLi__9C4FD84556BBE264");
 
             entity.ToTable("BudgetLineItem");
 
             entity.Property(e => e.Label)
                 .HasMaxLength(250)
                 .IsUnicode(false);
+            entity.Property(e => e.Value).HasColumnType("decimal(18, 2)");
 
             entity.HasOne(d => d.Budget).WithMany(p => p.BudgetLineItems)
                 .HasForeignKey(d => d.BudgetId)
@@ -74,7 +77,11 @@ public partial class BudgetContext : DbContext
 
         modelBuilder.Entity<BudgetTotal>(entity =>
         {
+            entity.HasKey(e => e.BudgetTotalId).HasName("PK__BudgetTo__B82C6DFD74088DC0");
+
             entity.ToTable("BudgetTotal");
+
+            entity.Property(e => e.TotalValue).HasColumnType("decimal(18, 2)");
 
             entity.HasOne(d => d.User).WithMany(p => p.BudgetTotals)
                 .HasForeignKey(d => d.UserId)
@@ -84,6 +91,8 @@ public partial class BudgetContext : DbContext
 
         modelBuilder.Entity<Category>(entity =>
         {
+            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A0BB85B395C");
+
             entity.ToTable("Category");
 
             entity.Property(e => e.CategoryName).HasMaxLength(150);
@@ -91,11 +100,14 @@ public partial class BudgetContext : DbContext
 
         modelBuilder.Entity<RecurringExpense>(entity =>
         {
-            entity.HasKey(e => e.RecurringExpensesId);
+            entity.HasKey(e => e.RecurringExpenseId).HasName("PK__Recurrin__D0747341A39227A9");
+
+            entity.ToTable("RecurringExpense");
 
             entity.Property(e => e.Label)
                 .HasMaxLength(250)
                 .IsUnicode(false);
+            entity.Property(e => e.Value).HasColumnType("decimal(18, 2)");
 
             entity.HasOne(d => d.Category).WithMany(p => p.RecurringExpenses)
                 .HasForeignKey(d => d.CategoryId)
@@ -114,6 +126,8 @@ public partial class BudgetContext : DbContext
 
         modelBuilder.Entity<SourceType>(entity =>
         {
+            entity.HasKey(e => e.SourceTypeId).HasName("PK__SourceTy__7E17EC2F045BDE5E");
+
             entity.ToTable("SourceType");
 
             entity.Property(e => e.SourceName)
@@ -123,8 +137,13 @@ public partial class BudgetContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
+            entity.HasKey(e => e.UserId).HasName("PK__User__1788CC4CBEC3F0B5");
+
             entity.ToTable("User");
 
+            entity.Property(e => e.Email)
+                .HasMaxLength(250)
+                .IsUnicode(false);
             entity.Property(e => e.FirstName).HasMaxLength(50);
             entity.Property(e => e.LastName).HasMaxLength(50);
         });

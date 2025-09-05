@@ -1,107 +1,117 @@
 ﻿using budgetWebApp.Server.Helpers;
 using budgetWebApp.Server.Interfaces;
 using budgetWebApp.Server.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace budgetWebApp.Server.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class BudgetController
+    public class BudgetController : ControllerBase
     {
         private readonly ILogger<BudgetController> _logger;
         private readonly IBudgetRepository _budgetRepository;
 
-        public BudgetController(ILogger<BudgetController> logger, IBudgetRepository budgetRepository)
+        public BudgetController(ILogger<BudgetController> logger, IBudgetRepository repository)
         {
-            _logger = logger;
-            _budgetRepository = budgetRepository;
-        }
-
-        [HttpGet]
-        public IEnumerable<Budget> Get()
-        {
-            return TestDataHelper.GetTestData();
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _budgetRepository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
         [HttpGet("GetBudgetByUserId/{id}")]
-        [ProducesResponseType<Budget>(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<Budget>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<IEnumerable<Budget>> GetBudgetByUserId(long id)
+        public async Task<ActionResult<IEnumerable<Budget>>> GetBudgetByUserId(long id)
         {
-            _logger.LogInformation($"Request budget for user id {id}");
-            return TestDataHelper.GetTestData().Where(x => x.UserId == id).ToList();
+            _logger.LogInformation($"Requesting budgets for user ID {id}");
+
+            var budgets = await _budgetRepository.GetBudgetsByUserIdAsync(id);
+            if (budgets == null || !budgets.Any())
+            {
+                _logger.LogWarning($"No budgets found for user ID {id}");
+                return NotFound();
+            }
+
+            return Ok(budgets);
         }
 
-        [HttpGet("GetBudgetLineItemsByBudgetId/{id}")]
-        [ProducesResponseType<Budget>(StatusCodes.Status200OK)]
+        [HttpGet("GetBudgetByBudgetId/{id}")]
+        [ProducesResponseType(typeof(IEnumerable<Budget>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<IEnumerable<BudgetLineItem>> GetBudgetLineItemsByBudgetId(long id)
+        public async Task<ActionResult<Budget>> GetBudgetByBudgetId(long id)
         {
-            _logger.LogInformation($"Request budget for budget id {id}");
-            return TestDataHelper.GetTestData().FirstOrDefault(x => x.BudgetId == id)!.BudgetLineItems.ToList();
+            _logger.LogInformation($"Requesting budgets for user ID {id}");
+
+            var budgets = await _budgetRepository.GetBudgetByBudgetIdAsync(id);
+            if (budgets == null || budgets.BudgetId <= 0)
+            {
+                _logger.LogWarning($"No budgets found for user ID {id}");
+                return NotFound();
+            }
+
+            return Ok(budgets);
         }
 
-        [HttpGet("Test")]
-        public IEnumerable<Budget> Test()
-        {
-            return _budgetRepository.GetBudgets();
-        }
-
-        [HttpGet("GetSourceTypes")]
-        [ProducesResponseType<SourceType>(StatusCodes.Status200OK)]
+        [HttpPut("UpdateBudget")]
+        [ProducesResponseType(typeof(Budget), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<IEnumerable<SourceType>> GetSourceTypes()
+        public async Task<ActionResult<Budget>> UpdateBudget([FromBody] Budget budget)
         {
-            _logger.LogInformation("Request for source types");
-            return TestDataHelper.GetTestData()
-                .SelectMany(b => b.BudgetLineItems)
-                .Select(li => li.SourceType)
-                .GroupBy(st => st.SourceTypeId)
-                .Select(g => g.First())
-                .ToList();
+            if (budget == null || budget.BudgetId <= 0)
+            {
+                _logger.LogWarning("Invalid budget update request.");
+                return BadRequest("Invalid budget data.");
+            }
+
+            var updatedBudget = await _budgetRepository.UpdateBudgetAsync(budget);
+            if (updatedBudget == null)
+            {
+                _logger.LogWarning($"Budget with ID {budget.BudgetId} not found.");
+                return NotFound();
+            }
+
+            _logger.LogInformation($"Budget {budget.BudgetId} updated successfully.");
+            return Ok(updatedBudget);
         }
 
-        [HttpPost("CreateBudgetLineItem")]
-        [ProducesResponseType(typeof(BudgetLineItem), StatusCodes.Status200OK)]
-        public ActionResult<BudgetLineItem> CreateBudgetLineItem([FromBody] BudgetLineItem newItem)
+        [HttpPost("AddBudget")]
+        [ProducesResponseType(typeof(Budget), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<Budget>> AddBudget([FromBody] Budget budget)
         {
-            _logger.LogInformation("Creating new line item");
-            // Assume BudgetId comes from the client, or is inferred server-side
-            return newItem;
+            if (budget == null || budget.UserId <= 0)
+            {
+                _logger.LogWarning("Invalid budget creation request.");
+                return BadRequest("Invalid budget data.");
+            }
+
+            var createdBudget = await _budgetRepository.AddBudgetAsync(budget);
+            if (createdBudget == null)
+            {
+                _logger.LogError("Failed to create budget.");
+                return BadRequest("Could not create budget.");
+            }
+
+            _logger.LogInformation($"Budget created successfully with ID {createdBudget.BudgetId}.");
+            return Ok(createdBudget);
         }
 
-
-        [HttpPut("UpdateBudgetLineItem/{id}")]
-        [ProducesResponseType(typeof(BudgetLineItem), StatusCodes.Status200OK)]
-        public ActionResult<BudgetLineItem> UpdateBudgetLineItem(long id, [FromBody] BudgetLineItem updatedItem)
+        [HttpDelete("DeleteBudget/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteBudget(long id)
         {
-            _logger.LogInformation($"Updating line item {id}");
-            // Simulate update
-            return updatedItem;
-        }
+            var success = await _budgetRepository.DeleteBudgetAsync(id);
+            if (!success)
+            {
+                _logger.LogWarning($"Budget with ID {id} not found or could not be deleted.");
+                return NotFound();
+            }
 
-        /*[HttpDelete("DeleteBudgetLineItem/{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult DeleteBudgetLineItem(long id)
-        {
-            _logger.LogInformation($"Deleting line item {id}");
-            // Simulate delete
+            _logger.LogInformation($"Budget with ID {id} deleted successfully.");
             return Ok();
-        }*/
-
-        [HttpGet("GetCategories")]
-        [ProducesResponseType<SourceType>(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<IEnumerable<Category>> GetCategories()
-        {
-            _logger.LogInformation("Request for source types");
-            return TestDataHelper.GetTestData()
-                .SelectMany(b => b.BudgetLineItems)
-                .Select(li => li.Category)
-                .GroupBy(st => st.CategoryId)
-                .Select(g => g.First())
-                .ToList();
         }
     }
 }

@@ -1,7 +1,18 @@
+BEGIN TRANSACTION
+
+DROP TABLE IF EXISTS BudgetLineItem;
+DROP TABLE IF EXISTS RecurringExpense;
+DROP TABLE IF EXISTS BudgetTotal;
+DROP TABLE IF EXISTS Budget;
+DROP TABLE IF EXISTS SourceType;
+DROP TABLE IF EXISTS Category;
+DROP TABLE IF EXISTS [User];
+
 CREATE TABLE [User] (
     UserId BIGINT IDENTITY(1,1) PRIMARY KEY,
     FirstName NVARCHAR(50),
-    LastName NVARCHAR(50)
+    LastName NVARCHAR(50),
+    Email VARCHAR(250)
 );
 
 CREATE TABLE Category (
@@ -38,6 +49,7 @@ CREATE TABLE BudgetLineItem (
     Label VARCHAR(250),
     BudgetId BIGINT NOT NULL,
     CategoryId BIGINT NOT NULL,
+    [Value] DECIMAL(18,2) NOT NULL DEFAULT 0,
     SourceTypeId BIGINT,
     CONSTRAINT FK_BugetLineItem_Budget FOREIGN KEY (BudgetId)
         REFERENCES Budget(BudgetId)
@@ -51,11 +63,11 @@ CREATE TABLE BudgetLineItem (
 );
 
 CREATE TABLE RecurringExpense (
-    RecurringExpensesId BIGINT IDENTITY(1,1) PRIMARY KEY,
+    RecurringExpenseId BIGINT IDENTITY(1,1) PRIMARY KEY,
     Label VARCHAR(250),
     CategoryId BIGINT NOT NULL,
     SourceTypeId BIGINT,
-    Value DECIMAL(18,2) NOT NULL DEFAULT 0,
+    [Value] DECIMAL(18,2) NOT NULL DEFAULT 0,
     UserId BIGINT NOT NULL,
     CONSTRAINT FK_RecurringExpenses_Category FOREIGN KEY (CategoryId)
         REFERENCES Category(CategoryId)
@@ -67,3 +79,4 @@ CREATE TABLE RecurringExpense (
         REFERENCES [User](UserId)
         ON DELETE NO ACTION
 );
+COMMIT

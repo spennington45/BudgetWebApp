@@ -20,13 +20,15 @@ namespace budgetWebApp.Server.Repositories
             return newSourceType.Entity;
         }
 
-        public async Task DeleteSourceTypeAsync(long id)
+        public async Task<bool> DeleteSourceTypeAsync(long id)
         {
             var sourceType = await GetSourceTypeBySourceTypeIdAsync(id);
             if (sourceType != null) {
                 _context.SourceTypes.Remove(sourceType);
                 await _context.SaveChangesAsync();
+                return true;
             }
+            return false;
         }
 
         public async Task<SourceType> GetSourceTypeBySourceTypeIdAsync(long id)

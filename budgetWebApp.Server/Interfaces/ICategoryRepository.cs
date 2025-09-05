@@ -12,6 +12,6 @@ namespace budgetWebApp.Server.Interfaces
 
         Task<Category> UpdateCategory(Category category);
 
-        Task DeleteCategoryAsync(long id);
+        Task<bool> DeleteCategoryAsync(long id);
     }
 }
