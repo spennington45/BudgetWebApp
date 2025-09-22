@@ -1,6 +1,7 @@
 using budgetWebApp.Server.Interfaces;
 using budgetWebApp.Server.Models;
 using budgetWebApp.Server.Repositories;
+using budgetWebApp.Server.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -24,6 +25,7 @@ builder.Services.AddScoped<IBudgetLineItemRepository, BudgetLineItemRepository>(
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IBudgetTotalRepository, BudgetTotalRepository>();
 builder.Services.AddScoped<IRecurringExpenseRepository, RecurringExpenseRepository>();
+builder.Services.AddHttpClient<PlaidAuthService>();
 
 var app = builder.Build();
 

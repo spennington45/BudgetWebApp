@@ -6,6 +6,8 @@ import { Router } from '@angular/router';
 import { CreateBudgetDialogComponent } from '../create-budget-dialog/create-budget-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BudgetService } from '../../services/budget.service';
+import { PlaidService } from '../../services/plaid.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-home',
@@ -14,7 +16,7 @@ import { BudgetService } from '../../services/budget.service';
 })
 export class HomeComponent implements OnInit {
   @ViewChild(MatSort) sort: MatSort = new MatSort();
-
+  
   dataSource: Budget[] = [];
   displayedColumns: string[] = ['date', "total", 'actions'];
   groupedData: { year: number, data: Budget[] }[] = [];
@@ -23,7 +25,7 @@ export class HomeComponent implements OnInit {
     this.getBudgetByUserId();
   }
 
-  constructor(private router: Router, private dialog: MatDialog, private snackBar: MatSnackBar, private budgetService: BudgetService) { }
+  constructor(private router: Router, private dialog: MatDialog, private snackBar: MatSnackBar, private budgetService: BudgetService, private plaidService: PlaidService, private http: HttpClient) { }
 
   navigateToBudgetDetails(budget: Budget) {
     const formattedDate = budget.date.toISOString().split('T')[0];
@@ -53,6 +55,14 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  launchPlaid() {
+    this.http.post<{ link_token: string }>('/api/plaid/create-link-token', {})
+      .subscribe(response => {
+        this.plaidService.openPlaidLink(response.link_token, (publicToken) => {
+          this.http.post('/api/plaid/exchange-token', { publicToken }).subscribe();
+        });
+      });
+  }
 
   groupDataByYear() {
     const groupedByYear: { [year: number]: Budget[] } = {};
@@ -142,7 +152,7 @@ export class HomeComponent implements OnInit {
             panelClass: ['error']
           });
         } else {
-          let newBudget: Budget = 
+          let newBudget: Budget =
           {
             budgetId: '1',
             userId: '1',
