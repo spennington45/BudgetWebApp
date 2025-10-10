@@ -10,11 +10,14 @@ export interface Budget {
 
 export interface APIResponse<T> {
   results: Array<T>;
+  totalCount?: number;
+  success?: boolean;
+  message?: string;
 }
 
 export interface BudgetLineItems {
   budgetLineItemId: number;
-  catigoryId: string;
+  categoryId: string;
   value: number;
   budgetId: string;
   sourceTypeId: string;

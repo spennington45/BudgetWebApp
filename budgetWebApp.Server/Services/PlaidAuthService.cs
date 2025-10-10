@@ -69,27 +69,5 @@ namespace budgetWebApp.Server.Services
             using var doc = JsonDocument.Parse(responseContent);
             return doc.RootElement.GetProperty("link_token").GetString();
         }
-
-        public async Task<string> ExchangePublicTokenAsync(string publicToken)
-        {
-            var requestBody = new
-            {
-                client_id = PlaidConfig.ClientId,
-                secret = PlaidConfig.SandboxSecret,
-                public_token = publicToken
-            };
-
-            var json = JsonSerializer.Serialize(requestBody);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var response = await _httpClient.PostAsync("https://sandbox.plaid.com/item/public_token/exchange", content);
-            var responseContent = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-                throw new ApplicationException($"Plaid token exchange failed: {responseContent}");
-
-            using var doc = JsonDocument.Parse(responseContent);
-            return doc.RootElement.GetProperty("access_token").GetString();
-        }
     }
 }

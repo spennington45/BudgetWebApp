@@ -2,7 +2,9 @@ import { Component, Input, OnInit } from '@angular/core';
 import { BudgetLineItems, Category, SourceType } from '../../models';
 import { ChartData, ChartType, ChartOptions, ChartDataset } from 'chart.js';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { BudgetService } from '../../services/budget.service';
+import { BudgetLineItemService } from '../../services/budget-line-item.service';
+import { SourceTypeService } from '../../services/source-type.service';
+import { CategoryService } from '../../services/category.service';
 
 @Component({
   selector: 'app-budget-line-items',
@@ -100,7 +102,7 @@ export class BudgetLineItemsComponent implements OnInit {
   }
 };
 
-  constructor(private budgetService: BudgetService, private snackBar: MatSnackBar) { }
+  constructor(private budgetLineItemService: BudgetLineItemService, private snackBar: MatSnackBar, private categoryService: CategoryService, private sourceTypeService: SourceTypeService) { }
 
   ngOnInit() {
     this.getLineItemData();
@@ -109,7 +111,7 @@ export class BudgetLineItemsComponent implements OnInit {
 
   getLineItemData() {
     this.budgetLineItems = [];
-    this.budgetService.getBudgetLineItemsByBudgetId(this.budgetId).subscribe(response => {
+    this.budgetLineItemService.getBudgetLineItemsByBudgetId(Number.parseInt(this.budgetId)).subscribe(response => {
       this.budgetLineItems = response;
 
       const existingCategoryIds = new Set(this.categories.map(c => c.categoryId));
@@ -125,14 +127,14 @@ export class BudgetLineItemsComponent implements OnInit {
   }
 
   getSourceTypes() {
-    this.budgetService.getSourceTypes().subscribe(response => {
+    this.sourceTypeService.getAllSourceTypes().subscribe(response => {
       this.sourceTypes = response;
     });
     this.sourceTypes = [...this.sourceTypes];
   }
 
   getCategories() {
-    this.budgetService.getCategories().subscribe(response => {
+    this.categoryService.getAllCategories().subscribe(response => {
       this.categories = response;
     });
     this.categories = [...this.categories];
@@ -230,7 +232,7 @@ export class BudgetLineItemsComponent implements OnInit {
     const tempId = Math.random();
     this.newLineItem = {
       budgetLineItemId: tempId,
-      catigoryId: '',
+      categoryId: '',
       value: 0,
       budgetId: this.budgetId,
       sourceTypeId: '',
@@ -258,10 +260,10 @@ export class BudgetLineItemsComponent implements OnInit {
     }
 
     const { category, sourceType } = this.newLineItem;
-    this.newLineItem.catigoryId = category?.categoryId ?? '';
+    this.newLineItem.categoryId = category?.categoryId ?? '';
     this.newLineItem.sourceTypeId = sourceType?.sourceTypeId ?? '';
 
-    this.budgetService.createBudgetLineItem(this.budgetId, this.newLineItem).subscribe(() => {
+    this.budgetLineItemService.addBudgetLineItem(this.newLineItem).subscribe(() => {
       this.snackBar.open('Line item added successfully', 'Close', { duration: 2000 });
       this.newLineItem = null;
       this.getLineItemData();
@@ -283,13 +285,13 @@ export class BudgetLineItemsComponent implements OnInit {
 
   saveEdit(lineItem: BudgetLineItems): void {
     if (lineItem.category) {
-      lineItem.catigoryId = lineItem.category.categoryId;
+      lineItem.categoryId = lineItem.category.categoryId;
     }
     if (lineItem.sourceType) {
       lineItem.sourceTypeId = lineItem.sourceType.sourceTypeId;
     }
 
-    this.budgetService.updateBudgetLineItem(lineItem.budgetLineItemId, lineItem).subscribe(() => {
+    this.budgetLineItemService.updateBudgetLineItem(lineItem).subscribe(() => {
       this.snackBar.open('Line item updated successfully', 'Close', { duration: 2000 });
       this.editingLineItemId = null;
       this.getLineItemData();
@@ -305,7 +307,7 @@ export class BudgetLineItemsComponent implements OnInit {
 
   deleteLineItem(lineItem: BudgetLineItems): void {
     if (confirm(`Are you sure you want to delete "${lineItem.label}"?`)) {
-      // this.budgetService.deleteBudgetLineItem(lineItem.budgetLineItemId).subscribe(() => {
+      // this.budgetLineItemService.deleteBudgetLineItem(lineItem.budgetLineItemId).subscribe(() => {
       //   this.snackBar.open('Line item deleted', 'Close', { duration: 2000 });
       //   this.getLineItemData();
       // });

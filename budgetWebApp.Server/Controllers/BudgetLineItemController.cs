@@ -17,6 +17,23 @@ namespace budgetWebApp.Server.Controllers
             _lineItemRepository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
+        [HttpGet("GetBudgetLineItemsByBudgetId/{id}")]
+        [ProducesResponseType(typeof(BudgetLineItem), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<BudgetLineItem>>> GetBudgetLineItemsByBudgetId(long id)
+        {
+            _logger.LogInformation($"Fetching budget line item with for budget ID {id}");
+
+            var lineItems = await _lineItemRepository.GetBudgetLineItemsByBudgetIdAsync(id);
+            if (lineItems == null)
+            {
+                _logger.LogWarning($"Budget line items for budget ID {id} not found.");
+                return NotFound();
+            }
+
+            return Ok(lineItems);
+        }
+
         [HttpGet("GetBudgetLineItemById/{id}")]
         [ProducesResponseType(typeof(BudgetLineItem), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

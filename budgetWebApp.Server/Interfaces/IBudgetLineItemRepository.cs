@@ -11,5 +11,7 @@ namespace budgetWebApp.Server.Interfaces
         Task<bool> DeleteBudgetLineItemAsync(long id);
 
         Task<BudgetLineItem> GetBudgetLineItemByLineItemIdAsync(long id);
+
+        Task<List<BudgetLineItem>> GetBudgetLineItemsByBudgetIdAsync(long id);
     }
 }

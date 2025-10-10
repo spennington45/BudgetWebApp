@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Budget, BudgetLineItems, Category, SourceType } from '../models';
+import { Budget } from '../models';
 import { Observable } from 'rxjs';
 import { environment as env } from '../../environments/environment';
 
@@ -9,33 +9,25 @@ import { environment as env } from '../../environments/environment';
 })
 export class BudgetService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  getBudgetByUserId(id: string): Observable<Array<Budget>> {
-    return this.http.get<Budget[]>(`${env.BASE_URL}/Budget/GetBudgetByUserId/${id}`);
+  getBudgetByUserId(userId: number): Observable<Budget[]> {
+    return this.http.get<Budget[]>(`${env.BASE_URL}/Budget/GetBudgetByUserId/${userId}`);
   }
 
-  getBudgetLineItemsByBudgetId(id: string): Observable<Array<BudgetLineItems>> {
-    return this.http.get<BudgetLineItems[]>(`${env.BASE_URL}/Budget/GetBudgetLineItemsByBudgetId/${id}`);
+  getBudgetByBudgetId(budgetId: number): Observable<Budget> {
+    return this.http.get<Budget>(`${env.BASE_URL}/Budget/GetBudgetByBudgetId/${budgetId}`);
   }
 
-  createBudgetLineItem(budgetId: string, lineItem: BudgetLineItems): Observable<BudgetLineItems> {
-    return this.http.post<BudgetLineItems>(`${env.BASE_URL}/Budget/CreateBudgetLineItem/${budgetId}`, lineItem);
+  updateBudget(budget: Budget): Observable<Budget> {
+    return this.http.put<Budget>(`${env.BASE_URL}/Budget/UpdateBudget`, budget);
   }
 
-  deleteBudgetLineItem(id: string): Observable<void> {
-    return this.http.delete<void>(`${env.BASE_URL}/Budget/DeleteBudgetLineItem/${id}`);
+  addBudget(budget: Budget): Observable<Budget> {
+    return this.http.post<Budget>(`${env.BASE_URL}/Budget/AddBudget`, budget);
   }
 
-  updateBudgetLineItem(id: number, lineItem: BudgetLineItems): Observable<BudgetLineItems> {
-    return this.http.put<BudgetLineItems>(`${env.BASE_URL}/Budget/UpdateBudgetLineItem/${id}`, lineItem);
-  }
-
-  getSourceTypes(): Observable<SourceType[]> {
-    return this.http.get<SourceType[]>(`${env.BASE_URL}/Budget/GetSourceTypes`);
-  }
-
-  getCategories(): Observable<Category[]> {
-    return this.http.get<Category[]>(`${env.BASE_URL}/Budget/GetCategories`);
+  deleteBudget(budgetId: number): Observable<void> {
+    return this.http.delete<void>(`${env.BASE_URL}/Budget/DeleteBudget/${budgetId}`);
   }
 }

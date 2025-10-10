@@ -9,7 +9,7 @@ using Azure;
 namespace budgetWebApp.Server.Controllers
 {
     [ApiController]
-    [Route("api/plaid")]
+    [Route("[controller]")]
     public class PlaidController : ControllerBase
     {
         private readonly PlaidAuthService _plaidAuth;
@@ -36,13 +36,5 @@ namespace budgetWebApp.Server.Controllers
             var linkToken = await _plaidAuth.CreateLinkTokenAsync(userId);
             return Ok(new { link_token = linkToken });
         }
-
-        [HttpPost("exchange-token")]
-        public async Task<IActionResult> ExchangeToken([FromBody] TokenRequest request)
-        {
-            var accessToken = await _plaidAuth.ExchangePublicTokenAsync(request.PublicToken);
-            return Ok(new { access_token = accessToken });
-        }
-
     }
 }

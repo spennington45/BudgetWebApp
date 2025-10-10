@@ -8,6 +8,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { BudgetService } from '../../services/budget.service';
 import { PlaidService } from '../../services/plaid.service';
 import { HttpClient } from '@angular/common/http';
+import { ChangeDetectorRef } from '@angular/core';
+import { NgZone } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-home',
@@ -16,16 +19,17 @@ import { HttpClient } from '@angular/common/http';
 })
 export class HomeComponent implements OnInit {
   @ViewChild(MatSort) sort: MatSort = new MatSort();
-  
+
   dataSource: Budget[] = [];
+  myValue = 0;
   displayedColumns: string[] = ['date', "total", 'actions'];
-  groupedData: { year: number, data: Budget[] }[] = [];
+  groupedData: { year: number, data: MatTableDataSource<Budget> }[] = [];
 
   ngOnInit() {
     this.getBudgetByUserId();
   }
 
-  constructor(private router: Router, private dialog: MatDialog, private snackBar: MatSnackBar, private budgetService: BudgetService, private plaidService: PlaidService, private http: HttpClient) { }
+  constructor(private zone: NgZone, private cdr: ChangeDetectorRef, private router: Router, private dialog: MatDialog, private snackBar: MatSnackBar, private budgetService: BudgetService, private plaidService: PlaidService, private http: HttpClient) { }
 
   navigateToBudgetDetails(budget: Budget) {
     const formattedDate = budget.date.toISOString().split('T')[0];
@@ -41,25 +45,29 @@ export class HomeComponent implements OnInit {
   getBudgetByUserId() {
     // TODO Get userId
     this.dataSource = [];
-    this.budgetService.getBudgetByUserId('1').subscribe(response => {
-      for (let i = 0; i < response.length; i++) {
-        this.dataSource.push({
-          budgetId: response[i].budgetId,
-          userId: response[i].userId,
-          date: new Date(response[i].date),
-          budgetLineItems: response[i].budgetLineItems,
-          user: response[i].user
-        })
-      }
+    this.budgetService.getBudgetByUserId(1).subscribe(response => {
+      this.zone.run(() => {
+        for (let i = 0; i < response.length; i++) {
+          this.dataSource.push({
+            budgetId: response[i].budgetId,
+            userId: response[i].userId,
+            date: new Date(response[i].date),
+            budgetLineItems: response[i].budgetLineItems,
+            user: response[i].user
+          })
+        }
+      })
       this.groupDataByYear();
+      this.cdr.detectChanges();
+      console.log(this.dataSource);
     });
   }
 
   launchPlaid() {
-    this.http.post<{ link_token: string }>('/api/plaid/create-link-token', {})
+    this.http.post<{ link_token: string }>('/Plaid/create-link-token', {})
       .subscribe(response => {
         this.plaidService.openPlaidLink(response.link_token, (publicToken) => {
-          this.http.post('/api/plaid/exchange-token', { publicToken }).subscribe();
+          this.http.post('/Plaid/exchange', { publicToken }).subscribe();
         });
       });
   }
@@ -78,10 +86,11 @@ export class HomeComponent implements OnInit {
     this.groupedData = Object.keys(groupedByYear)
       .map(year => ({
         year: parseInt(year),
-        data: groupedByYear[parseInt(year)]
+        data: new MatTableDataSource(groupedByYear[parseInt(year)])
       }))
       .sort((a, b) => b.year - a.year);
   }
+
 
   deleteBudget(budget: Budget) {
     const index = this.dataSource.findIndex(b => b === budget);
