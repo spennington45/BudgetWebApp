@@ -1,6 +1,6 @@
 export interface Budget {
-  budgetId: string;
-  userId: string;
+  budgetId: number;
+  userId: number;
   date: Date;
   budgetLineItems: Array<BudgetLineItems>;
   user: User;
@@ -17,37 +17,37 @@ export interface APIResponse<T> {
 
 export interface BudgetLineItems {
   budgetLineItemId: number;
-  categoryId: string;
+  categoryId: number;
   value: number;
-  budgetId: string;
-  sourceTypeId: string;
+  budgetId: number;
+  sourceTypeId: number;
   label: string;
   category: Category;
   sourceType: SourceType;
 }
 export interface User {
-  userId: string;
+  userId: number;
   firstName: string;
   lastName: string;
 }
 export interface Category {
-  categoryId: string;
+  categoryId: number;
   categoryName: string;
 }
 export interface SourceType {
-  sourceTypeId: string;
+  sourceTypeId: number;
   sourceName: string;
 }
 export interface RecurringExpense {
-  recurringExpensesId: string;
-  categoryId: string;
+  recurringExpensesId: number;
+  categoryId: number;
   value: string;
   label: string;
-  sourceTypeId: string;
-  userId: string;
+  sourceTypeId: number;
+  userId: number;
 }
 export interface BudgetTotal {
-  budgetTotalId: string;
-  totalValue: string;
-  userId: string;
+  budgetTotalId: number;
+  totalValue: number;
+  userId: number;
 }

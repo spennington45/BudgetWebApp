@@ -52,7 +52,7 @@ namespace budgetWebApp.Server.Helpers
                     budgetLineItems.Add(new BudgetLineItem
                     {
                         BudgetId = budgetIdCounter,
-                        BugetLineItemId = lineItemIdCounter++,
+                        BudgetLineItemId = lineItemIdCounter++,
                         CategoryId = cat.CategoryId,
                         Label = cat.CategoryName,
                         Value = random.Next(2000, 5000),
@@ -70,7 +70,7 @@ namespace budgetWebApp.Server.Helpers
                     budgetLineItems.Add(new BudgetLineItem
                     {
                         BudgetId = budgetIdCounter,
-                        BugetLineItemId = lineItemIdCounter++,
+                        BudgetLineItemId = lineItemIdCounter++,
                         CategoryId = cat.CategoryId,
                         Label = $"{cat.CategoryName} Expense {j + 1}",
                         Value = -random.Next(50, 1500),

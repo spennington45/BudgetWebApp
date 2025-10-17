@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { BudgetLineItems, Category, SourceType } from '../../models';
+import { Budget, BudgetLineItems, Category, SourceType } from '../../models';
 import { ChartData, ChartType, ChartOptions, ChartDataset } from 'chart.js';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BudgetLineItemService } from '../../services/budget-line-item.service';
@@ -72,7 +72,7 @@ export class BudgetLineItemsComponent implements OnInit {
   };
   barChartType: 'bar' = 'bar';
 
-  displayedColumns: string[] = ['label', 'value', 'catigory', 'sourceType', 'actions'];
+  displayedColumns: string[] = ['label', 'value', 'category', 'sourceType', 'actions'];
 
   newLineItem: BudgetLineItems | null = null;
   editingLineItemId: number | null = null;
@@ -102,11 +102,16 @@ export class BudgetLineItemsComponent implements OnInit {
   }
 };
 
-  constructor(private budgetLineItemService: BudgetLineItemService, private snackBar: MatSnackBar, private categoryService: CategoryService, private sourceTypeService: SourceTypeService) { }
+  constructor(
+    private budgetLineItemService: BudgetLineItemService, 
+    private snackBar: MatSnackBar, 
+    private categoryService: CategoryService, 
+    private sourceTypeService: SourceTypeService) { }
 
   ngOnInit() {
     this.getLineItemData();
     this.getSourceTypes();
+    this.getCategories();
   }
 
   getLineItemData() {
@@ -130,14 +135,14 @@ export class BudgetLineItemsComponent implements OnInit {
     this.sourceTypeService.getAllSourceTypes().subscribe(response => {
       this.sourceTypes = response;
     });
-    this.sourceTypes = [...this.sourceTypes];
+    // this.sourceTypes = [...this.sourceTypes];
   }
 
   getCategories() {
     this.categoryService.getAllCategories().subscribe(response => {
       this.categories = response;
     });
-    this.categories = [...this.categories];
+    //this.categories = [...this.categories];
   }
 
   getChartData() {
@@ -192,7 +197,6 @@ export class BudgetLineItemsComponent implements OnInit {
 
     this.pieChartData = { ...this.pieChartData };
     this.barChartData = { ...this.barChartData };
-    console.log(this.budgetLineItems);
   }
 
   getColorForCategory(category: string): string {
@@ -229,16 +233,16 @@ export class BudgetLineItemsComponent implements OnInit {
   }
 
   addNewLineItem() {
-    const tempId = Math.random();
+    const tempId = 0
     this.newLineItem = {
       budgetLineItemId: tempId,
-      categoryId: '',
+      categoryId: 0,
       value: 0,
-      budgetId: this.budgetId,
-      sourceTypeId: '',
+      budgetId: Number(this.budgetId),
+      sourceTypeId: 0,
       label: '',
       category: {} as Category,
-      sourceType: {} as SourceType
+      sourceType: {} as SourceType,
     };
     this.budgetLineItems.unshift(this.newLineItem);
     this.editingLineItemId = tempId;
@@ -254,22 +258,40 @@ export class BudgetLineItemsComponent implements OnInit {
   }
 
   saveNewLineItem(): void {
-    if (!this.isNewLineItemValid() || !this.newLineItem) {
-      this.snackBar.open('Please fill out all fields.', 'Close', { duration: 3000 });
-      return;
-    }
-
-    const { category, sourceType } = this.newLineItem;
-    this.newLineItem.categoryId = category?.categoryId ?? '';
-    this.newLineItem.sourceTypeId = sourceType?.sourceTypeId ?? '';
-
-    this.budgetLineItemService.addBudgetLineItem(this.newLineItem).subscribe(() => {
-      this.snackBar.open('Line item added successfully', 'Close', { duration: 2000 });
-      this.newLineItem = null;
-      this.getLineItemData();
-    });
-    this.getChartData();
+  if (!this.isNewLineItemValid() || !this.newLineItem) {
+    this.snackBar.open('Please fill out all fields.', 'Close', { duration: 3000 });
+    return;
   }
+
+  const { category, sourceType } = this.newLineItem;
+  this.newLineItem.categoryId = category?.categoryId ?? 0;
+  this.newLineItem.sourceTypeId = sourceType?.sourceTypeId ?? 0;
+
+  const tempId = this.newLineItem.budgetLineItemId;
+
+  this.budgetLineItemService.addBudgetLineItem(this.newLineItem).subscribe({
+    next: (response) => {
+      this.snackBar.open('Line item added successfully', 'Close', { duration: 2000 });
+      const index = this.budgetLineItems.findIndex(item => item.budgetLineItemId === tempId);
+      if (index !== -1) {
+        this.budgetLineItems[index].budgetLineItemId = response.budgetLineItemId;
+      }
+      this.newLineItem = null;
+    },
+    error: (err) => {
+      this.snackBar.open('Failed to save line item.', 'Close', { duration: 3000 });
+      const index = this.budgetLineItems.findIndex(item => item.budgetLineItemId === tempId);
+      if (index !== -1) {
+        this.budgetLineItems.splice(index, 1);
+        this.budgetLineItems = [...this.budgetLineItems];
+      }
+      this.newLineItem = null;
+    }
+  });
+
+  this.getChartData();
+}
+
 
   cancelNewLineItem(): void {
     this.newLineItem = null;

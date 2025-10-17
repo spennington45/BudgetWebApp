@@ -42,25 +42,26 @@ export class HomeComponent implements OnInit {
     return sum;
   }
 
-  getBudgetByUserId() {
+  async getBudgetByUserId() {
     // TODO Get userId
     this.dataSource = [];
-    this.budgetService.getBudgetByUserId(1).subscribe(response => {
-      this.zone.run(() => {
-        for (let i = 0; i < response.length; i++) {
-          this.dataSource.push({
-            budgetId: response[i].budgetId,
-            userId: response[i].userId,
-            date: new Date(response[i].date),
-            budgetLineItems: response[i].budgetLineItems,
-            user: response[i].user
-          })
-        }
+    let response = await this.budgetService.getBudgetByUserId(1)
+    if (response != null) {
+      response.forEach(item => {
+        this.dataSource.push({
+          budgetId: item.budgetId,
+          userId: item.userId,
+          date: new Date(item.date),
+          budgetLineItems: item.budgetLineItems,
+          user: item.user
+        })
       })
-      this.groupDataByYear();
+      await this.groupDataByYear();
       this.cdr.detectChanges();
-      console.log(this.dataSource);
-    });
+    }
+    else {
+      alert("Error retreving data from server!");
+    }
   }
 
   launchPlaid() {
@@ -163,10 +164,10 @@ export class HomeComponent implements OnInit {
         } else {
           let newBudget: Budget =
           {
-            budgetId: '1',
-            userId: '1',
+            budgetId: 1,
+            userId: 1,
             user: {
-              userId: '1', firstName: 'test', lastName: 'test'
+              userId: 1, firstName: 'test', lastName: 'test'
             },
             budgetLineItems: [],
             date: newDate

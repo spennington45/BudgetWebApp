@@ -9,7 +9,7 @@ import { environment as env } from '../../environments/environment';
 })
 export class BudgetLineItemService {
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getBudgetLineItemsByBudgetId(id: number): Observable<BudgetLineItems[]> {
     return this.http.get<BudgetLineItems[]>(`${env.BASE_URL}/BudgetLineItem/GetBudgetLineItemsByBudgetId/${id}`);
@@ -20,7 +20,16 @@ export class BudgetLineItemService {
   }
 
   addBudgetLineItem(lineItem: BudgetLineItems): Observable<BudgetLineItems> {
-    return this.http.post<BudgetLineItems>(`${env.BASE_URL}/BudgetLineItem/AddBudgetLineItem`, lineItem);
+    const payload = {
+      budgetLineItemId: lineItem.budgetLineItemId,
+      categoryId: lineItem.categoryId,
+      value: lineItem.value,
+      budgetId: lineItem.budgetId,
+      sourceTypeId: lineItem.sourceTypeId,
+      label: lineItem.label
+    };
+    console.log(payload);
+    return this.http.post<BudgetLineItems>(`${env.BASE_URL}/BudgetLineItem/AddBudgetLineItem`, payload);
   }
 
   updateBudgetLineItem(lineItem: BudgetLineItems): Observable<BudgetLineItems> {

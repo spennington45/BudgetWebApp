@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Budget } from '../models';
-import { Observable } from 'rxjs';
+import { lastValueFrom, Observable } from 'rxjs';
 import { environment as env } from '../../environments/environment';
 
 @Injectable({
@@ -9,10 +9,12 @@ import { environment as env } from '../../environments/environment';
 })
 export class BudgetService {
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  getBudgetByUserId(userId: number): Observable<Budget[]> {
-    return this.http.get<Budget[]>(`${env.BASE_URL}/Budget/GetBudgetByUserId/${userId}`);
+  async getBudgetByUserId(userId: number): Promise<Budget[]> {
+    return await lastValueFrom(
+      this.http.get<Budget[]>(`${env.BASE_URL}/Budget/GetBudgetByUserId/${userId}`)
+    );
   }
 
   getBudgetByBudgetId(budgetId: number): Observable<Budget> {

@@ -34,12 +34,15 @@ namespace budgetWebApp.Server.Repositories
 
         public async Task<Models.BudgetLineItem> GetBudgetLineItemByLineItemIdAsync(long id)
         {
-            return await _context.BudgetLineItems.FirstOrDefaultAsync(x => x.BugetLineItemId == id);
+            return await _context.BudgetLineItems.FirstOrDefaultAsync(x => x.BudgetLineItemId == id);
         }
 
         public async Task<List<BudgetLineItem>> GetBudgetLineItemsByBudgetIdAsync(long id)
         {
-            return await _context.BudgetLineItems.Where(x => x.BudgetId == id).ToListAsync();
+            return await _context.BudgetLineItems.Where(x => x.BudgetId == id)
+                .Include(x => x.Category)
+                .Include(x => x.SourceType)
+                .ToListAsync();
         }
 
         public async Task<Models.BudgetLineItem> UpdateBudgetLineItemAsync(Models.BudgetLineItem lineItem)

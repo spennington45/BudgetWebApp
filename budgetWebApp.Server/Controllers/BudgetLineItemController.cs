@@ -56,10 +56,10 @@ namespace budgetWebApp.Server.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<BudgetLineItem>> AddBudgetLineItem([FromBody] BudgetLineItem lineItem)
         {
-            if (lineItem == null || lineItem.BudgetId <= 0)
+            if (lineItem == null)
             {
                 _logger.LogWarning("Invalid budget line item creation request.");
-                return BadRequest("Invalid line item data.");
+                return BadRequest("Invalid line item data. " + ModelState);
             }
 
             var createdItem = await _lineItemRepository.AddBudgetLineItemAsync(lineItem);
@@ -69,7 +69,7 @@ namespace budgetWebApp.Server.Controllers
                 return BadRequest("Could not create line item.");
             }
 
-            _logger.LogInformation($"Budget line item created with ID {createdItem.BugetLineItemId}.");
+            _logger.LogInformation($"Budget line item created with ID {createdItem.BudgetLineItemId}.");
             return Ok(createdItem);
         }
 
@@ -79,7 +79,7 @@ namespace budgetWebApp.Server.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<BudgetLineItem>> UpdateBudgetLineItem([FromBody] BudgetLineItem lineItem)
         {
-            if (lineItem == null || lineItem.BugetLineItemId <= 0)
+            if (lineItem == null || lineItem.BudgetLineItemId <= 0)
             {
                 _logger.LogWarning("Invalid budget line item update request.");
                 return BadRequest("Invalid line item data.");
@@ -88,11 +88,11 @@ namespace budgetWebApp.Server.Controllers
             var updatedItem = await _lineItemRepository.UpdateBudgetLineItemAsync(lineItem);
             if (updatedItem == null)
             {
-                _logger.LogWarning($"Budget line item with ID {lineItem.BugetLineItemId} not found.");
+                _logger.LogWarning($"Budget line item with ID {lineItem.BudgetLineItemId} not found.");
                 return NotFound();
             }
 
-            _logger.LogInformation($"Budget line item {lineItem.BugetLineItemId} updated successfully.");
+            _logger.LogInformation($"Budget line item {lineItem.BudgetLineItemId} updated successfully.");
             return Ok(updatedItem);
         }
 

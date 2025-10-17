@@ -51,7 +51,7 @@ public partial class BudgetContext : DbContext
 
         modelBuilder.Entity<BudgetLineItem>(entity =>
         {
-            entity.HasKey(e => e.BugetLineItemId).HasName("PK__BudgetLi__9C4FD84556BBE264");
+            entity.HasKey(e => e.BudgetLineItemId).HasName("PK__BudgetLi__9C4FD84556BBE264");
 
             entity.ToTable("BudgetLineItem");
 

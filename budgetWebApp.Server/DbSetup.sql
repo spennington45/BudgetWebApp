@@ -45,7 +45,7 @@ CREATE TABLE BudgetTotal (
 );
 
 CREATE TABLE BudgetLineItem (
-    BugetLineItemId BIGINT IDENTITY(1,1) PRIMARY KEY,
+    BudgetLineItemId BIGINT IDENTITY(1,1) PRIMARY KEY,
     Label VARCHAR(250),
     BudgetId BIGINT NOT NULL,
     CategoryId BIGINT NOT NULL,
