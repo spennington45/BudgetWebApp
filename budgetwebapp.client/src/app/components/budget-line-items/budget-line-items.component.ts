@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Budget, BudgetLineItems, Category, SourceType } from '../../models';
+import { BudgetLineItems, Category, SourceType } from '../../models';
 import { ChartData, ChartType, ChartOptions, ChartDataset } from 'chart.js';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BudgetLineItemService } from '../../services/budget-line-item.service';
@@ -23,6 +23,7 @@ export class BudgetLineItemsComponent implements OnInit {
 
   @Input() budgetId: string = '';
   budgetLineItems: BudgetLineItems[] = [];
+  originalLineItem: BudgetLineItems | null = null;
   categories: Category[] = [];
   sourceTypes: SourceType[] = [];
   barChartLabels = ['Income', 'Expenses'];
@@ -84,28 +85,28 @@ export class BudgetLineItemsComponent implements OnInit {
   };
   pieChartType: ChartType = 'pie';
   pieChartOptions: ChartOptions<'pie'> = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: 'bottom'
-    },
-    tooltip: {
-      callbacks: {
-        label: (context) => {
-          const label = context.label || '';
-          const value = context.raw as number;
-          return `${label}: $${value.toFixed(2)}`;
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom'
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const label = context.label || '';
+            const value = context.raw as number;
+            return `${label}: $${value.toFixed(2)}`;
+          }
         }
       }
     }
-  }
-};
+  };
 
   constructor(
-    private budgetLineItemService: BudgetLineItemService, 
-    private snackBar: MatSnackBar, 
-    private categoryService: CategoryService, 
+    private budgetLineItemService: BudgetLineItemService,
+    private snackBar: MatSnackBar,
+    private categoryService: CategoryService,
     private sourceTypeService: SourceTypeService) { }
 
   ngOnInit() {
@@ -184,7 +185,7 @@ export class BudgetLineItemsComponent implements OnInit {
     expenseMap.forEach((value, category) => {
       barDatasets.push({
         label: category,
-        data: [0, value], 
+        data: [0, value],
         backgroundColor: this.getColorForCategory(category),
         stack: 'expense'
       });
@@ -233,7 +234,7 @@ export class BudgetLineItemsComponent implements OnInit {
   }
 
   addNewLineItem() {
-    const tempId = 0
+    const tempId = -1
     this.newLineItem = {
       budgetLineItemId: tempId,
       categoryId: 0,
@@ -257,51 +258,82 @@ export class BudgetLineItemsComponent implements OnInit {
       !!this.newLineItem.sourceType;
   }
 
-  saveNewLineItem(): void {
-  if (!this.isNewLineItemValid() || !this.newLineItem) {
-    this.snackBar.open('Please fill out all fields.', 'Close', { duration: 3000 });
-    return;
+  isLineItemValid(item: BudgetLineItems): boolean {
+    return item.label?.trim() !== '' &&
+      item.value != 0 &&
+      !!item.category &&
+      !!item.sourceType;
   }
 
-  const { category, sourceType } = this.newLineItem;
-  this.newLineItem.categoryId = category?.categoryId ?? 0;
-  this.newLineItem.sourceTypeId = sourceType?.sourceTypeId ?? 0;
+  saveNewLineItem(): void {
+    if (!this.isNewLineItemValid() || !this.newLineItem) {
+      this.snackBar.open('Please fill out all fields.', 'Close', { duration: 5000 });
+      return;
+    }
 
-  const tempId = this.newLineItem.budgetLineItemId;
+    const { category, sourceType } = this.newLineItem;
+    this.newLineItem.categoryId = category?.categoryId ?? 0;
+    this.newLineItem.sourceTypeId = sourceType?.sourceTypeId ?? 0;
 
-  this.budgetLineItemService.addBudgetLineItem(this.newLineItem).subscribe({
-    next: (response) => {
-      this.snackBar.open('Line item added successfully', 'Close', { duration: 2000 });
-      const index = this.budgetLineItems.findIndex(item => item.budgetLineItemId === tempId);
-      if (index !== -1) {
-        this.budgetLineItems[index].budgetLineItemId = response.budgetLineItemId;
+    const tempId = this.newLineItem.budgetLineItemId;
+
+    this.budgetLineItemService.addBudgetLineItem(this.newLineItem).subscribe({
+      next: (response) => {
+        this.snackBar.open('Line item added successfully', 'Close', { duration: 5000 });
+        const index = this.budgetLineItems.findIndex(item => item.budgetLineItemId === tempId);
+        if (index !== -1) {
+          this.budgetLineItems[index].budgetLineItemId = response.budgetLineItemId;
+        }
+        this.newLineItem = null;
+      },
+      error: (err) => {
+        this.snackBar.open('Failed to save line item.', 'Close', { duration: 5000 });
+        const index = this.budgetLineItems.findIndex(item => item.budgetLineItemId === tempId);
+        if (index !== -1) {
+          this.budgetLineItems.splice(index, 1);
+          this.budgetLineItems = [...this.budgetLineItems];
+        }
+        this.newLineItem = null;
       }
-      this.newLineItem = null;
-    },
-    error: (err) => {
-      this.snackBar.open('Failed to save line item.', 'Close', { duration: 3000 });
-      const index = this.budgetLineItems.findIndex(item => item.budgetLineItemId === tempId);
+    });
+
+    this.getChartData();
+  }
+
+
+  cancelNewLineItem(): void {
+    if (this.newLineItem) {
+      const index = this.budgetLineItems.findIndex(
+        item => item.budgetLineItemId === this.newLineItem?.budgetLineItemId
+      );
+
       if (index !== -1) {
         this.budgetLineItems.splice(index, 1);
         this.budgetLineItems = [...this.budgetLineItems];
       }
+
       this.newLineItem = null;
+      this.editingLineItemId = null;
     }
-  });
-
-  this.getChartData();
-}
-
-
-  cancelNewLineItem(): void {
-    this.newLineItem = null;
   }
+
 
   startEdit(lineItem: BudgetLineItems): void {
     this.editingLineItemId = lineItem.budgetLineItemId;
+    this.originalLineItem = JSON.parse(JSON.stringify(lineItem));
   }
 
   cancelEdit(): void {
+    if (this.originalLineItem) {
+      const index = this.budgetLineItems.findIndex(
+        item => item.budgetLineItemId === this.originalLineItem!.budgetLineItemId
+      );
+      if (index !== -1) {
+        this.budgetLineItems[index] = { ...this.originalLineItem };
+        this.budgetLineItems = [...this.budgetLineItems];
+      }
+    }
+    this.originalLineItem = null;
     this.editingLineItemId = null;
   }
 
@@ -314,25 +346,25 @@ export class BudgetLineItemsComponent implements OnInit {
     }
 
     this.budgetLineItemService.updateBudgetLineItem(lineItem).subscribe(() => {
-      this.snackBar.open('Line item updated successfully', 'Close', { duration: 2000 });
+      this.snackBar.open('Line item updated successfully', 'Close', { duration: 5000 });
       this.editingLineItemId = null;
       this.getLineItemData();
     });
     let index = this.budgetLineItems.indexOf(lineItem);
-      if (index != -1) {
-        this.budgetLineItems[index] = lineItem;
-      }
-      this.budgetLineItems = [...this.budgetLineItems];
-      this.getChartData();
+    if (index != -1) {
+      this.budgetLineItems[index] = lineItem;
+    }
+    this.budgetLineItems = [...this.budgetLineItems];
+    this.getChartData();
     this.editingLineItemId = null;
   }
 
   deleteLineItem(lineItem: BudgetLineItems): void {
     if (confirm(`Are you sure you want to delete "${lineItem.label}"?`)) {
-      // this.budgetLineItemService.deleteBudgetLineItem(lineItem.budgetLineItemId).subscribe(() => {
-      //   this.snackBar.open('Line item deleted', 'Close', { duration: 2000 });
-      //   this.getLineItemData();
-      // });
+      this.budgetLineItemService.deleteBudgetLineItem(lineItem.budgetLineItemId).subscribe(() => {
+        this.snackBar.open('Line item deleted', 'Close', { duration: 2000 });
+        this.getLineItemData();
+      });
       let index = this.budgetLineItems.indexOf(lineItem);
       if (index != -1) {
         this.budgetLineItems.splice(index, 1);
@@ -340,5 +372,17 @@ export class BudgetLineItemsComponent implements OnInit {
       this.budgetLineItems = [...this.budgetLineItems];
       this.getChartData();
     }
+  }
+
+  compareCategories = (c1: Category, c2: Category): boolean => {
+    return c1 && c2 ? c1.categoryId === c2.categoryId : c1 === c2;
+  };
+
+  compareSourceTypes(s1: SourceType, s2: SourceType): boolean {
+    return s1 && s2 ? s1.sourceTypeId === s2.sourceTypeId : s1 === s2;
+  }
+
+  currentBudgetTotal(): number {
+    return this.budgetLineItems.reduce((sum, item) => sum + (item.value || 0), 0);
   }
 }

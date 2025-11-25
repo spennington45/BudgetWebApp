@@ -5,8 +5,13 @@ import { BudgetDetailsComponent } from './components/budget-details/budget-detai
 
 const routes: Routes = [
   {
-    path: '',
+    path: 'home',
     component: HomeComponent,
+  },
+  {
+    path: '',
+    redirectTo: '/home',
+    pathMatch: 'full'
   },
   {
     path: 'budget/:date/:id',

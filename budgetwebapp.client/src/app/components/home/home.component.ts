@@ -20,6 +20,7 @@ import { MatTableDataSource } from '@angular/material/table';
 export class HomeComponent implements OnInit {
   @ViewChild(MatSort) sort: MatSort = new MatSort();
 
+  loading: boolean = true;
   dataSource: Budget[] = [];
   myValue = 0;
   displayedColumns: string[] = ['date', "total", 'actions'];
@@ -58,6 +59,7 @@ export class HomeComponent implements OnInit {
       })
       await this.groupDataByYear();
       this.cdr.detectChanges();
+      this.loading = false;
     }
     else {
       alert("Error retreving data from server!");

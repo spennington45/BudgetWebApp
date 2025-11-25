@@ -1,0 +1,49 @@
+.app-header {
+  background-color: #1976d2;
+  color: white;
+  padding: 10px;
+
+  .banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .left-section {
+    display: flex;
+    align-items: center;
+
+    .home-button {
+      color: white;
+      margin-right: 20px;
+    }
+
+    .app-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+  }
+
+  .right-section {
+    display: flex;
+    align-items: center;
+
+    .user-name {
+      margin-right: 10px;
+    }
+
+    button {
+      color: white;
+    }
+  }
+}
+.app-title-link {
+  color: white;
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

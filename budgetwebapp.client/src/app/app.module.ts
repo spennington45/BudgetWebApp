@@ -21,6 +21,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { HeaderComponent } from './components/header/header.component';
 
 
 @NgModule({
@@ -29,7 +31,8 @@ import { MatButtonModule } from '@angular/material/button';
     HomeComponent,
     BudgetDetailsComponent,
     BudgetLineItemsComponent,
-    CreateBudgetDialogComponent
+    CreateBudgetDialogComponent,
+    HeaderComponent,
   ],
   imports: [
     BrowserModule,
@@ -50,6 +53,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatIconModule,
     MatSelectModule,
     MatButtonModule,
+    MatTooltipModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

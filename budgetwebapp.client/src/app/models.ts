@@ -1,3 +1,6 @@
+import { NgModule } from '@angular/core';
+import { MAT_DATE_FORMATS } from '@angular/material/core';
+
 export interface Budget {
   budgetId: number;
   userId: number;
@@ -51,3 +54,17 @@ export interface BudgetTotal {
   totalValue: number;
   userId: number;
 }
+
+export const MY_FORMATS = {
+  parse: { dateInput: 'MM/YYYY' },
+  display: {
+    dateInput: 'MMMM YYYY',
+    monthYearLabel: 'MMMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
+
+NgModule({
+  providers: [{ provide: MAT_DATE_FORMATS, useValue: MY_FORMATS }]
+})

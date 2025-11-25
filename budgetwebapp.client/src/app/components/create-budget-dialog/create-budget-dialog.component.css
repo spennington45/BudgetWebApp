@@ -1,13 +1,61 @@
-:host {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100%;
+.date-picker-dialog {
+  width: 100%;
+  padding: 24px;
+  box-sizing: border-box;
 }
 
-.date-picker-dialog {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  margin-top: 10px;
+.selected-display {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  text-align: center;
+  color: #333;
+}
+
+.year-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  .year-label {
+    font-size: 1.2rem;
+    font-weight: 500;
+    min-width: 80px;
+    text-align: center;
+  }
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+
+  .month-cell {
+    width: 90px;
+    height: 48px;
+    font-size: 1rem;
+    text-transform: capitalize;
+    border-radius: 4px;
+  }
+
+  .selected {
+    background-color: #1976d2;
+    color: white;
+  }
+}
+
+mat-dialog-actions {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+:host ::ng-deep .mat-dialog-container {
+  width: 50vw !important;
+  max-width: none !important;
+  padding: 0 !important;
 }

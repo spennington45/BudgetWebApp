@@ -15,6 +15,8 @@ namespace budgetWebApp.Server.Repositories
 
         public async Task<Models.BudgetLineItem> AddBudgetLineItemAsync(Models.BudgetLineItem lineItem)
         {
+            lineItem.Category = null;
+            lineItem.SourceType = null;
             var newLineItem = await _context.BudgetLineItems.AddAsync(lineItem);
             await _context.SaveChangesAsync();
             return newLineItem.Entity;

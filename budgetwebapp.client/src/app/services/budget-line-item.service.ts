@@ -21,12 +21,13 @@ export class BudgetLineItemService {
 
   addBudgetLineItem(lineItem: BudgetLineItems): Observable<BudgetLineItems> {
     const payload = {
-      budgetLineItemId: lineItem.budgetLineItemId,
       categoryId: lineItem.categoryId,
       value: lineItem.value,
       budgetId: lineItem.budgetId,
       sourceTypeId: lineItem.sourceTypeId,
-      label: lineItem.label
+      label: lineItem.label,
+      category: lineItem.category,
+      sourceType: lineItem.sourceType
     };
     console.log(payload);
     return this.http.post<BudgetLineItems>(`${env.BASE_URL}/BudgetLineItem/AddBudgetLineItem`, payload);

@@ -1,49 +1,19 @@
 <div class="chart-container">
   <div class="chart-wrapper">
-    <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="'pie'">
-    </canvas>
+    <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="'pie'"></canvas>
   </div>
-
   <div class="chart-wrapper">
-    <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'">
-    </canvas>
+    <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'"></canvas>
   </div>
 </div>
 
-<h3>Budget Line Items</h3>
+<h3>
+  <p>This Month's Total: {{ currentBudgetTotal() | currency }}</p>
+  Budget Line Items
+</h3>
 <button mat-raised-button color="primary" (click)="addNewLineItem()">Add New Line Item</button>
-<table mat-table [dataSource]="budgetLineItems">
-  <tr *ngIf="newLineItem">
-    <td>
-      <input [(ngModel)]="newLineItem.label" placeholder="Label" required />
-    </td>
-    <td>
-      <input [(ngModel)]="newLineItem.value" type="number" min="0" placeholder="Value" required />
-    </td>
-    <td>
-      <mat-select [(ngModel)]="newLineItem.category" placeholder="Category" required>
-        <mat-option *ngFor="let cat of categories" [value]="cat">
-          {{cat.categoryName}}
-        </mat-option>
-      </mat-select>
-    </td>
-    <td>
-      <mat-select [(ngModel)]="newLineItem.sourceType" placeholder="Source Type" required>
-        <mat-option *ngFor="let source of sourceTypes" [value]="source">
-          {{source.sourceName}}
-        </mat-option>
-      </mat-select>
-    </td>
-    <td>
-      <button mat-icon-button color="primary" (click)="saveNewLineItem()" [disabled]="!isNewLineItemValid()">
-        <mat-icon>check</mat-icon>
-      </button>
-      <button mat-icon-button color="warn" (click)="cancelNewLineItem()">
-        <mat-icon>close</mat-icon>
-      </button>
-    </td>
-  </tr>
 
+<table mat-table [dataSource]="budgetLineItems">
   <ng-container matColumnDef="label">
     <th mat-header-cell *matHeaderCellDef> Label </th>
     <td mat-cell *matCellDef="let lineItem">
@@ -69,10 +39,10 @@
   </ng-container>
 
   <ng-container matColumnDef="category">
-    <th mat-header-cell *matHeaderCellDef> Catigory </th>
+    <th mat-header-cell *matHeaderCellDef> Category </th>
     <td mat-cell *matCellDef="let lineItem">
       <ng-container *ngIf="editingLineItemId === lineItem.budgetLineItemId; else categoryView">
-        <mat-select [(ngModel)]="lineItem.category">
+        <mat-select [(ngModel)]="lineItem.category" [compareWith]="compareCategories">
           <mat-option *ngFor="let cat of categories" [value]="cat">
             {{cat.categoryName}}
           </mat-option>
@@ -88,7 +58,7 @@
     <th mat-header-cell *matHeaderCellDef> Source </th>
     <td mat-cell *matCellDef="let lineItem">
       <ng-container *ngIf="editingLineItemId === lineItem.budgetLineItemId; else sourceView">
-        <mat-select [(ngModel)]="lineItem.sourceType">
+        <mat-select [(ngModel)]="lineItem.sourceType" [compareWith]="compareSourceTypes">
           <mat-option *ngFor="let source of sourceTypes" [value]="source">
             {{source.sourceName}}
           </mat-option>
@@ -104,24 +74,43 @@
     <th mat-header-cell *matHeaderCellDef> Actions </th>
     <td mat-cell *matCellDef="let lineItem">
       <ng-container *ngIf="editingLineItemId === lineItem.budgetLineItemId; else actionButtons">
-        <button mat-icon-button color="primary" (click)="saveEdit(lineItem)">
-          <mat-icon>check</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" (click)="cancelEdit()">
-          <mat-icon>close</mat-icon>
-        </button>
+        <ng-container *ngIf="lineItem.budgetLineItemId > 0; else newItemActions">
+          <button mat-icon-button color="primary" (click)="saveEdit(lineItem)" [disabled]="!isLineItemValid(lineItem)"
+            matTooltip="Save Edit" matTooltipPosition="above">
+            <mat-icon>check</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="cancelEdit()" matTooltip="Cancel Edit"
+            matTooltipPosition="above">
+            <mat-icon>close</mat-icon>
+          </button>
+        </ng-container>
+        <ng-template #newItemActions>
+          <button mat-icon-button color="primary" (click)="saveNewLineItem()" [disabled]="!isNewLineItemValid()"
+            matTooltip="Save New Line Item" matTooltipPosition="above">
+            <mat-icon>check</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="cancelNewLineItem()" matTooltip="Cancel New Line Item"
+            matTooltipPosition="above">
+            <mat-icon>close</mat-icon>
+          </button>
+        </ng-template>
       </ng-container>
+
       <ng-template #actionButtons>
-        <button mat-icon-button color="accent" (click)="startEdit(lineItem)">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" (click)="deleteLineItem(lineItem)">
-          <mat-icon>delete</mat-icon>
-        </button>
+        <ng-container *ngIf="lineItem.budgetLineItemId > 0">
+          <button mat-icon-button color="accent" (click)="startEdit(lineItem)" matTooltip="Edit Line Item"
+            matTooltipPosition="above">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteLineItem(lineItem)" matTooltip="Delete Line Item"
+            matTooltipPosition="above">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </ng-container>
       </ng-template>
     </td>
   </ng-container>
 
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.new-item-row]="row.budgetLineItemId <= 0"></tr>
 </table>

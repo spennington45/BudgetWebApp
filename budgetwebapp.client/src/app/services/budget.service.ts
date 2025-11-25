@@ -26,7 +26,13 @@ export class BudgetService {
   }
 
   addBudget(budget: Budget): Observable<Budget> {
-    return this.http.post<Budget>(`${env.BASE_URL}/Budget/AddBudget`, budget);
+    const payload = {
+      userId: budget.user.userId,
+      date: budget.date,
+      budgetLineItems: [],
+      user: budget.user,
+    }
+    return this.http.post<Budget>(`${env.BASE_URL}/Budget/AddBudget`, payload);
   }
 
   deleteBudget(budgetId: number): Observable<void> {
