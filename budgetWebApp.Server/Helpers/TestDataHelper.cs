@@ -1,6 +1,4 @@
 ﻿using budgetWebApp.Server.Models;
-using System;
-using System.Collections.Generic;
 
 namespace budgetWebApp.Server.Helpers
 {
@@ -11,8 +9,8 @@ namespace budgetWebApp.Server.Helpers
             var user = new User
             {
                 UserId = 1,
-                FirstName = "Test",
-                LastName = "Test",
+                Name = "Test",
+                ExternalId = "Test",
                 Email = "Test",
             };
 
@@ -62,7 +60,7 @@ namespace budgetWebApp.Server.Helpers
                 }
 
                 var expenseCategories = new[] { categories[0], categories[1], categories[2], categories[3], categories[4] };
-                int expenseCount = random.Next(3, 8); 
+                int expenseCount = random.Next(3, 8);
 
                 for (int j = 0; j < expenseCount; j++)
                 {

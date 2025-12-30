@@ -10,10 +10,18 @@ DROP TABLE IF EXISTS [User];
 
 CREATE TABLE [User] (
     UserId BIGINT IDENTITY(1,1) PRIMARY KEY,
-    FirstName NVARCHAR(50),
-    LastName NVARCHAR(50),
-    Email VARCHAR(250)
+    ExternalId NVARCHAR(100) NOT NULL,      
+    Name NVARCHAR(200) NULL,                
+    Picture NVARCHAR(Max) NULL,
+    Email NVARCHAR(250) NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
 );
+
+ALTER TABLE [User]
+ADD CONSTRAINT UQ_User_ExternalId UNIQUE (ExternalId);
+
+ALTER TABLE [User]
+ADD CONSTRAINT UQ_User_Email UNIQUE (Email);
 
 CREATE TABLE Category (
     CategoryId BIGINT IDENTITY(1,1) PRIMARY KEY,

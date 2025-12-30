@@ -143,7 +143,7 @@ export class HomeComponent implements OnInit {
 
   createNewBudget() {
     const dialogConfig = new MatDialogConfig();
-    dialogConfig.width = '300px';
+    dialogConfig.width = '500px';
 
     const dialogRef = this.dialog.open(CreateBudgetDialogComponent, dialogConfig);
 
@@ -169,7 +169,7 @@ export class HomeComponent implements OnInit {
             budgetId: 1,
             userId: 1,
             user: {
-              userId: 1, firstName: 'test', lastName: 'test'
+              userId: 1, firstName: 'test', lastName: 'test',
             },
             budgetLineItems: [],
             date: newDate

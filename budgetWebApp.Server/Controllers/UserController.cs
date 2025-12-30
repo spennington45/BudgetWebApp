@@ -1,6 +1,7 @@
 ﻿using budgetWebApp.Server.Interfaces;
 using budgetWebApp.Server.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace budgetWebApp.Server.Controllers
 {
@@ -77,6 +78,21 @@ namespace budgetWebApp.Server.Controllers
 
             _logger.LogInformation($"User {user.UserId} updated successfully.");
             return Ok(updatedUser);
+        }
+
+        [HttpPost("auth/google")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleTokenRequest request)
+        {
+            var http = new HttpClient();
+            var response = await http.GetAsync($"https://oauth2.googleapis.com/tokeninfo?id_token={request.IdToken}");
+            if (!response.IsSuccessStatusCode)
+                return Unauthorized();
+
+            var payload = JsonSerializer.Deserialize<GooglePayload>(await response.Content.ReadAsStringAsync());
+
+            // TODO: create user in DB, issue JWT/cookie, etc.
+
+            return Ok(new { token = "your-app-jwt-here" });
         }
     }
 }

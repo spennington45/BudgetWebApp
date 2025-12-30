@@ -20,6 +20,11 @@ namespace budgetWebApp.Server.Repositories
             return newUser.Entity;
         }
 
+        public Task<User> GetUserByUserEmailAsync(string email)
+        {
+            return _context.Users.FirstOrDefaultAsync(x => x.Email == email);
+        }
+
         public Task<User> GetUserByUserIdAsync(long id)
         {
             return _context.Users.FirstOrDefaultAsync(x => x.UserId == id);

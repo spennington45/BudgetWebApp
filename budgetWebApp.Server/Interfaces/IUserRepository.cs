@@ -9,5 +9,7 @@ namespace budgetWebApp.Server.Interfaces
         Task<User> UpdateUserAsync(User user);
 
         Task<User> AddUserAsync(User user);
+
+        Task<User> GetUserByUserEmailAsync(string email);
     }
 }

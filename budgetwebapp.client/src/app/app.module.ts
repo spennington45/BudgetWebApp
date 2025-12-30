@@ -23,6 +23,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { HeaderComponent } from './components/header/header.component';
+import { LoginComponent } from './components/login/login.component';
 
 
 @NgModule({
@@ -33,6 +34,7 @@ import { HeaderComponent } from './components/header/header.component';
     BudgetLineItemsComponent,
     CreateBudgetDialogComponent,
     HeaderComponent,
+    LoginComponent,
   ],
   imports: [
     BrowserModule,

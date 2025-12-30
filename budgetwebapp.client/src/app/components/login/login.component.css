@@ -1,0 +1,44 @@
+.login-container {
+  width: 350px;
+  margin: 80px auto;
+  padding: 30px;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+h2 {
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.google-button {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.note {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.close-btn:hover {
+  color: #d00;
+}

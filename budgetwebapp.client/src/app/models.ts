@@ -32,6 +32,9 @@ export interface User {
   userId: number;
   firstName: string;
   lastName: string;
+  //email: string;
+  //pictureUrl: string;
+  //token: string;
 }
 export interface Category {
   categoryId: number;
@@ -53,6 +56,30 @@ export interface BudgetTotal {
   budgetTotalId: number;
   totalValue: number;
   userId: number;
+}
+export interface GoogleTokenRequest {
+  idToken: string;
+}
+export interface Jwt {
+  userId: string;
+  email: string;
+  name: string;
+  picture?: string;
+  exp: number;
+}
+export interface GooglePayload {
+  iss: string;
+  azp: string;
+  aud: string;
+  sub: string;
+  email: string;
+  email_verified: string;
+  name: string;
+  picture: string;
+  given_name: string;
+  family_name: string;
+  iat: number;
+  exp: number;
 }
 
 export const MY_FORMATS = {

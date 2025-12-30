@@ -32,7 +32,7 @@ export class CreateBudgetDialogComponent {
     this.user = { // Replace with real user data
       userId: 1,
       firstName: 'Default',
-      lastName: 'User',
+      lastName: 'User', 
     };
   }
 

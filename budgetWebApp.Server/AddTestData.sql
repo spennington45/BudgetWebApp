@@ -7,8 +7,8 @@ BEGIN TRANSACTION;
     DECLARE @BudgetId_Mar INT, @BudgetId_Apr INT, @BudgetId_May INT, @BudgetId_June INT;
 
     PRINT 'Add Users';
-    INSERT INTO [User] (FirstName, LastName, Email)
-    VALUES ('Sam', 'Inner', 'sam.inner@gmail.com');
+    INSERT INTO [User] (ExternalId, Name, Email)
+    VALUES ('test-external-id-123', 'Sam Inner', 'sam.inner@gmail.com');
 
     SET @UserId = SCOPE_IDENTITY();  
 
