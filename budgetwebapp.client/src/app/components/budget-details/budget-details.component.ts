@@ -13,12 +13,20 @@ export class BudgetDetailsComponent implements OnInit {
 
   constructor(private route: ActivatedRoute) { }
 
+  formattedDate: string = "";
+
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.date = params['date'];
       this.budgetId = params['id'];
 
-      // Fetch budget details using this.date and this.budgetId
+      const [year, month, day] = this.date.split('-').map(Number);
+      const parsed = new Date(year, month - 1, day);
+
+      this.formattedDate = parsed.toLocaleString('default', {
+        month: 'long',
+        year: 'numeric'
+      });
     });
   }
 }

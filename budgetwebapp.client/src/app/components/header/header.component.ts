@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { UserService } from '../../services/user.service'; 
+import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '../../services/auth.service';
 import { LoginComponent } from '../login/login.component';
 import { User } from '../../models';
-import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-header',
@@ -13,16 +12,21 @@ import { MatDialog } from '@angular/material/dialog';
 export class HeaderComponent implements OnInit {
   user: User | null = null;
 
-  constructor(private dialog: MatDialog, private authService: AuthService, private userService: UserService) {}
+  constructor(
+    private dialog: MatDialog,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
-    // this.user = this.userService.getUserById(this.user.id);
+    // Subscribe to reactive user updates
+    this.authService.currentUser$.subscribe((user: User | null) => {
+      this.user = user;
+    });
   }
 
   login(): void {
     this.dialog.open(LoginComponent, {
-      //width: '500px',
-      disableClose: false,   
+      disableClose: false,
       autoFocus: true
     });
   }

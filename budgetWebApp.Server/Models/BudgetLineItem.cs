@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Text.Json.Serialization;
 
 namespace budgetWebApp.Server.Models;
 
@@ -17,7 +16,8 @@ public partial class BudgetLineItem
 
     public long? SourceTypeId { get; set; }
 
-    public virtual Budget Budget { get; set; } = null!;
+    [JsonIgnore]
+    public virtual Budget? Budget { get; set; } = null!;
 
     public virtual Category Category { get; set; } = null!;
 

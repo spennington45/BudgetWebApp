@@ -9,9 +9,11 @@
       </span>
     </div>
     <div class="right-section" *ngIf="user">
-      <span class="user-name">Welcome, {{ user.firstName }} {{user.lastName}}</span>
+      <span class="user-name">Welcome, {{ user.name }}</span>
+      <img *ngIf="user.pictureUrl" [src]="user.pictureUrl" alt="User picture" class="user-picture"/>
       <button mat-button (click)="logout()">Logout</button>
     </div>
+
     <div class="right-section" *ngIf="!user">
       <button mat-button (click)="login()">Login</button>
     </div>

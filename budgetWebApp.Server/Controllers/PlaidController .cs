@@ -1,13 +1,11 @@
 ﻿using budgetWebApp.Server.Helpers;
 using budgetWebApp.Server.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http;
-using System.Text.Json;
-using System.Text;
-using Azure;
 
 namespace budgetWebApp.Server.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class PlaidController : ControllerBase

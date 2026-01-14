@@ -1,83 +1,102 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { User, Jwt } from '../models';
 import { HttpClient } from '@angular/common/http';
-import { environment as env } from '../../environments/environment';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
+import { User, Jwt } from '../models';
+import { environment as env } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly USER_KEY = 'currentUser';
+  private readonly TOKEN_KEY = 'jwt';
 
-  constructor(private router: Router, private http: HttpClient) {}
+  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  currentUser$ = this.currentUserSubject.asObservable();
+
+  constructor(
+    private router: Router,
+    private http: HttpClient
+  ) {
+    this.restoreUserFromToken();
+  }
 
   getToken(): string | null {
-    return localStorage.getItem('jwt');
+    return sessionStorage.getItem(this.TOKEN_KEY);
+  }
+
+  setToken(token: string): void {
+    sessionStorage.setItem(this.TOKEN_KEY, token);
+  }
+
+  clearToken(): void {
+    sessionStorage.removeItem(this.TOKEN_KEY);
   }
 
   getDecodedToken(): Jwt | null {
     const token = this.getToken();
     if (!token) return null;
 
-    return jwtDecode<Jwt>(token);
+    try {
+      return jwtDecode<Jwt>(token);
+    } catch {
+      return null;
+    }
   }
 
-  getCurrentUserId(): string | null {
-    return this.getDecodedToken()?.userId ?? null;
+  private restoreUserFromToken(): void {
+    const decoded = this.getDecodedToken();
+    if (!decoded) {
+      this.currentUserSubject.next(null);
+      return;
+    }
+
+    const restoredUser: User = {
+      userId: Number(decoded.userId),
+      externalId: decoded.externalId,
+      name: decoded.name,
+      email: decoded.email,
+      pictureUrl: decoded.picture,
+      token: this.getToken() ?? ''
+    };
+
+    this.currentUserSubject.next(restoredUser);
   }
 
-  getCurrentUserName(): string | null {
-    return this.getDecodedToken()?.name ?? null;
-  }
-
-  getCurrentUserPicture(): string | null {
-    return this.getDecodedToken()?.picture ?? null;
-  }
-
-  isLoggedIn(): boolean {
-    const token = this.getDecodedToken();
-    if (!token) return false;
-
-    return token.exp * 1000 > Date.now();
-  }
-
-  // Update may not need
-  getCurrentUser(): User | null {
-    const userJson = localStorage.getItem(this.USER_KEY);
-    return userJson ? JSON.parse(userJson) : null;
-  }
-
-
-  handleCredentialResponse(response: any) {
+  handleCredentialResponse(response: any): void {
     const idToken = response.credential;
 
-    this.http.post<{ token: string }>('/GoogleLogin/auth/google', { idToken })
-      .subscribe({
-        next: (result) => {
-          const jwt = result.token;
+    this.http.post<{ token: string }>(
+      `${env.BASE_URL}/GoogleLogin/auth/google`,
+      { idToken }
+    )
+    .subscribe({
+      next: (result) => {
+        const jwt = result.token;
+        this.setToken(jwt);
 
-          sessionStorage.setItem('jwt', jwt);
+        const decoded = jwtDecode<Jwt>(jwt);
 
-          const decoded: any = jwtDecode(jwt);
-          console.log('Logged in user:', decoded);
+        const user: User = {
+          userId: Number(decoded.userId),
+          externalId: decoded.externalId,
+          name: decoded.name,
+          email: decoded.email,
+          pictureUrl: decoded.picture,
+          token: jwt
+        };
 
-          this.router.navigate(['/']);
-        },
-        error: (err) => {
-          console.error('Google login failed:', err);
-        }
-      });
+        this.currentUserSubject.next(user);
+        this.router.navigate(['/']);
+      },
+      error: (err) => {
+        console.error('Google login failed:', err);
+      }
+    });
   }
 
-  logout(): void {
-    sessionStorage.removeItem('jwt');   
-    this.router.navigate(['/']);   
-  }
-
-  loginWithGoogle(idToken: string) {
+  loginWithGoogle(idToken: string): Observable<any> {
     return this.http.post(`${env.BASE_URL}/GoogleLogin/auth/google`, { idToken });
   }
 
@@ -85,5 +104,18 @@ export class AuthService {
     return this.http.get<string>(`${env.BASE_URL}/GoogleLogin/ClientId`, {
       responseType: 'text' as 'json'
     });
+  }
+
+  logout(): void {
+    this.clearToken();
+    this.currentUserSubject.next(null);
+    this.router.navigate(['/']);
+  }
+
+  isLoggedIn(): boolean {
+    const decoded = this.getDecodedToken();
+    if (!decoded) return false;
+
+    return decoded.exp * 1000 > Date.now();
   }
 }

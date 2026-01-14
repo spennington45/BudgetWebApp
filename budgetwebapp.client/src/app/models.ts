@@ -30,11 +30,11 @@ export interface BudgetLineItems {
 }
 export interface User {
   userId: number;
-  firstName: string;
-  lastName: string;
-  //email: string;
-  //pictureUrl: string;
-  //token: string;
+  externalId: string;
+  name: string;
+  email: string;
+  pictureUrl?: string;
+  token: string;
 }
 export interface Category {
   categoryId: number;
@@ -62,6 +62,7 @@ export interface GoogleTokenRequest {
 }
 export interface Jwt {
   userId: string;
+  externalId: string;
   email: string;
   name: string;
   picture?: string;

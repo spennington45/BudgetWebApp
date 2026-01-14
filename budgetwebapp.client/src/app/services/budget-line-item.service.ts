@@ -27,14 +27,24 @@ export class BudgetLineItemService {
       sourceTypeId: lineItem.sourceTypeId,
       label: lineItem.label,
       category: lineItem.category,
-      sourceType: lineItem.sourceType
+      sourceType: lineItem.sourceType,
     };
     console.log(payload);
     return this.http.post<BudgetLineItems>(`${env.BASE_URL}/BudgetLineItem/AddBudgetLineItem`, payload);
   }
 
   updateBudgetLineItem(lineItem: BudgetLineItems): Observable<BudgetLineItems> {
-    return this.http.put<BudgetLineItems>(`${env.BASE_URL}/BudgetLineItem/UpdateBudgetLineItem`, lineItem);
+    const payload = {
+      budgetLineItemId: lineItem.budgetLineItemId,
+      categoryId: lineItem.categoryId,
+      value: lineItem.value,
+      budgetId: lineItem.budgetId,
+      sourceTypeId: lineItem.sourceTypeId,
+      label: lineItem.label,
+      category: lineItem.category,
+      sourceType: lineItem.sourceType,
+    };
+    return this.http.put<BudgetLineItems>(`${env.BASE_URL}/BudgetLineItem/UpdateBudgetLineItem`, payload);
   }
 
   deleteBudgetLineItem(id: number): Observable<void> {

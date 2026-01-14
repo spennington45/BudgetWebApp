@@ -1,20 +1,24 @@
 ﻿using budgetWebApp.Server.Interfaces;
 using budgetWebApp.Server.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace budgetWebApp.Server.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class BudgetLineItemController : ControllerBase
     {
         private readonly ILogger<BudgetLineItemController> _logger;
         private readonly IBudgetLineItemRepository _lineItemRepository;
+        private readonly IBudgetRepository _budgetRepository;
 
-        public BudgetLineItemController(ILogger<BudgetLineItemController> logger, IBudgetLineItemRepository repository)
+        public BudgetLineItemController(ILogger<BudgetLineItemController> logger, IBudgetLineItemRepository repository, IBudgetRepository budgetRepository)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _lineItemRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _budgetRepository = budgetRepository;
         }
 
         [HttpGet("GetBudgetLineItemsByBudgetId/{id}")]
@@ -62,6 +66,20 @@ namespace budgetWebApp.Server.Controllers
                 return BadRequest("Invalid line item data. " + ModelState);
             }
 
+            var userIdClaim = User.FindFirst("userId");
+            if (userIdClaim == null)
+            {
+                return Unauthorized();
+            }
+
+            lineItem.Budget = await _budgetRepository.GetBudgetByBudgetIdAsync(lineItem.BudgetId);
+
+            var userId = long.Parse(userIdClaim.Value);
+            if (lineItem.Budget.UserId != userId)
+            {
+                return Forbid();
+            }
+
             var createdItem = await _lineItemRepository.AddBudgetLineItemAsync(lineItem);
             if (createdItem == null)
             {
@@ -84,8 +102,20 @@ namespace budgetWebApp.Server.Controllers
                 _logger.LogWarning("Invalid budget line item update request.");
                 return BadRequest("Invalid line item data.");
             }
+            var existingBudgetLineItem = await _lineItemRepository.GetBudgetLineItemByLineItemIdAsync(lineItem.BudgetId);
 
-            var updatedItem = await _lineItemRepository.UpdateBudgetLineItemAsync(lineItem);
+            if (existingBudgetLineItem == null)
+            {
+                _logger.LogWarning($"Budget line item with ID {lineItem.BudgetLineItemId} not found.");
+                return NotFound();
+            }
+
+            existingBudgetLineItem.Label = lineItem.Label;
+            existingBudgetLineItem.Value = lineItem.Value;
+            existingBudgetLineItem.CategoryId = lineItem.CategoryId;
+            existingBudgetLineItem.SourceTypeId = lineItem.SourceTypeId;
+
+            var updatedItem = await _lineItemRepository.UpdateBudgetLineItemAsync(existingBudgetLineItem);
             if (updatedItem == null)
             {
                 _logger.LogWarning($"Budget line item with ID {lineItem.BudgetLineItemId} not found.");

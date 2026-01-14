@@ -1,22 +1,24 @@
-﻿using budgetWebApp.Server.Helpers;
-using budgetWebApp.Server.Interfaces;
+﻿using budgetWebApp.Server.Interfaces;
 using budgetWebApp.Server.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace budgetWebApp.Server.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class BudgetController : ControllerBase
     {
         private readonly ILogger<BudgetController> _logger;
         private readonly IBudgetRepository _budgetRepository;
+        private readonly IUserRepository _userRepository;
 
-        public BudgetController(ILogger<BudgetController> logger, IBudgetRepository repository)
+        public BudgetController(ILogger<BudgetController> logger, IBudgetRepository repository, IUserRepository userRepository)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _budgetRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _userRepository = userRepository;
         }
 
         [HttpGet("GetBudgetByUserId/{id}")]
@@ -86,6 +88,8 @@ namespace budgetWebApp.Server.Controllers
                 _logger.LogWarning("Invalid budget creation request.");
                 return BadRequest("Invalid budget data.");
             }
+
+            budget.User = await _userRepository.GetUserByUserIdAsync(budget.UserId);
 
             var createdBudget = await _budgetRepository.AddBudgetAsync(budget);
             if (createdBudget == null)

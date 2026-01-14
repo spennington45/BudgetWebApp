@@ -1,9 +1,11 @@
 ﻿using budgetWebApp.Server.Interfaces;
 using budgetWebApp.Server.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace budgetWebApp.Server.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class SourceTypeController : ControllerBase

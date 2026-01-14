@@ -1,55 +1,73 @@
-<h2>Budgets</h2>
+<ng-container *ngIf="!currentUser">
+  <p>Please log in before any budget information can be displayed.</p>
+</ng-container>
 
-<div class="button-container">
-  <button mat-raised-button color="primary" (click)="createNewBudget()">Create New Budget</button>
-</div>
-<div class="button-container">
-  <button (click)="launchPlaid()">Connect Bank Account</button>
-</div>
+<ng-container *ngIf="currentUser">
+  <h2>Budgets</h2>
 
-<ng-container *ngIf="!loading; else loadingTemplate">
-  <ng-container *ngIf="groupedData.length > 0; else noBudgets">
-    <div class="expansion-panel">
-      <mat-accordion>
-        <mat-expansion-panel *ngFor="let yearGroup of groupedData">
-          <mat-expansion-panel-header>
-            <mat-panel-title>
-              {{ yearGroup.year }}
-            </mat-panel-title>
-          </mat-expansion-panel-header>
-          <div class="mat-table-budget">
-            <table mat-table [dataSource]="yearGroup.data" class="mat-table">
-              <ng-container matColumnDef="date">
-                <th mat-header-cell *matHeaderCellDef> Date </th>
-                <td mat-cell *matCellDef="let budget"> {{budget.date.toLocaleString('default', { month: 'long' })}}
-                </td>
-              </ng-container>
+  <div class="button-container">
+    <button mat-raised-button color="primary" (click)="createNewBudget()">Create New Budget</button>
+  </div>
 
-              <ng-container matColumnDef="total">
-                <th mat-header-cell *matHeaderCellDef> Total </th>
-                <td mat-cell *matCellDef="let budget"> {{ sumOfBudget(budget) | currency }} </td>
-              </ng-container>
+  <div class="button-container">
+    <button (click)="launchPlaid()">Connect Bank Account</button>
+  </div>
 
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef> Actions </th>
-                <td mat-cell *matCellDef="let budget" (click)="$event.stopPropagation()">
-                  <button mat-icon-button title="Delete" (click)="deleteBudget(budget)">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                  <button mat-icon-button title="Edit" (click)="updateBudget(budget)">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                </td>
-              </ng-container>
+  <ng-container *ngIf="!loading; else loadingTemplate">
+    <ng-container *ngIf="groupedData.length > 0; else noBudgets">
 
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="navigateToBudgetDetails(row)"></tr>
-            </table>
-          </div>
-        </mat-expansion-panel>
-      </mat-accordion>
-    </div>
+      <div class="expansion-panel">
+        <mat-accordion>
+
+          <mat-expansion-panel *ngFor="let yearGroup of groupedData">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{ yearGroup.year }}
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <div class="mat-table-budget">
+              <table mat-table [dataSource]="yearGroup.data" class="mat-table">
+
+                <ng-container matColumnDef="date">
+                  <th mat-header-cell *matHeaderCellDef> Date </th>
+                  <td mat-cell *matCellDef="let budget">
+                    {{ budget.date.toLocaleString('default', { month: 'long' }) }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="total">
+                  <th mat-header-cell *matHeaderCellDef> Total </th>
+                  <td mat-cell *matCellDef="let budget">
+                    {{ sumOfBudget(budget) | currency }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef> Actions </th>
+                  <td mat-cell *matCellDef="let budget" (click)="$event.stopPropagation()">
+                    <button mat-icon-button title="Delete" (click)="deleteBudget(budget)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                    <button mat-icon-button title="Edit" (click)="updateBudget(budget)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns"
+                    (click)="navigateToBudgetDetails(row)">
+                </tr>
+
+              </table>
+            </div>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </div>
+    </ng-container>
   </ng-container>
+
 </ng-container>
 
 <ng-template #loadingTemplate>

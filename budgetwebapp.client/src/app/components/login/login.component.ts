@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
-import { environment } from '../../../environments/environment';
 import { MatDialogRef } from '@angular/material/dialog';
 
 declare const google: any;
@@ -12,21 +11,24 @@ declare const google: any;
 })
 export class LoginComponent implements OnInit {
 
-  constructor(private dialogRef: MatDialogRef<LoginComponent>, private authService: AuthService) {}
+  constructor(
+    private dialogRef: MatDialogRef<LoginComponent>,
+    private authService: AuthService
+  ) {}
 
-ngOnInit(): void {
-  this.authService.getGoogleClientId().subscribe(clientId => {
-    google.accounts.id.initialize({
-      client_id: clientId,
-      callback: (response: any) => this.handleCredentialResponse(response)
+  ngOnInit(): void {
+    this.authService.getGoogleClientId().subscribe(clientId => {
+      google.accounts.id.initialize({
+        client_id: clientId,
+        callback: (response: any) => this.handleCredentialResponse(response)
+      });
+
+      google.accounts.id.renderButton(
+        document.getElementById('googleBtn'),
+        { theme: 'outline', size: 'large', width: '100%' }
+      );
     });
-    console.log(clientId);
-    google.accounts.id.renderButton(
-      document.getElementById('googleBtn'),
-      { theme: 'outline', size: 'large', width: '100%' }
-    );
-  });
-}
+  }
 
   close(): void {
     this.dialogRef.close();
@@ -37,7 +39,9 @@ ngOnInit(): void {
 
     this.authService.loginWithGoogle(idToken).subscribe({
       next: (result: any) => {
-        localStorage.setItem('authToken', result.token);
+        // AuthService handles token + user decoding
+        this.authService.handleCredentialResponse({ credential: idToken });
+
         this.dialogRef.close();
       },
       error: (err) => {
