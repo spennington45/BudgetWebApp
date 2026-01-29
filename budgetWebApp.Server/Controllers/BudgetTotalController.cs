@@ -8,7 +8,7 @@ namespace budgetWebApp.Server.Controllers
     [Authorize]
     [ApiController]
     [Route("[controller]")]
-    public class BudgetTotalController : ControllerBase
+    public class BudgetTotalController : AuthenticatedController
     {
         private readonly ILogger<BudgetTotalController> _logger;
         private readonly IBudgetTotalRepository _budgetTotalRepository;
@@ -33,6 +33,10 @@ namespace budgetWebApp.Server.Controllers
                 return NotFound();
             }
 
+            var ownershipResult = ValidateOwnership(budgetTotal.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
+
             return Ok(budgetTotal);
         }
 
@@ -47,6 +51,11 @@ namespace budgetWebApp.Server.Controllers
                 _logger.LogWarning("Invalid budget total update request.");
                 return BadRequest("Invalid budget total data.");
             }
+
+            var existingTotal = await _budgetTotalRepository.GetBudgetTotalByBudgetTotalId(budgetTotal.BudgetTotalId);
+            var ownershipResult = ValidateOwnership(existingTotal.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
 
             var updatedBudgetTotal = await _budgetTotalRepository.UpdateBudgetTotalAsync(budgetTotal);
             if (updatedBudgetTotal == null)
@@ -69,6 +78,10 @@ namespace budgetWebApp.Server.Controllers
                 _logger.LogWarning("Invalid budget total creation request.");
                 return BadRequest("Invalid budget total data.");
             }
+
+            var ownershipResult = ValidateOwnership(budgetTotal.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
 
             var createdBudgetTotal = await _budgetTotalRepository.AddBudgetTotalAsync(budgetTotal);
             if (createdBudgetTotal == null)

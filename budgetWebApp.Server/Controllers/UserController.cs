@@ -7,7 +7,7 @@ namespace budgetWebApp.Server.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class UserController : ControllerBase
+    public class UserController : AuthenticatedController
     {
         private readonly ILogger<UserController> _logger;
         private readonly IUserRepository _userRepository;
@@ -31,6 +31,10 @@ namespace budgetWebApp.Server.Controllers
                 _logger.LogWarning($"User with ID {id} not found.");
                 return NotFound();
             }
+
+            var ownershipResult = ValidateOwnership(user.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
 
             return Ok(user);
         }
@@ -68,6 +72,10 @@ namespace budgetWebApp.Server.Controllers
                 _logger.LogWarning("Invalid user update request.");
                 return BadRequest("Invalid user data.");
             }
+
+            var ownershipResult = ValidateOwnership(user.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
 
             var updatedUser = await _userRepository.UpdateUserAsync(user);
             if (updatedUser == null)

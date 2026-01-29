@@ -8,7 +8,7 @@ namespace budgetWebApp.Server.Controllers
     [Authorize]
     [ApiController]
     [Route("[controller]")]
-    public class BudgetController : ControllerBase
+    public class BudgetController : AuthenticatedController
     {
         private readonly ILogger<BudgetController> _logger;
         private readonly IBudgetRepository _budgetRepository;
@@ -29,11 +29,16 @@ namespace budgetWebApp.Server.Controllers
             _logger.LogInformation($"Requesting budgets for user ID {id}");
 
             var budgets = await _budgetRepository.GetBudgetsByUserIdAsync(id);
+
             if (budgets == null || !budgets.Any())
             {
                 _logger.LogWarning($"No budgets found for user ID {id}");
                 return NotFound();
             }
+
+            var ownershipResult = ValidateOwnership(budgets.FirstOrDefault().UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
 
             return Ok(budgets);
         }
@@ -52,6 +57,10 @@ namespace budgetWebApp.Server.Controllers
                 return NotFound();
             }
 
+            var ownershipResult = ValidateOwnership(budgets.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
+
             return Ok(budgets);
         }
 
@@ -66,6 +75,11 @@ namespace budgetWebApp.Server.Controllers
                 _logger.LogWarning("Invalid budget update request.");
                 return BadRequest("Invalid budget data.");
             }
+
+            var esitingBudget = await _budgetRepository.GetBudgetByBudgetIdAsync(budget.BudgetId);
+            var ownershipResult = ValidateOwnership(esitingBudget.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
 
             var updatedBudget = await _budgetRepository.UpdateBudgetAsync(budget);
             if (updatedBudget == null)
@@ -91,6 +105,10 @@ namespace budgetWebApp.Server.Controllers
 
             budget.User = await _userRepository.GetUserByUserIdAsync(budget.UserId);
 
+            var ownershipResult = ValidateOwnership(budget.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
+
             var createdBudget = await _budgetRepository.AddBudgetAsync(budget);
             if (createdBudget == null)
             {
@@ -107,6 +125,11 @@ namespace budgetWebApp.Server.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteBudget(long id)
         {
+            var esitingBudget = await _budgetRepository.GetBudgetByBudgetIdAsync(id);
+            var ownershipResult = ValidateOwnership(esitingBudget.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
+
             var success = await _budgetRepository.DeleteBudgetAsync(id);
             if (!success)
             {

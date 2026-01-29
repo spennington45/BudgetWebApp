@@ -285,6 +285,7 @@ export class BudgetLineItemsComponent implements OnInit {
           this.budgetLineItems[index].budgetLineItemId = response.budgetLineItemId;
         }
         this.newLineItem = null;
+        this.getChartData();
       },
       error: (err) => {
         this.snackBar.open('Failed to save line item.', 'Close', { duration: 5000 });
@@ -296,8 +297,6 @@ export class BudgetLineItemsComponent implements OnInit {
         this.newLineItem = null;
       }
     });
-
-    this.getChartData();
   }
 
 

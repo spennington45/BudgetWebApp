@@ -8,7 +8,7 @@ namespace budgetWebApp.Server.Controllers
     [Authorize]
     [ApiController]
     [Route("[controller]")]
-    public class BudgetLineItemController : ControllerBase
+    public class BudgetLineItemController : AuthenticatedController
     {
         private readonly ILogger<BudgetLineItemController> _logger;
         private readonly IBudgetLineItemRepository _lineItemRepository;
@@ -31,11 +31,19 @@ namespace budgetWebApp.Server.Controllers
             var lineItems = await _lineItemRepository.GetBudgetLineItemsByBudgetIdAsync(id);
             if (lineItems == null)
             {
-                _logger.LogWarning($"Budget line items for budget ID {id} not found.");
+                _logger.LogWarning("Budget line items for budget ID {BudgetId} not found", id);
                 return NotFound();
             }
 
+            if (!lineItems.Any())
+                return Ok(lineItems);
+
+            var ownershipResult = ValidateOwnership(lineItems.First().Budget.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
+
             return Ok(lineItems);
+
         }
 
         [HttpGet("GetBudgetLineItemById/{id}")]
@@ -52,6 +60,10 @@ namespace budgetWebApp.Server.Controllers
                 return NotFound();
             }
 
+            var ownershipResult = ValidateOwnership(lineItem.Budget.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
+
             return Ok(lineItem);
         }
 
@@ -66,19 +78,9 @@ namespace budgetWebApp.Server.Controllers
                 return BadRequest("Invalid line item data. " + ModelState);
             }
 
-            var userIdClaim = User.FindFirst("userId");
-            if (userIdClaim == null)
-            {
-                return Unauthorized();
-            }
-
-            lineItem.Budget = await _budgetRepository.GetBudgetByBudgetIdAsync(lineItem.BudgetId);
-
-            var userId = long.Parse(userIdClaim.Value);
-            if (lineItem.Budget.UserId != userId)
-            {
-                return Forbid();
-            }
+            var ownershipResult = ValidateOwnership(lineItem.Budget.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
 
             var createdItem = await _lineItemRepository.AddBudgetLineItemAsync(lineItem);
             if (createdItem == null)
@@ -110,6 +112,10 @@ namespace budgetWebApp.Server.Controllers
                 return NotFound();
             }
 
+            var ownershipResult = ValidateOwnership(existingBudgetLineItem.Budget.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
+
             existingBudgetLineItem.Label = lineItem.Label;
             existingBudgetLineItem.Value = lineItem.Value;
             existingBudgetLineItem.CategoryId = lineItem.CategoryId;
@@ -131,6 +137,12 @@ namespace budgetWebApp.Server.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteBudgetLineItem(long id)
         {
+            var lineItem = await _lineItemRepository.GetBudgetLineItemByLineItemIdAsync(id);
+
+            var ownershipResult = ValidateOwnership(lineItem.Budget.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
+
             var success = await _lineItemRepository.DeleteBudgetLineItemAsync(id);
             if (!success)
             {

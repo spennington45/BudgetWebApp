@@ -9,5 +9,7 @@ namespace budgetWebApp.Server.Interfaces
         Task<BudgetTotal> UpdateBudgetTotalAsync(BudgetTotal budgetTotal);
 
         Task<BudgetTotal> AddBudgetTotalAsync(BudgetTotal budgetTotal);
+
+        Task<BudgetTotal> GetBudgetTotalByBudgetTotalId(long id);
     }
 }

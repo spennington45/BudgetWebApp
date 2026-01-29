@@ -8,7 +8,7 @@ namespace budgetWebApp.Server.Controllers
     [Authorize]
     [ApiController]
     [Route("[controller]")]
-    public class RecurringExpenseController : ControllerBase
+    public class RecurringExpenseController : AuthenticatedController
     {
         private readonly ILogger<RecurringExpenseController> _logger;
         private readonly IRecurringExpenseRepository _recurringExpenseRepository;
@@ -33,6 +33,10 @@ namespace budgetWebApp.Server.Controllers
                 return NotFound();
             }
 
+            var ownershipResult = ValidateOwnership(expenses.FirstOrDefault().UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
+
             return Ok(expenses);
         }
 
@@ -49,6 +53,9 @@ namespace budgetWebApp.Server.Controllers
                 _logger.LogWarning($"Recurring expense with ID {id} not found.");
                 return NotFound();
             }
+            var ownershipResult = ValidateOwnership(expense.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
 
             return Ok(expense);
         }
@@ -63,6 +70,10 @@ namespace budgetWebApp.Server.Controllers
                 _logger.LogWarning("Invalid recurring expense creation request.");
                 return BadRequest("Invalid recurring expense data.");
             }
+
+            var ownershipResult = ValidateOwnership(expense.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
 
             var createdExpense = await _recurringExpenseRepository.AddRecurringExpenseAsync(expense);
             if (createdExpense == null)
@@ -87,6 +98,11 @@ namespace budgetWebApp.Server.Controllers
                 return BadRequest("Invalid recurring expense data.");
             }
 
+            var existingExpense = await _recurringExpenseRepository.GetRecurringExpensesByRecurringExpenseIdAsync(expense.RecurringExpenseId);
+            var ownershipResult = ValidateOwnership(existingExpense.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
+
             var updatedExpense = await _recurringExpenseRepository.UpdateRecurringExpense(expense);
             if (updatedExpense == null)
             {
@@ -103,6 +119,11 @@ namespace budgetWebApp.Server.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteRecurringExpense(long id)
         {
+            var existingExpense = await _recurringExpenseRepository.GetRecurringExpensesByRecurringExpenseIdAsync(id);
+            var ownershipResult = ValidateOwnership(existingExpense.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
+
             var success = await _recurringExpenseRepository.DeleteRecurringExpenseAsync(id);
             if (!success)
             {

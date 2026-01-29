@@ -20,6 +20,11 @@ namespace budgetWebApp.Server.Repositories
             return newBudgetTotal.Entity;
         }
 
+        public Task<BudgetTotal> GetBudgetTotalByBudgetTotalId(long id)
+        {
+            return _context.BudgetTotals.FirstOrDefaultAsync(b => b.BudgetTotalId == id);
+        }
+
         public Task<BudgetTotal> GetBudgetTotalByUserIdAsync(long id)
         {
             return _context.BudgetTotals.FirstOrDefaultAsync(b => b.UserId == id);
