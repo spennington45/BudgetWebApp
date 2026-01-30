@@ -4,14 +4,24 @@
 
 <ng-container *ngIf="currentUser">
   <h2>Budgets</h2>
-
-  <div class="button-container">
-    <button mat-raised-button color="primary" (click)="createNewBudget()">Create New Budget</button>
+  <div class="grand-total">
+    Total of all budgets: {{ getTotalOfAllBudgets() | currency }}
   </div>
 
-  <div class="button-container">
-    <button (click)="launchPlaid()">Connect Bank Account</button>
+  <div class="action-buttons">
+    <button mat-raised-button color="primary" (click)="createNewBudget()">
+      Create New Budget
+    </button>
+
+    <button mat-raised-button color="accent" (click)="launchPlaid()">
+      Connect Bank Account
+    </button>
+
+    <button mat-raised-button color="warn" (click)="navigateToRecurringExpenses()">
+      Manage Recurring Expenses
+    </button>
   </div>
+
 
   <ng-container *ngIf="!loading; else loadingTemplate">
     <ng-container *ngIf="groupedData.length > 0; else noBudgets">

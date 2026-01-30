@@ -9,7 +9,7 @@ import { environment as env } from '../../environments/environment';
 })
 export class RecurringExpenseService {
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // GET: Retrieve all recurring expenses for a user
   getRecurringExpensesByUserId(userId: number): Observable<RecurringExpense[]> {

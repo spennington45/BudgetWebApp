@@ -28,16 +28,24 @@ export class CreateBudgetDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<CreateBudgetDialogComponent>,
     private budgetService: BudgetService,
     private authService: AuthService,
-    @Inject(MAT_DIALOG_DATA) public data: { existingBudgets: Budget[] }
+    @Inject(MAT_DIALOG_DATA) 
+    public data: { existingBudgets: Budget[], budgetToEdit?: Budget}
   ) {}
 
   ngOnInit() {
     const currentYear = new Date().getFullYear();
     this.years = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i);
-    this.selectedYear = currentYear;
-    this.selectedMonth = new Date().getMonth();
 
-    this.authService.currentUser$.subscribe((user: User | null) => {
+    if (this.data.budgetToEdit) {
+      const date = new Date(this.data.budgetToEdit.date);
+      this.selectedYear = date.getFullYear();
+      this.selectedMonth = date.getMonth();
+    } else {
+      this.selectedYear = currentYear;
+      this.selectedMonth = new Date().getMonth();
+    }
+
+    this.authService.currentUser$.subscribe(user => {
       if (!user) throw new Error("User must be logged in before creating a budget.");
       this.user = user;
     });
@@ -53,28 +61,45 @@ export class CreateBudgetDialogComponent implements OnInit {
 
   onSaveClick(): void {
     const selectedDate = new Date(this.selectedYear, this.selectedMonth, 1);
-    const exists = this.data.existingBudgets.some(b =>
-      b.date.getFullYear() === selectedDate.getFullYear() &&
-      b.date.getMonth() === selectedDate.getMonth()
-    );
 
-    if (exists) {
-      alert("A budget already exists for this month and year.");
-      return;
+    if (!this.data.budgetToEdit) {
+      const exists = this.data.existingBudgets.some(b =>
+        b.date.getFullYear() === selectedDate.getFullYear() &&
+        b.date.getMonth() === selectedDate.getMonth()
+      );
+
+      if (exists) {
+        alert("A budget already exists for this month and year.");
+        return;
+      }
     }
 
-    const newBudget: Budget = {
-      userId: this.user.userId,
-      date: selectedDate,
-      budgetLineItems: [],
-      user: this.user,
-      displayDate: moment(selectedDate).format('MMMM, YYYY'),
-      budgetId: 0
-    };
+    if (this.data.budgetToEdit) {
+      const updatedBudget = {
+        ...this.data.budgetToEdit,
+        date: selectedDate,
+        displayDate: moment(selectedDate).format('MMMM, YYYY')
+      };
 
-    this.budgetService.addBudget(newBudget).subscribe({
-      next: createdBudget => this.dialogRef.close(createdBudget),
-      error: err => console.error('Failed to create budget:', err)
-    });
+      this.budgetService.updateBudget(updatedBudget).subscribe({
+        next: () => this.dialogRef.close(updatedBudget),
+        error: err => console.error('Failed to update budget:', err)
+      });
+
+    } else {
+      const newBudget: Budget = {
+        userId: this.user.userId,
+        date: selectedDate,
+        budgetLineItems: [],
+        user: this.user,
+        displayDate: moment(selectedDate).format('MMMM, YYYY'),
+        budgetId: 0
+      };
+
+      this.budgetService.addBudget(newBudget).subscribe({
+        next: createdBudget => this.dialogRef.close(createdBudget),
+        error: err => console.error('Failed to create budget:', err)
+      });
+    }
   }
 }

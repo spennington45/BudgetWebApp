@@ -21,6 +21,7 @@ namespace budgetWebApp.Server.Repositories
                 .ThenInclude(item => item.Category)
                 .Include(x => x.BudgetLineItems)
                 .ThenInclude(item => item.SourceType)
+                .Include(x => x.User)
                 .ToListAsync();
         }
 
@@ -53,7 +54,7 @@ namespace budgetWebApp.Server.Repositories
             var budget = await GetBudgetByBudgetIdAsync(id);
             if (budget != null)
             {
-                _context.Budgets.Remove(budget); 
+                _context.Budgets.Remove(budget);
                 await _context.SaveChangesAsync();
                 return true;
             }

@@ -22,7 +22,11 @@ export class BudgetService {
   }
 
   updateBudget(budget: Budget): Observable<Budget> {
-    return this.http.put<Budget>(`${env.BASE_URL}/Budget/UpdateBudget`, budget);
+    const payload = {
+      budgetId: budget.budgetId,
+      date: budget.date
+    }
+    return this.http.put<Budget>(`${env.BASE_URL}/Budget/UpdateBudget`, payload);
   }
 
   addBudget(budget: Budget): Observable<Budget> {

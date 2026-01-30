@@ -1,5 +1,6 @@
 ﻿using budgetWebApp.Server.Interfaces;
 using budgetWebApp.Server.Models;
+using budgetWebApp.Server.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -68,7 +69,7 @@ namespace budgetWebApp.Server.Controllers
         [ProducesResponseType(typeof(Budget), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Budget>> UpdateBudget([FromBody] Budget budget)
+        public async Task<ActionResult<Budget>> UpdateBudget([FromBody] UpdateBudgetDto budget)
         {
             if (budget == null || budget.BudgetId <= 0)
             {
@@ -81,7 +82,8 @@ namespace budgetWebApp.Server.Controllers
             if (ownershipResult != null)
                 return ownershipResult;
 
-            var updatedBudget = await _budgetRepository.UpdateBudgetAsync(budget);
+            esitingBudget.Date = budget.Date;
+            var updatedBudget = await _budgetRepository.UpdateBudgetAsync(esitingBudget);
             if (updatedBudget == null)
             {
                 _logger.LogWarning($"Budget with ID {budget.BudgetId} not found.");

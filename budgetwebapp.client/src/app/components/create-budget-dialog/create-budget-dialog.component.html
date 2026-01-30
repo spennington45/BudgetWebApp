@@ -1,5 +1,7 @@
 <div class="d-flex flex-column align-items-center">
-  <h2 mat-dialog-title>Create New Budget</h2>
+  <h2 mat-dialog-title>
+    {{ data.budgetToEdit ? 'Edit Budget' : 'Create New Budget' }}
+  </h2>
 
   <mat-dialog-content class="date-picker-dialog">
     <mat-form-field appearance="fill" class="w-100">
@@ -23,6 +25,6 @@
 
   <mat-dialog-actions class="d-flex justify-content-end">
     <button mat-button (click)="onNoClick()">Cancel</button>
-    <button mat-button color="primary" (click)="onSaveClick()">Create</button>
+    <button mat-button color="primary" (click)="onSaveClick()">Save</button>
   </mat-dialog-actions>
 </div>

@@ -118,31 +118,49 @@ export class HomeComponent implements OnInit {
   }
 
   deleteBudget(budget: Budget) {
-    const index = this.dataSource.findIndex(b => b === budget);
-    if (index !== -1) {
-      this.dataSource.splice(index, 1);
-      this.snackBar.open('Budget deleted successfully', 'Close', {
-        duration: 3000,
-        panelClass: ['success']
-      });
-      this.groupDataByYear();
-    }
+    this.budgetService.deleteBudget(budget.budgetId).subscribe({
+      next: () => {
+        const index = this.dataSource.findIndex(b => b.budgetId === budget.budgetId);
+        if (index !== -1) {
+          this.dataSource.splice(index, 1);
+        }
+
+        this.snackBar.open('Budget deleted successfully', 'Close', {
+          duration: 3000,
+          panelClass: ['success']
+        });
+
+        this.groupDataByYear();
+      },
+      error: err => {
+        console.error('Failed to delete budget:', err);
+        this.snackBar.open('Failed to delete budget', 'Close', {
+          duration: 3000,
+          panelClass: ['error']
+        });
+      }
+    });
   }
 
   updateBudget(budget: Budget) {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.width = '300px';
-    dialogConfig.data = { existingBudgets: this.dataSource };
+    dialogConfig.data = { 
+      existingBudgets: this.dataSource,
+      budgetToEdit: budget   // <-- pass the budget
+    };
 
     const dialogRef = this.dialog.open(CreateBudgetDialogComponent, dialogConfig);
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        budget.date = result;
+        Object.assign(budget, result);
+
         this.snackBar.open('Budget updated successfully', 'Close', {
           duration: 3000,
           panelClass: ['success']
         });
+
         this.groupDataByYear();
       }
     });
@@ -164,5 +182,15 @@ export class HomeComponent implements OnInit {
         });
       }
     });
+  }
+
+  getTotalOfAllBudgets(): number {
+    return this.dataSource.reduce((overall, budget) => {
+      return overall + this.sumOfBudget(budget);
+    }, 0);
+  }
+
+  navigateToRecurringExpenses() {
+    this.router.navigate(['/recurring-expenses']);
   }
 }

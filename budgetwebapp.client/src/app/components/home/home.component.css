@@ -49,3 +49,22 @@ tr:nth-child(2n) {
 .success {
     background-color: green;
 }
+
+.grand-total {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.action-buttons {
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.action-buttons button {
+  min-width: 180px;
+}

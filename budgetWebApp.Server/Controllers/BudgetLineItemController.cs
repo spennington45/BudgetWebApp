@@ -78,7 +78,8 @@ namespace budgetWebApp.Server.Controllers
                 return BadRequest("Invalid line item data. " + ModelState);
             }
 
-            var ownershipResult = ValidateOwnership(lineItem.Budget.UserId);
+            var existingBudget = await _budgetRepository.GetBudgetByBudgetIdAsync(lineItem.BudgetId);
+            var ownershipResult = ValidateOwnership(existingBudget.UserId);
             if (ownershipResult != null)
                 return ownershipResult;
 

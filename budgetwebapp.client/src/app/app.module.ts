@@ -25,6 +25,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { HeaderComponent } from './components/header/header.component';
 import { LoginComponent } from './components/login/login.component';
 import { AuthInterceptor } from './auth.interceptor';
+import { RecurringExpensesComponent } from './components/recurring-expenses/recurring-expenses.component';
 
 
 @NgModule({
@@ -36,6 +37,7 @@ import { AuthInterceptor } from './auth.interceptor';
     CreateBudgetDialogComponent,
     HeaderComponent,
     LoginComponent,
+    RecurringExpensesComponent,
   ],
   imports: [
     BrowserModule,

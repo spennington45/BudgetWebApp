@@ -1,0 +1,45 @@
+tr:nth-child(2n) {
+    background-color: lightgray;
+}
+
+th {
+    background-color: black !important;
+    color: white
+}
+
+.chart-container {
+    display: flex;
+    justify-content: center;
+}
+
+.chart-wrapper {
+    display: inline-flex;
+    width: 500px;
+    max-width: 800px;
+    max-height: 70vh;
+    margin: 20px auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+canvas {
+    display: block;
+    max-width: 500px;
+    max-height: 500px;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+table {
+    width: 100%;
+    padding-right: 20%;
+    padding-left: 20%;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 20px 0;
+}
