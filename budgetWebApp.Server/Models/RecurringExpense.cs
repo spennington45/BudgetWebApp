@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Text.Json.Serialization;
 
 namespace budgetWebApp.Server.Models;
 
@@ -17,9 +16,12 @@ public partial class RecurringExpense
 
     public long UserId { get; set; }
 
-    public virtual Category Category { get; set; } = null!;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public virtual Category? Category { get; set; } = null!;
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public virtual SourceType? SourceType { get; set; }
 
-    public virtual User User { get; set; } = null!;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public virtual User? User { get; set; } = null!;
 }

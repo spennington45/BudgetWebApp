@@ -45,14 +45,14 @@ export interface SourceType {
   sourceName: string;
 }
 export interface RecurringExpense {
-  recurringExpensesId: number;
+  recurringExpenseId: number;
   categoryId: number;
   value: number;
   label: string;
   sourceTypeId: number;
   userId: number;
-  category: Category;
-  sourceType: SourceType;
+  category?: Category | null;
+  sourceType?: SourceType | null;
   user: User;
 }
 export interface BudgetTotal {

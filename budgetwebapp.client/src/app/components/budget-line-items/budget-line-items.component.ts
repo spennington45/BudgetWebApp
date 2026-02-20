@@ -234,7 +234,7 @@ export class BudgetLineItemsComponent implements OnInit {
   }
 
   addNewLineItem() {
-    const tempId = -1
+    const tempId = 0
     this.newLineItem = {
       budgetLineItemId: tempId,
       categoryId: 0,
@@ -284,6 +284,7 @@ export class BudgetLineItemsComponent implements OnInit {
         if (index !== -1) {
           this.budgetLineItems[index].budgetLineItemId = response.budgetLineItemId;
         }
+        // TODO may need to get category and source type after here back end updates
         this.newLineItem = null;
         this.getChartData();
       },

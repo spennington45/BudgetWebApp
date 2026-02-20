@@ -82,6 +82,9 @@ namespace budgetWebApp.Server.Controllers
             var ownershipResult = ValidateOwnership(existingBudget.UserId);
             if (ownershipResult != null)
                 return ownershipResult;
+            lineItem.Budget = null;
+            lineItem.Category = null;
+            lineItem.SourceType = null;
 
             var createdItem = await _lineItemRepository.AddBudgetLineItemAsync(lineItem);
             if (createdItem == null)

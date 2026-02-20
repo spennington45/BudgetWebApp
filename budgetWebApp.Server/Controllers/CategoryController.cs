@@ -87,7 +87,16 @@ namespace budgetWebApp.Server.Controllers
                 return BadRequest("Invalid category data.");
             }
 
-            var updatedCategory = await _categoryRepository.UpdateCategory(category);
+            var existingCategory = await _categoryRepository.GetCategoryByCategoryIdAsync(category.CategoryId);
+            if (existingCategory == null)
+            {
+                _logger.LogWarning($"Category with ID {category.CategoryId} not found.");
+                return NotFound();
+            }
+
+            existingCategory.CategoryName = category.CategoryName;
+
+            var updatedCategory = await _categoryRepository.UpdateCategory(existingCategory);
             if (updatedCategory == null)
             {
                 _logger.LogWarning($"Category with ID {category.CategoryId} not found.");

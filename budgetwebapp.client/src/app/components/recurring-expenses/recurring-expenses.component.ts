@@ -47,6 +47,7 @@ export class RecurringExpensesComponent implements OnInit {
         this.loadRecurringExpenses();
       }
     });
+    console.log(this.currentUser);
   }
 
   loadCategories() {
@@ -81,10 +82,10 @@ export class RecurringExpensesComponent implements OnInit {
   addNewRecurringExpense() {
     this.cancelEdit();
 
-    const tempId = -1;
+    const tempId = 0;
 
     this.newExpense = {
-      recurringExpensesId: tempId,
+      recurringExpenseId: tempId,
       label: '',
       value: 0,
       categoryId: 0,
@@ -116,9 +117,12 @@ export class RecurringExpensesComponent implements OnInit {
       this.recurringService.addRecurringExpense(this.newExpense).subscribe({
         next: created => {
           this.snackBar.open('Recurring expense added', 'Close', { duration: 3000 });
-
+          
+          created.category = this.categories.find(c => c.categoryId === created.categoryId);
+          created.sourceType = this.sourceTypes.find(s => s.sourceTypeId === created.sourceTypeId);
+          
           const updated = this.recurringExpenses.filter(
-            e => e.recurringExpensesId !== -1
+            e => e.recurringExpenseId !== 0
           );
           updated.unshift(created);
 
@@ -135,7 +139,7 @@ export class RecurringExpensesComponent implements OnInit {
   cancelNewRecurringExpense() {
     if (this.newExpense) {
       const index = this.recurringExpenses.findIndex(
-        item => item.recurringExpensesId === this.newExpense?.recurringExpensesId
+        item => item.recurringExpenseId === this.newExpense?.recurringExpenseId
       );
 
       if (index !== -1) {
@@ -150,7 +154,7 @@ export class RecurringExpensesComponent implements OnInit {
 
   startEdit(exp: RecurringExpense) {
     this.cancelNewRecurringExpense();
-    this.editingId = exp.recurringExpensesId;
+    this.editingId = exp.recurringExpenseId;
 
     this.originalExpense = JSON.parse(JSON.stringify(exp));
   }
@@ -171,7 +175,7 @@ export class RecurringExpensesComponent implements OnInit {
   cancelEdit() {
     if (this.originalExpense) {
       const index = this.recurringExpenses.findIndex(
-        e => e.recurringExpensesId === this.originalExpense!.recurringExpensesId
+        e => e.recurringExpenseId === this.originalExpense!.recurringExpenseId
       );
 
       if (index !== -1) {
@@ -184,7 +188,7 @@ export class RecurringExpensesComponent implements OnInit {
   }
 
   deleteRecurringExpense(exp: RecurringExpense) {
-    this.recurringService.deleteRecurringExpense(exp.recurringExpensesId).subscribe({
+    this.recurringService.deleteRecurringExpense(exp.recurringExpenseId).subscribe({
       next: () => {
         this.snackBar.open('Recurring expense deleted', 'Close', { duration: 3000 });
         this.loadRecurringExpenses();

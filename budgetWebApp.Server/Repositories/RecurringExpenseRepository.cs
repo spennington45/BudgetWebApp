@@ -23,7 +23,8 @@ namespace budgetWebApp.Server.Repositories
         public async Task<bool> DeleteRecurringExpenseAsync(long id)
         {
             var expence = await GetRecurringExpensesByRecurringExpenseIdAsync(id);
-            if (expence != null) {
+            if (expence != null)
+            {
                 _context.Remove(expence);
                 await _context.SaveChangesAsync();
                 return true;
@@ -33,7 +34,10 @@ namespace budgetWebApp.Server.Repositories
 
         public async Task<IEnumerable<RecurringExpense>> GetRecurringExpensesByUserIdAsync(long id)
         {
-            return await _context.RecurringExpenses.Where(x => x.UserId == id).ToListAsync();
+            return await _context.RecurringExpenses.Where(x => x.UserId == id)
+                .Include(x => x.Category)
+                .Include(x => x.SourceType)
+                .ToListAsync();
         }
 
         public async Task<RecurringExpense> UpdateRecurringExpense(RecurringExpense recurringExpense)

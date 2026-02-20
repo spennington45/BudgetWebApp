@@ -19,7 +19,9 @@ public partial class BudgetLineItem
     [JsonIgnore]
     public virtual Budget? Budget { get; set; } = null!;
 
-    public virtual Category Category { get; set; } = null!;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public virtual Category? Category { get; set; } = null!;
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public virtual SourceType? SourceType { get; set; }
 }

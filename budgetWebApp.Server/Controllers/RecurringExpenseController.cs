@@ -74,6 +74,9 @@ namespace budgetWebApp.Server.Controllers
             var ownershipResult = ValidateOwnership(expense.UserId);
             if (ownershipResult != null)
                 return ownershipResult;
+            expense.User = null;
+            expense.Category = null;
+            expense.SourceType = null;
 
             var createdExpense = await _recurringExpenseRepository.AddRecurringExpenseAsync(expense);
             if (createdExpense == null)
@@ -103,7 +106,12 @@ namespace budgetWebApp.Server.Controllers
             if (ownershipResult != null)
                 return ownershipResult;
 
-            var updatedExpense = await _recurringExpenseRepository.UpdateRecurringExpense(expense);
+            existingExpense.Label = expense.Label;
+            existingExpense.Value = expense.Value;
+            existingExpense.CategoryId = expense.CategoryId;
+            existingExpense.SourceTypeId = expense.SourceTypeId;
+
+            var updatedExpense = await _recurringExpenseRepository.UpdateRecurringExpense(existingExpense);
             if (updatedExpense == null)
             {
                 _logger.LogWarning($"Recurring expense with ID {expense.RecurringExpenseId} not found.");

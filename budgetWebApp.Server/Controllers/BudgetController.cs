@@ -105,11 +105,10 @@ namespace budgetWebApp.Server.Controllers
                 return BadRequest("Invalid budget data.");
             }
 
-            budget.User = await _userRepository.GetUserByUserIdAsync(budget.UserId);
-
             var ownershipResult = ValidateOwnership(budget.UserId);
             if (ownershipResult != null)
                 return ownershipResult;
+            budget.User = null;
 
             var createdBudget = await _budgetRepository.AddBudgetAsync(budget);
             if (createdBudget == null)

@@ -87,7 +87,16 @@ namespace budgetWebApp.Server.Controllers
                 return BadRequest("Invalid source type data.");
             }
 
-            var updatedSourceType = await _sourceTypeRepository.UpdateSourceType(sourceType);
+            var existingSourceType = await _sourceTypeRepository.GetSourceTypeBySourceTypeIdAsync(sourceType.SourceTypeId);
+            if (existingSourceType == null)
+            {
+                _logger.LogWarning($"Source type with ID {sourceType.SourceTypeId} not found.");
+                return NotFound();
+            }
+
+            existingSourceType.SourceName = sourceType.SourceName;
+
+            var updatedSourceType = await _sourceTypeRepository.UpdateSourceType(existingSourceType);
             if (updatedSourceType == null)
             {
                 _logger.LogWarning($"Source type with ID {sourceType.SourceTypeId} not found.");

@@ -57,7 +57,9 @@ namespace budgetWebApp.Server.Controllers
             if (ownershipResult != null)
                 return ownershipResult;
 
-            var updatedBudgetTotal = await _budgetTotalRepository.UpdateBudgetTotalAsync(budgetTotal);
+            existingTotal.TotalValue = budgetTotal.TotalValue;
+
+            var updatedBudgetTotal = await _budgetTotalRepository.UpdateBudgetTotalAsync(existingTotal);
             if (updatedBudgetTotal == null)
             {
                 _logger.LogWarning($"Budget total with ID {budgetTotal.BudgetTotalId} not found.");
@@ -82,6 +84,8 @@ namespace budgetWebApp.Server.Controllers
             var ownershipResult = ValidateOwnership(budgetTotal.UserId);
             if (ownershipResult != null)
                 return ownershipResult;
+
+            budgetTotal.User = null;
 
             var createdBudgetTotal = await _budgetTotalRepository.AddBudgetTotalAsync(budgetTotal);
             if (createdBudgetTotal == null)
