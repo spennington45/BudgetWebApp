@@ -47,7 +47,6 @@ export class RecurringExpensesComponent implements OnInit {
         this.loadRecurringExpenses();
       }
     });
-    console.log(this.currentUser);
   }
 
   loadCategories() {

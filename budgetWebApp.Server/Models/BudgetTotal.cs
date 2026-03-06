@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Collections.Generic;
 
 namespace budgetWebApp.Server.Models;
 
@@ -10,6 +11,5 @@ public partial class BudgetTotal
 
     public decimal TotalValue { get; set; }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public virtual User? User { get; set; } = null!;
+    public virtual User User { get; set; } = null!;
 }

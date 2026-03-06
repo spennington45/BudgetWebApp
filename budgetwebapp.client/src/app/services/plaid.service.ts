@@ -1,4 +1,7 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment as env } from '../../environments/environment';
 
 declare var Plaid: any;
 
@@ -7,6 +10,24 @@ declare var Plaid: any;
 })
 
 export class PlaidService {
+  constructor(private http: HttpClient) { }
+
+  createLinkToken(userId: string) {
+    return this.http.post<{ link_token: string }>(
+      `${env.BASE_URL}/Plaid/create-link-token`,
+      JSON.stringify(userId),
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  exchangePublicToken(publicToken: string) {
+    return this.http.post(
+      `${env.BASE_URL}/Plaid/exchange`,
+      JSON.stringify(publicToken),
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   openPlaidLink(token: string, onSuccess: (publicToken: string) => void): void {
     const handler = Plaid.create({
       token: token,

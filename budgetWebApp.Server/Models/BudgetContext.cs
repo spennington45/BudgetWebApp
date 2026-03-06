@@ -23,6 +23,10 @@ public partial class BudgetContext : DbContext
 
     public virtual DbSet<Category> Categories { get; set; }
 
+    public virtual DbSet<PlaidAccount> PlaidAccounts { get; set; }
+
+    public virtual DbSet<PlaidItem> PlaidItems { get; set; }
+
     public virtual DbSet<RecurringExpense> RecurringExpenses { get; set; }
 
     public virtual DbSet<SourceType> SourceTypes { get; set; }
@@ -37,7 +41,7 @@ public partial class BudgetContext : DbContext
     {
         modelBuilder.Entity<Budget>(entity =>
         {
-            entity.HasKey(e => e.BudgetId).HasName("PK__Budget__E38E7924F66A265F");
+            entity.HasKey(e => e.BudgetId).HasName("PK__Budget__E38E7924F1B4A737");
 
             entity.ToTable("Budget");
 
@@ -51,7 +55,7 @@ public partial class BudgetContext : DbContext
 
         modelBuilder.Entity<BudgetLineItem>(entity =>
         {
-            entity.HasKey(e => e.BudgetLineItemId).HasName("PK__BudgetLi__B7246DBEF4508FD7");
+            entity.HasKey(e => e.BudgetLineItemId).HasName("PK__BudgetLi__B7246DBE05255538");
 
             entity.ToTable("BudgetLineItem");
 
@@ -77,7 +81,7 @@ public partial class BudgetContext : DbContext
 
         modelBuilder.Entity<BudgetTotal>(entity =>
         {
-            entity.HasKey(e => e.BudgetTotalId).HasName("PK__BudgetTo__B82C6DFDFDAD5162");
+            entity.HasKey(e => e.BudgetTotalId).HasName("PK__BudgetTo__B82C6DFD89C1F253");
 
             entity.ToTable("BudgetTotal");
 
@@ -91,16 +95,55 @@ public partial class BudgetContext : DbContext
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A0B1AF750A3");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A0B94C1DC93");
 
             entity.ToTable("Category");
 
             entity.Property(e => e.CategoryName).HasMaxLength(150);
         });
 
+        modelBuilder.Entity<PlaidAccount>(entity =>
+        {
+            entity.HasKey(e => e.PlaidAccountId).HasName("PK__PlaidAcc__F8772F1AAE6E49AF");
+
+            entity.ToTable("PlaidAccount");
+
+            entity.HasIndex(e => e.AccountId, "UQ_PlaidAccount_AccountId").IsUnique();
+
+            entity.Property(e => e.AccountId).HasMaxLength(200);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
+            entity.Property(e => e.Mask).HasMaxLength(10);
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.OfficialName).HasMaxLength(200);
+            entity.Property(e => e.Subtype).HasMaxLength(50);
+            entity.Property(e => e.Type).HasMaxLength(50);
+
+            entity.HasOne(d => d.PlaidItem).WithMany(p => p.PlaidAccounts)
+                .HasForeignKey(d => d.PlaidItemId)
+                .HasConstraintName("FK_PlaidAccount_PlaidItem");
+        });
+
+        modelBuilder.Entity<PlaidItem>(entity =>
+        {
+            entity.HasKey(e => e.PlaidItemId).HasName("PK__PlaidIte__C0BAAEB82D641F31");
+
+            entity.ToTable("PlaidItem");
+
+            entity.HasIndex(e => e.ItemId, "UQ_PlaidItem_ItemId").IsUnique();
+
+            entity.Property(e => e.AccessToken).HasMaxLength(500);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
+            entity.Property(e => e.InstitutionName).HasMaxLength(200);
+            entity.Property(e => e.ItemId).HasMaxLength(200);
+
+            entity.HasOne(d => d.User).WithMany(p => p.PlaidItems)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_PlaidItem_User");
+        });
+
         modelBuilder.Entity<RecurringExpense>(entity =>
         {
-            entity.HasKey(e => e.RecurringExpenseId).HasName("PK__Recurrin__D074734108EA1876");
+            entity.HasKey(e => e.RecurringExpenseId).HasName("PK__Recurrin__D07473416C2BE2DB");
 
             entity.ToTable("RecurringExpense");
 
@@ -126,7 +169,7 @@ public partial class BudgetContext : DbContext
 
         modelBuilder.Entity<SourceType>(entity =>
         {
-            entity.HasKey(e => e.SourceTypeId).HasName("PK__SourceTy__7E17EC2FEB484918");
+            entity.HasKey(e => e.SourceTypeId).HasName("PK__SourceTy__7E17EC2F7CAF1BCA");
 
             entity.ToTable("SourceType");
 
@@ -137,7 +180,7 @@ public partial class BudgetContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__User__1788CC4C2BF55DB3");
+            entity.HasKey(e => e.UserId).HasName("PK__User__1788CC4CD4F6C9B6");
 
             entity.ToTable("User");
 

@@ -32,9 +32,8 @@ export class HomeComponent implements OnInit {
     private snackBar: MatSnackBar,
     private budgetService: BudgetService,
     private plaidService: PlaidService,
-    private http: HttpClient,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.authService.currentUser$.subscribe((user: User | null) => {
@@ -92,12 +91,18 @@ export class HomeComponent implements OnInit {
   }
 
   launchPlaid() {
-    this.http.post<{ link_token: string }>('/Plaid/create-link-token', {})
-      .subscribe(response => {
-        this.plaidService.openPlaidLink(response.link_token, (publicToken) => {
-          this.http.post('/Plaid/exchange', { publicToken }).subscribe();
-        });
+    if (!this.currentUser) {
+      this.snackBar.open('No user logged in', 'Close', { duration: 5000 });
+      return;
+    }
+
+    const userId = this.currentUser.userId.toString(); 
+
+    this.plaidService.createLinkToken(userId).subscribe(res => {
+      this.plaidService.openPlaidLink(res.link_token, (publicToken: string) => {
+        this.plaidService.exchangePublicToken(publicToken).subscribe();
       });
+    });
   }
 
   groupDataByYear() {
@@ -145,7 +150,7 @@ export class HomeComponent implements OnInit {
   updateBudget(budget: Budget) {
     const dialogConfig = new MatDialogConfig();
     dialogConfig.width = '300px';
-    dialogConfig.data = { 
+    dialogConfig.data = {
       existingBudgets: this.dataSource,
       budgetToEdit: budget   // <-- pass the budget
     };

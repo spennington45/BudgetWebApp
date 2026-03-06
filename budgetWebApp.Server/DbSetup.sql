@@ -1,5 +1,7 @@
 BEGIN TRANSACTION
 
+DROP TABLE IF EXISTS PlaidAccount;
+DROP TABLE IF EXISTS PlaidItem;
 DROP TABLE IF EXISTS BudgetLineItem;
 DROP TABLE IF EXISTS RecurringExpense;
 DROP TABLE IF EXISTS BudgetTotal;
@@ -86,5 +88,38 @@ CREATE TABLE RecurringExpense (
     CONSTRAINT FK_RecurringExpenses_User FOREIGN KEY (UserId)
         REFERENCES [User](UserId)
         ON DELETE NO ACTION
+);
+
+CREATE TABLE PlaidItem (
+    PlaidItemId BIGINT IDENTITY(1,1) PRIMARY KEY,
+    UserId BIGINT NOT NULL,
+    ItemId NVARCHAR(200) NOT NULL,          -- Plaid item_id
+    AccessToken NVARCHAR(500) NOT NULL,     -- Plaid access_token (store encrypted if possible)
+    InstitutionName NVARCHAR(200) NULL,     -- e.g., "US Bank"
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT FK_PlaidItem_User FOREIGN KEY (UserId)
+        REFERENCES [User](UserId)
+        ON DELETE CASCADE,
+
+    CONSTRAINT UQ_PlaidItem_ItemId UNIQUE (ItemId)
+);
+
+CREATE TABLE PlaidAccount (
+    PlaidAccountId BIGINT IDENTITY(1,1) PRIMARY KEY,
+    PlaidItemId BIGINT NOT NULL,
+    AccountId NVARCHAR(200) NOT NULL,       -- Plaid account_id
+    Name NVARCHAR(200) NULL,                -- e.g., "Everyday Checking"
+    Mask NVARCHAR(10) NULL,                 -- last 2–4 digits
+    Type NVARCHAR(50) NULL,                 -- "depository", "credit", etc.
+    Subtype NVARCHAR(50) NULL,              -- "checking", "savings", etc.
+    OfficialName NVARCHAR(200) NULL,        -- optional
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT FK_PlaidAccount_PlaidItem FOREIGN KEY (PlaidItemId)
+        REFERENCES PlaidItem(PlaidItemId)
+        ON DELETE CASCADE,
+
+    CONSTRAINT UQ_PlaidAccount_AccountId UNIQUE (AccountId)
 );
 COMMIT

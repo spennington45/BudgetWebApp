@@ -35,3 +35,19 @@ table {
   padding-right: 20%;
   padding-left: 20%;
 }
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.ml-10 {
+  margin-left: 10px;
+}
+
+.stacked-snackbar {
+  margin-top: 8px !important;
+}

@@ -1,10 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { BudgetLineItems, Category, SourceType } from '../../models';
+import { BudgetLineItems, Category, RecurringExpense, SourceType, User } from '../../models';
 import { ChartData, ChartType, ChartOptions, ChartDataset } from 'chart.js';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BudgetLineItemService } from '../../services/budget-line-item.service';
 import { SourceTypeService } from '../../services/source-type.service';
 import { CategoryService } from '../../services/category.service';
+import { RecurringExpenseService } from '../../services/recurring-expense.service';
+import { AuthService } from '../../services/auth.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-budget-line-items',
@@ -26,6 +29,8 @@ export class BudgetLineItemsComponent implements OnInit {
   originalLineItem: BudgetLineItems | null = null;
   categories: Category[] = [];
   sourceTypes: SourceType[] = [];
+  currentUser: User | null = null;
+  currentBudgetId: number = 0;
   barChartLabels = ['Income', 'Expenses'];
   barChartData: ChartData<'bar'> = {
     labels: [],
@@ -106,13 +111,25 @@ export class BudgetLineItemsComponent implements OnInit {
   constructor(
     private budgetLineItemService: BudgetLineItemService,
     private snackBar: MatSnackBar,
+    private route: ActivatedRoute,
     private categoryService: CategoryService,
-    private sourceTypeService: SourceTypeService) { }
+    private sourceTypeService: SourceTypeService,
+    private recurringExpenseService: RecurringExpenseService,
+    private authService: AuthService) { }
 
   ngOnInit() {
     this.getLineItemData();
     this.getSourceTypes();
     this.getCategories();
+    this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        this.currentUser = user;
+      }
+    });
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      this.currentBudgetId = id ? Number(id) : 0;
+    });
   }
 
   getLineItemData() {
@@ -284,7 +301,6 @@ export class BudgetLineItemsComponent implements OnInit {
         if (index !== -1) {
           this.budgetLineItems[index].budgetLineItemId = response.budgetLineItemId;
         }
-        // TODO may need to get category and source type after here back end updates
         this.newLineItem = null;
         this.getChartData();
       },
@@ -384,5 +400,92 @@ export class BudgetLineItemsComponent implements OnInit {
 
   currentBudgetTotal(): number {
     return this.budgetLineItems.reduce((sum, item) => sum + (item.value || 0), 0);
+  }
+
+  addRecurringExpenses(): void {
+    const userId = this.currentUser?.userId;
+    if (userId == null) {
+      this.snackBar.open('No logged in user', 'Close', { duration: 2000 });
+      return;
+    }
+    this.recurringExpenseService.getRecurringExpensesByUserId(userId).subscribe({
+      next: (expenses) => {
+        const newItems: BudgetLineItems[] = [];
+
+        expenses.forEach(exp => {
+          const converted = this.convertRecurringToBudgetItem(exp);
+
+          const isDuplicate = this.budgetLineItems.some(item =>
+            item.label === converted.label &&
+            item.categoryId === converted.categoryId &&
+            item.sourceTypeId === converted.sourceTypeId &&
+            item.value === converted.value
+          );
+
+          if (!isDuplicate) {
+            this.newLineItem = converted
+            this.saveNewLineItem();
+            newItems.push(converted);
+          }
+          else {
+            this.snackbarQueue.push(`${converted.label} is a duplicate line item.`);
+            this.showQueuedSnackbars();
+          }
+        });
+
+        if (newItems.length > 0) {
+          this.budgetLineItems = [...this.budgetLineItems, ...newItems];
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load recurring expenses', err);
+      }
+    });
+  }
+
+  private convertRecurringToBudgetItem(exp: RecurringExpense): BudgetLineItems {
+    const category = this.categories.find(c => c.categoryId === exp.categoryId);
+    const sourceType = this.sourceTypes.find(s => s.sourceTypeId === exp.sourceTypeId);
+
+    if (!category) {
+      throw new Error(`Category not found for categoryId ${exp.categoryId}`);
+    }
+
+    if (!sourceType) {
+      throw new Error(`SourceType not found for sourceTypeId ${exp.sourceTypeId}`);
+    }
+
+    return {
+      budgetLineItemId: 0,
+      categoryId: exp.categoryId,
+      value: exp.value,
+      budgetId: this.currentBudgetId,
+      sourceTypeId: exp.sourceTypeId,
+      label: exp.label,
+      category: category,
+      sourceType: sourceType
+    };
+  }
+
+  private snackbarQueue: string[] = [];
+  private snackbarActive = false;
+
+  private showQueuedSnackbars() {
+    if (this.snackbarActive || this.snackbarQueue.length === 0) {
+      return;
+    }
+
+    this.snackbarActive = true;
+    const message = this.snackbarQueue.shift()!;
+
+    const ref = this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      panelClass: ['stacked-snackbar']
+    });
+
+    ref.afterDismissed().subscribe(() => {
+      this.snackbarActive = false;
+      this.showQueuedSnackbars();
+    });
   }
 }

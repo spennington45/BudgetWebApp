@@ -11,7 +11,17 @@
   <p>This Month's Total: {{ currentBudgetTotal() | currency }}</p>
   Budget Line Items
 </h3>
-<button mat-raised-button color="primary" (click)="addNewLineItem()">Add New Line Item</button>
+
+<div class="action-buttons">
+  <button mat-raised-button color="primary" (click)="addNewLineItem()">
+    Add New Line Item
+  </button>
+
+  <button mat-raised-button color="accent" class="ml-10" (click)="addRecurringExpenses()">
+    Add Recurring Expenses
+  </button>
+</div>
+
 
 <table mat-table [dataSource]="budgetLineItems">
   <ng-container matColumnDef="label">

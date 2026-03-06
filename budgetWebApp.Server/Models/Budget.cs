@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Collections.Generic;
 
 namespace budgetWebApp.Server.Models;
 
@@ -12,6 +13,5 @@ public partial class Budget
 
     public virtual ICollection<BudgetLineItem> BudgetLineItems { get; set; } = new List<BudgetLineItem>();
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public virtual User? User { get; set; } = null!;
+    public virtual User User { get; set; } = null!;
 }
