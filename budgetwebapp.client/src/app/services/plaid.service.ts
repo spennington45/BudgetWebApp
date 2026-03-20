@@ -28,12 +28,15 @@ export class PlaidService {
     );
   }
 
-  openPlaidLink(token: string, onSuccess: (publicToken: string) => void): void {
+  openPlaidLink(
+    token: string,
+    onSuccess: (publicToken: string, metadata: any) => void
+  ): void {
     const handler = Plaid.create({
       token: token,
       onSuccess: (public_token: string, metadata: any) => {
         console.log('Plaid Link success:', metadata);
-        onSuccess(public_token);
+        onSuccess(public_token, metadata);
       },
       onExit: (err: any, metadata: any) => {
         console.error('Plaid Link exited:', err, metadata);
@@ -41,5 +44,10 @@ export class PlaidService {
     });
 
     handler.open();
+  }
+
+  addPlaidDataLink(payload: any): Observable<any> {
+    return this.http.post(
+      `${env.BASE_URL}/Plaid/link`, payload);
   }
 }

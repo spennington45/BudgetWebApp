@@ -1,5 +1,6 @@
 using budgetWebApp.Server.Helpers;
 using budgetWebApp.Server.Interfaces;
+using budgetWebApp.Server.Mapper;
 using budgetWebApp.Server.Models;
 using budgetWebApp.Server.Repositories;
 using budgetWebApp.Server.Services;
@@ -8,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +33,17 @@ builder.Services.AddScoped<IBudgetTotalRepository, BudgetTotalRepository>();
 builder.Services.AddScoped<IRecurringExpenseRepository, RecurringExpenseRepository>();
 builder.Services.AddHttpClient<PlaidAuthService>();
 builder.Services.AddScoped<PlaidService>();
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<BudgetMapper>();
+    cfg.AddProfile<CategoryMapper>();
+    cfg.AddProfile<SourceTypeMapper>();
+    cfg.AddProfile<BudgetLineItemMapper>();
+    cfg.AddProfile<BudgetTotalMapper>();
+    cfg.AddProfile<UserMapper>();
+    cfg.AddProfile<RecurringExpenseMapper>();
+    cfg.AddProfile<PlaidMapper>();
+});
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

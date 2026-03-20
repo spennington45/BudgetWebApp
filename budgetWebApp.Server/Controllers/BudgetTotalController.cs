@@ -1,5 +1,7 @@
-﻿using budgetWebApp.Server.Interfaces;
+﻿using AutoMapper;
+using budgetWebApp.Server.Interfaces;
 using budgetWebApp.Server.Models;
+using budgetWebApp.Server.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,11 +14,13 @@ namespace budgetWebApp.Server.Controllers
     {
         private readonly ILogger<BudgetTotalController> _logger;
         private readonly IBudgetTotalRepository _budgetTotalRepository;
+        private readonly IMapper _mapper;
 
-        public BudgetTotalController(ILogger<BudgetTotalController> logger, IBudgetTotalRepository repository)
+        public BudgetTotalController(ILogger<BudgetTotalController> logger, IBudgetTotalRepository repository, IMapper mapper)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _budgetTotalRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet("GetBudgetTotalByUserId/{id}")]
@@ -44,7 +48,7 @@ namespace budgetWebApp.Server.Controllers
         [ProducesResponseType(typeof(BudgetTotal), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<BudgetTotal>> UpdateBudgetTotal([FromBody] BudgetTotal budgetTotal)
+        public async Task<ActionResult<BudgetTotal>> UpdateBudgetTotal([FromBody] BudgetTotalDto budgetTotal)
         {
             if (budgetTotal == null || budgetTotal.BudgetTotalId <= 0)
             {
@@ -73,7 +77,7 @@ namespace budgetWebApp.Server.Controllers
         [HttpPost("AddBudgetTotal")]
         [ProducesResponseType(typeof(BudgetTotal), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<BudgetTotal>> AddBudgetTotal([FromBody] BudgetTotal budgetTotal)
+        public async Task<ActionResult<BudgetTotal>> AddBudgetTotal([FromBody] BudgetTotalDto budgetTotal)
         {
             if (budgetTotal == null || budgetTotal.UserId <= 0)
             {
@@ -85,9 +89,9 @@ namespace budgetWebApp.Server.Controllers
             if (ownershipResult != null)
                 return ownershipResult;
 
-            budgetTotal.User = null;
+            var newTotal = _mapper.Map<BudgetTotal>(budgetTotal);
 
-            var createdBudgetTotal = await _budgetTotalRepository.AddBudgetTotalAsync(budgetTotal);
+            var createdBudgetTotal = await _budgetTotalRepository.AddBudgetTotalAsync(newTotal);
             if (createdBudgetTotal == null)
             {
                 _logger.LogError("Failed to create budget total.");

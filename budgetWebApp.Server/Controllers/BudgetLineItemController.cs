@@ -1,5 +1,7 @@
-﻿using budgetWebApp.Server.Interfaces;
+﻿using AutoMapper;
+using budgetWebApp.Server.Interfaces;
 using budgetWebApp.Server.Models;
+using budgetWebApp.Server.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,12 +15,14 @@ namespace budgetWebApp.Server.Controllers
         private readonly ILogger<BudgetLineItemController> _logger;
         private readonly IBudgetLineItemRepository _lineItemRepository;
         private readonly IBudgetRepository _budgetRepository;
+        private readonly IMapper _mapper;
 
-        public BudgetLineItemController(ILogger<BudgetLineItemController> logger, IBudgetLineItemRepository repository, IBudgetRepository budgetRepository)
+        public BudgetLineItemController(ILogger<BudgetLineItemController> logger, IBudgetLineItemRepository repository, IBudgetRepository budgetRepository, IMapper mapper)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _lineItemRepository = repository ?? throw new ArgumentNullException(nameof(repository));
             _budgetRepository = budgetRepository;
+            _mapper = mapper;
         }
 
         [HttpGet("GetBudgetLineItemsByBudgetId/{id}")]
@@ -70,7 +74,7 @@ namespace budgetWebApp.Server.Controllers
         [HttpPost("AddBudgetLineItem")]
         [ProducesResponseType(typeof(BudgetLineItem), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<BudgetLineItem>> AddBudgetLineItem([FromBody] BudgetLineItem lineItem)
+        public async Task<ActionResult<BudgetLineItem>> AddBudgetLineItem([FromBody] BudgetLineItemDto lineItem)
         {
             if (lineItem == null)
             {
@@ -82,11 +86,10 @@ namespace budgetWebApp.Server.Controllers
             var ownershipResult = ValidateOwnership(existingBudget.UserId);
             if (ownershipResult != null)
                 return ownershipResult;
-            lineItem.Budget = null;
-            lineItem.Category = null;
-            lineItem.SourceType = null;
 
-            var createdItem = await _lineItemRepository.AddBudgetLineItemAsync(lineItem);
+            var newLineItem = _mapper.Map<BudgetLineItem>(lineItem);
+
+            var createdItem = await _lineItemRepository.AddBudgetLineItemAsync(newLineItem);
             if (createdItem == null)
             {
                 _logger.LogError("Failed to create budget line item.");
@@ -101,7 +104,7 @@ namespace budgetWebApp.Server.Controllers
         [ProducesResponseType(typeof(BudgetLineItem), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<BudgetLineItem>> UpdateBudgetLineItem([FromBody] BudgetLineItem lineItem)
+        public async Task<ActionResult<BudgetLineItem>> UpdateBudgetLineItem([FromBody] BudgetLineItemDto lineItem)
         {
             if (lineItem == null || lineItem.BudgetLineItemId <= 0)
             {

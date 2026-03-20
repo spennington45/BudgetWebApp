@@ -1,10 +1,7 @@
 ﻿using budgetWebApp.Server.Helpers;
-using System;
-using System.Net.Http;
-using System.Net.Http.Headers;
+using budgetWebApp.Server.Models;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace budgetWebApp.Server.Services
 {
@@ -17,7 +14,7 @@ namespace budgetWebApp.Server.Services
             _httpClient = httpClient;
         }
 
-        public async Task<string> GetAccessTokenAsync(string publicToken)
+        public async Task<PlaidTokenExchangeResponse> GetAccessTokenAsync(string publicToken)
         {
             var requestBody = new
             {
@@ -41,7 +38,12 @@ namespace budgetWebApp.Server.Services
             using var doc = JsonDocument.Parse(responseContent);
             var accessToken = doc.RootElement.GetProperty("access_token").GetString();
 
-            return accessToken ?? throw new ApplicationException("Access token not found in Plaid response.");
+            return new PlaidTokenExchangeResponse
+            {
+                AccessToken = doc.RootElement.GetProperty("access_token").GetString()!,
+                ItemId = doc.RootElement.GetProperty("item_id").GetString()!,
+                RequestId = doc.RootElement.GetProperty("request_id").GetString()!
+            };
         }
 
         public async Task<string> CreateLinkTokenAsync(string userId)

@@ -96,11 +96,33 @@ export class HomeComponent implements OnInit {
       return;
     }
 
-    const userId = this.currentUser.userId.toString(); 
+    const userId = this.currentUser.userId.toString();
 
     this.plaidService.createLinkToken(userId).subscribe(res => {
-      this.plaidService.openPlaidLink(res.link_token, (publicToken: string) => {
-        this.plaidService.exchangePublicToken(publicToken).subscribe();
+      this.plaidService.openPlaidLink(res.link_token, (publicToken: string, metadata: any) => {
+
+        const payload = {
+          userId: userId,
+          publicToken: publicToken,
+          institutionName: metadata.institution?.name,
+          accounts: metadata.accounts.map((a: any) => ({
+            accountId: a.id,
+            name: a.name,
+            mask: a.mask,
+            type: a.type,
+            subtype: a.subtype,
+            officialName: a.official_name
+          }))
+        };
+
+        this.plaidService.addPlaidDataLink(payload).subscribe({
+          next: () => {
+            this.snackBar.open('Accounts linked successfully', 'Close', { duration: 5000 });
+          },
+          error: () => {
+            this.snackBar.open('Failed to link account', 'Close', { duration: 5000 });
+          }
+        });
       });
     });
   }

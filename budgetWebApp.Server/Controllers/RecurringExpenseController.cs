@@ -1,5 +1,7 @@
-﻿using budgetWebApp.Server.Interfaces;
+﻿using AutoMapper;
+using budgetWebApp.Server.Interfaces;
 using budgetWebApp.Server.Models;
+using budgetWebApp.Server.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,11 +14,13 @@ namespace budgetWebApp.Server.Controllers
     {
         private readonly ILogger<RecurringExpenseController> _logger;
         private readonly IRecurringExpenseRepository _recurringExpenseRepository;
+        private readonly IMapper _mapper;
 
-        public RecurringExpenseController(ILogger<RecurringExpenseController> logger, IRecurringExpenseRepository repository)
+        public RecurringExpenseController(ILogger<RecurringExpenseController> logger, IRecurringExpenseRepository repository, IMapper mapper)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _recurringExpenseRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet("GetRecurringExpensesByUserId/{id}")]
@@ -63,7 +67,7 @@ namespace budgetWebApp.Server.Controllers
         [HttpPost("AddRecurringExpense")]
         [ProducesResponseType(typeof(RecurringExpense), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<RecurringExpense>> AddRecurringExpense([FromBody] RecurringExpense expense)
+        public async Task<ActionResult<RecurringExpense>> AddRecurringExpense([FromBody] RecurringExpenseDto expense)
         {
             if (expense == null || expense.UserId <= 0)
             {
@@ -74,11 +78,10 @@ namespace budgetWebApp.Server.Controllers
             var ownershipResult = ValidateOwnership(expense.UserId);
             if (ownershipResult != null)
                 return ownershipResult;
-            expense.User = null;
-            expense.Category = null;
-            expense.SourceType = null;
 
-            var createdExpense = await _recurringExpenseRepository.AddRecurringExpenseAsync(expense);
+            var newExpense = _mapper.Map<RecurringExpense>(expense);
+
+            var createdExpense = await _recurringExpenseRepository.AddRecurringExpenseAsync(newExpense);
             if (createdExpense == null)
             {
                 _logger.LogError("Failed to create recurring expense.");
@@ -93,7 +96,7 @@ namespace budgetWebApp.Server.Controllers
         [ProducesResponseType(typeof(RecurringExpense), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<RecurringExpense>> UpdateRecurringExpense([FromBody] RecurringExpense expense)
+        public async Task<ActionResult<RecurringExpense>> UpdateRecurringExpense([FromBody] RecurringExpenseDto expense)
         {
             if (expense == null || expense.RecurringExpenseId <= 0)
             {

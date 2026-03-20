@@ -1,4 +1,5 @@
-﻿using budgetWebApp.Server.Interfaces;
+﻿using AutoMapper;
+using budgetWebApp.Server.Interfaces;
 using budgetWebApp.Server.Models;
 using budgetWebApp.Server.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -14,12 +15,14 @@ namespace budgetWebApp.Server.Controllers
         private readonly ILogger<BudgetController> _logger;
         private readonly IBudgetRepository _budgetRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
 
-        public BudgetController(ILogger<BudgetController> logger, IBudgetRepository repository, IUserRepository userRepository)
+        public BudgetController(ILogger<BudgetController> logger, IBudgetRepository repository, IUserRepository userRepository, IMapper mapper)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _budgetRepository = repository ?? throw new ArgumentNullException(nameof(repository));
             _userRepository = userRepository;
+            _mapper = mapper;
         }
 
         [HttpGet("GetBudgetByUserId/{id}")]
@@ -69,7 +72,7 @@ namespace budgetWebApp.Server.Controllers
         [ProducesResponseType(typeof(Budget), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Budget>> UpdateBudget([FromBody] UpdateBudgetDto budget)
+        public async Task<ActionResult<Budget>> UpdateBudget([FromBody] BudgetDto budget)
         {
             if (budget == null || budget.BudgetId <= 0)
             {
@@ -97,7 +100,7 @@ namespace budgetWebApp.Server.Controllers
         [HttpPost("AddBudget")]
         [ProducesResponseType(typeof(Budget), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Budget>> AddBudget([FromBody] Budget budget)
+        public async Task<ActionResult<Budget>> AddBudget([FromBody] BudgetDto budget)
         {
             if (budget == null || budget.UserId <= 0)
             {
@@ -108,9 +111,10 @@ namespace budgetWebApp.Server.Controllers
             var ownershipResult = ValidateOwnership(budget.UserId);
             if (ownershipResult != null)
                 return ownershipResult;
-            budget.User = null;
 
-            var createdBudget = await _budgetRepository.AddBudgetAsync(budget);
+            var newBudget = _mapper.Map<Budget>(budget);
+
+            var createdBudget = await _budgetRepository.AddBudgetAsync(newBudget);
             if (createdBudget == null)
             {
                 _logger.LogError("Failed to create budget.");

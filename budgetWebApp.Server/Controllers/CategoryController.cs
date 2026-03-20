@@ -1,5 +1,7 @@
-﻿using budgetWebApp.Server.Interfaces;
+﻿using AutoMapper;
+using budgetWebApp.Server.Interfaces;
 using budgetWebApp.Server.Models;
+using budgetWebApp.Server.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,11 +14,13 @@ namespace budgetWebApp.Server.Controllers
     {
         private readonly ILogger<CategoryController> _logger;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IMapper _mapper;
 
-        public CategoryController(ILogger<CategoryController> logger, ICategoryRepository repository)
+        public CategoryController(ILogger<CategoryController> logger, ICategoryRepository repository, IMapper mapper)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _categoryRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet("GetAllCategories")]
@@ -56,15 +60,15 @@ namespace budgetWebApp.Server.Controllers
         [HttpPost("AddCategory")]
         [ProducesResponseType(typeof(Category), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Category>> AddCategory([FromBody] Category category)
+        public async Task<ActionResult<Category>> AddCategory([FromBody] CategoryDto category)
         {
             if (category == null || string.IsNullOrWhiteSpace(category.CategoryName))
             {
                 _logger.LogWarning("Invalid category creation request.");
                 return BadRequest("Invalid category data.");
             }
-
-            var createdCategory = await _categoryRepository.AddCategoryAsync(category);
+            var newCategory = _mapper.Map<Category>(category);
+            var createdCategory = await _categoryRepository.AddCategoryAsync(newCategory);
             if (createdCategory == null)
             {
                 _logger.LogError("Failed to create category.");
@@ -79,7 +83,7 @@ namespace budgetWebApp.Server.Controllers
         [ProducesResponseType(typeof(Category), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Category>> UpdateCategory([FromBody] Category category)
+        public async Task<ActionResult<Category>> UpdateCategory([FromBody] CategoryDto category)
         {
             if (category == null || category.CategoryId <= 0)
             {

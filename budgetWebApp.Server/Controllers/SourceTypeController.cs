@@ -1,5 +1,7 @@
-﻿using budgetWebApp.Server.Interfaces;
+﻿using AutoMapper;
+using budgetWebApp.Server.Interfaces;
 using budgetWebApp.Server.Models;
+using budgetWebApp.Server.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,11 +14,12 @@ namespace budgetWebApp.Server.Controllers
     {
         private readonly ILogger<SourceTypeController> _logger;
         private readonly ISourceTypeRepository _sourceTypeRepository;
-
-        public SourceTypeController(ILogger<SourceTypeController> logger, ISourceTypeRepository repository)
+        private readonly IMapper _mapper;
+        public SourceTypeController(ILogger<SourceTypeController> logger, ISourceTypeRepository repository, IMapper mapper)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _sourceTypeRepository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet("GetAllSourceTypes")]
@@ -56,15 +59,15 @@ namespace budgetWebApp.Server.Controllers
         [HttpPost("AddSourceType")]
         [ProducesResponseType(typeof(SourceType), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<SourceType>> AddSourceType([FromBody] SourceType sourceType)
+        public async Task<ActionResult<SourceType>> AddSourceType([FromBody] SourceTypeDto sourceType)
         {
             if (sourceType == null || string.IsNullOrWhiteSpace(sourceType.SourceName))
             {
                 _logger.LogWarning("Invalid source type creation request.");
                 return BadRequest("Invalid source type data.");
             }
-
-            var createdSourceType = await _sourceTypeRepository.AddSourceTypeAsync(sourceType);
+            var newSourceType = _mapper.Map<SourceType>(sourceType);
+            var createdSourceType = await _sourceTypeRepository.AddSourceTypeAsync(newSourceType);
             if (createdSourceType == null)
             {
                 _logger.LogError("Failed to create source type.");
@@ -79,7 +82,7 @@ namespace budgetWebApp.Server.Controllers
         [ProducesResponseType(typeof(SourceType), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<SourceType>> UpdateSourceType([FromBody] SourceType sourceType)
+        public async Task<ActionResult<SourceType>> UpdateSourceType([FromBody] SourceTypeDto sourceType)
         {
             if (sourceType == null || sourceType.SourceTypeId <= 0)
             {
