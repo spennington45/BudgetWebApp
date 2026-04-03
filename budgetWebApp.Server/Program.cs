@@ -31,6 +31,7 @@ builder.Services.AddScoped<IBudgetLineItemRepository, BudgetLineItemRepository>(
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IBudgetTotalRepository, BudgetTotalRepository>();
 builder.Services.AddScoped<IRecurringExpenseRepository, RecurringExpenseRepository>();
+builder.Services.AddScoped<IPlaidRepository, PlaidRepository>();
 builder.Services.AddHttpClient<PlaidAuthService>();
 builder.Services.AddScoped<PlaidService>();
 builder.Services.AddAutoMapper(cfg =>

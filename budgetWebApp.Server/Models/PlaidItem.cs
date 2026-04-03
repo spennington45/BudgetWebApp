@@ -19,5 +19,7 @@ public partial class PlaidItem
 
     public virtual ICollection<PlaidAccount> PlaidAccounts { get; set; } = new List<PlaidAccount>();
 
+    public virtual PlaidSyncCursor? PlaidSyncCursor { get; set; }
+
     public virtual User User { get; set; } = null!;
 }

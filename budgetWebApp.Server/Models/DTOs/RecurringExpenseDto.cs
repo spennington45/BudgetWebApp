@@ -8,7 +8,7 @@
 
         public long CategoryId { get; set; }
 
-        public long? SourceTypeId { get; set; }
+        public long SourceTypeId { get; set; }
 
         public decimal Value { get; set; }
 

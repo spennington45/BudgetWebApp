@@ -1,4 +1,5 @@
 ﻿using budgetWebApp.Server.Models;
+using budgetWebApp.Server.Models.DTOs;
 
 namespace budgetWebApp.Server.Interfaces
 {
@@ -6,7 +7,9 @@ namespace budgetWebApp.Server.Interfaces
     {
         Task<PlaidItem> AddPlaidItemAsync(PlaidItem account);
 
-        Task<PlaidItem> AddPlaidAccountsAsync(List<PlaidAccount> accounts);
+        Task<PlaidItem> AddPlaidItemAndAccountsTransactionAsync(PlaidLinkRequestDto account);
+
+        Task<List<PlaidAccount>> AddPlaidAccountsAsync(List<PlaidAccount> link);
 
         Task<PlaidAccount> AddPlaidAccountAsync(PlaidAccount item);
     }

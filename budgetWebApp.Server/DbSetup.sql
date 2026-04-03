@@ -1,5 +1,6 @@
 BEGIN TRANSACTION
 
+DROP TABLE IF EXISTS PlaidSyncCursor;
 DROP TABLE IF EXISTS PlaidAccount;
 DROP TABLE IF EXISTS PlaidItem;
 DROP TABLE IF EXISTS BudgetLineItem;
@@ -32,16 +33,19 @@ CREATE TABLE Category (
 
 CREATE TABLE SourceType (
     SourceTypeId BIGINT IDENTITY(1,1) PRIMARY KEY,
-    SourceName VARCHAR(250)
+    SourceName NVARCHAR(250)
 );
 
 CREATE TABLE Budget (
     BudgetId BIGINT IDENTITY(1,1) PRIMARY KEY,
-    Date DATETIME,
+    Year INT NOT NULL,
+    Month INT NOT NULL,
     UserId BIGINT NOT NULL,
     CONSTRAINT FK_Budget_User FOREIGN KEY (UserId)
         REFERENCES [User](UserId)
-        ON DELETE NO ACTION
+        ON DELETE NO ACTION,
+
+    CONSTRAINT UQ_Budget_AccountId_UserId_Year_Month UNIQUE (UserId, Year, Month)
 );
 
 CREATE TABLE BudgetTotal (
@@ -50,42 +54,6 @@ CREATE TABLE BudgetTotal (
     TotalValue DECIMAL(18,2) NOT NULL DEFAULT 0,
 
     CONSTRAINT FK_BudgetTotal_User FOREIGN KEY (UserId)
-        REFERENCES [User](UserId)
-        ON DELETE NO ACTION
-);
-
-CREATE TABLE BudgetLineItem (
-    BudgetLineItemId BIGINT IDENTITY(1,1) PRIMARY KEY,
-    Label VARCHAR(250),
-    BudgetId BIGINT NOT NULL,
-    CategoryId BIGINT NOT NULL,
-    [Value] DECIMAL(18,2) NOT NULL DEFAULT 0,
-    SourceTypeId BIGINT,
-    CONSTRAINT FK_BugetLineItem_Budget FOREIGN KEY (BudgetId)
-        REFERENCES Budget(BudgetId)
-        ON DELETE NO ACTION,
-    CONSTRAINT FK_BugetLineItem_Category FOREIGN KEY (CategoryId)
-        REFERENCES Category(CategoryId)
-        ON DELETE NO ACTION,
-    CONSTRAINT FK_BudgetLineItem_SourceType FOREIGN KEY (SourceTypeId)
-        REFERENCES SourceType(SourceTypeId)
-        ON DELETE NO ACTION
-);
-
-CREATE TABLE RecurringExpense (
-    RecurringExpenseId BIGINT IDENTITY(1,1) PRIMARY KEY,
-    Label VARCHAR(250),
-    CategoryId BIGINT NOT NULL,
-    SourceTypeId BIGINT,
-    [Value] DECIMAL(18,2) NOT NULL DEFAULT 0,
-    UserId BIGINT NOT NULL,
-    CONSTRAINT FK_RecurringExpenses_Category FOREIGN KEY (CategoryId)
-        REFERENCES Category(CategoryId)
-        ON DELETE NO ACTION,
-    CONSTRAINT FK_RecurringExpenses_SourceType FOREIGN KEY (SourceTypeId)
-        REFERENCES SourceType(SourceTypeId)
-        ON DELETE NO ACTION,
-    CONSTRAINT FK_RecurringExpenses_User FOREIGN KEY (UserId)
         REFERENCES [User](UserId)
         ON DELETE NO ACTION
 );
@@ -101,7 +69,6 @@ CREATE TABLE PlaidItem (
     CONSTRAINT FK_PlaidItem_User FOREIGN KEY (UserId)
         REFERENCES [User](UserId)
         ON DELETE CASCADE,
-
     CONSTRAINT UQ_PlaidItem_ItemId UNIQUE (ItemId)
 );
 
@@ -119,7 +86,66 @@ CREATE TABLE PlaidAccount (
     CONSTRAINT FK_PlaidAccount_PlaidItem FOREIGN KEY (PlaidItemId)
         REFERENCES PlaidItem(PlaidItemId)
         ON DELETE CASCADE,
+     CONSTRAINT UQ_PlaidAccount_AccountId_ItemId UNIQUE (AccountId, PlaidItemId)
+);
 
-    CONSTRAINT UQ_PlaidAccount_AccountId UNIQUE (AccountId)
+CREATE TABLE BudgetLineItem (
+    BudgetLineItemId BIGINT IDENTITY PRIMARY KEY,
+    BudgetId BIGINT NOT NULL,
+    TransactionId NVARCHAR(255) NOT NULL,
+    PendingTransactionId NVARCHAR(255),
+    Date DATE NOT NULL,
+    Value DECIMAL(18,2) NOT NULL,
+    Name NVARCHAR(255),
+    MerchantName NVARCHAR(255),
+    Pending BIT NOT NULL,
+    CategoryId BIGINT NOT NULL,
+    PlaidAccountId BIGINT NOT NULL,
+    UserId BIGINT NOT NULL,
+    SourceTypeId BIGINT NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    UpdatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT FK_BugetLineItem_Budget FOREIGN KEY (BudgetId)
+        REFERENCES Budget(BudgetId)
+        ON DELETE NO ACTION,
+    CONSTRAINT FK_BugetLineItem_Category FOREIGN KEY (CategoryId)
+        REFERENCES Category(CategoryId)
+        ON DELETE NO ACTION,
+    CONSTRAINT FK_BudgetLineItem_SourceType FOREIGN KEY (SourceTypeId)
+        REFERENCES SourceType(SourceTypeId)
+        ON DELETE NO ACTION,
+    CONSTRAINT FK_BudgetLineItem_PlaidAccount FOREIGN KEY (PlaidAccountId)
+        REFERENCES PlaidAccount(PlaidAccountId)
+        ON DELETE NO ACTION,
+    CONSTRAINT UQ_BudgetLineItem_TransactionId UNIQUE (TransactionId)
+);
+
+CREATE TABLE RecurringExpense (
+    RecurringExpenseId BIGINT IDENTITY(1,1) PRIMARY KEY,
+    Label VARCHAR(250),
+    CategoryId BIGINT NOT NULL,
+    SourceTypeId BIGINT NOT NULL,
+    [Value] DECIMAL(18,2) NOT NULL DEFAULT 0,
+    UserId BIGINT NOT NULL,
+    CONSTRAINT FK_RecurringExpenses_Category FOREIGN KEY (CategoryId)
+        REFERENCES Category(CategoryId)
+        ON DELETE NO ACTION,
+    CONSTRAINT FK_RecurringExpenses_SourceType FOREIGN KEY (SourceTypeId)
+        REFERENCES SourceType(SourceTypeId)
+        ON DELETE NO ACTION,
+    CONSTRAINT FK_RecurringExpenses_User FOREIGN KEY (UserId)
+        REFERENCES [User](UserId)
+        ON DELETE NO ACTION
+);
+
+CREATE TABLE PlaidSyncCursor (
+    PlaidItemId BIGINT PRIMARY KEY,
+    [Cursor] NVARCHAR(MAX),
+    UpdatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT FK_PlaidSyncCursor_PlaidItem FOREIGN KEY (PlaidItemId)
+        REFERENCES PlaidItem(PlaidItemId)
+        ON DELETE NO ACTION
 );
 COMMIT

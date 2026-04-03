@@ -8,7 +8,7 @@ namespace budgetWebApp.Server.Mapper
     {
         public BudgetMapper()
         {
-            CreateMap<BudgetLineItem, BudgetLineItemDto>().ReverseMap();
+            CreateMap<Budget, BudgetDto>().ReverseMap();
         }
 
     }

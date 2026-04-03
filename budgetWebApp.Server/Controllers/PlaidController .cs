@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using budgetWebApp.Server.Models;
+using budgetWebApp.Server.Interfaces;
 using budgetWebApp.Server.Models.DTOs;
 using budgetWebApp.Server.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -10,17 +10,19 @@ namespace budgetWebApp.Server.Controllers
     [Authorize]
     [ApiController]
     [Route("[controller]")]
-    public class PlaidController : ControllerBase
+    public class PlaidController : AuthenticatedController
     {
         private readonly PlaidAuthService _plaidAuth;
         private readonly PlaidService _plaidService;
         private readonly IMapper _mapper;
+        private readonly IPlaidRepository _plaidRepository;
 
-        public PlaidController(PlaidAuthService plaidAuth, PlaidService plaidService, IMapper mapper)
+        public PlaidController(PlaidAuthService plaidAuth, PlaidService plaidService, IMapper mapper, IPlaidRepository plaidRepository)
         {
             _plaidAuth = plaidAuth;
             _plaidService = plaidService;
             _mapper = mapper;
+            _plaidRepository = plaidRepository;
         }
 
         [HttpPost("create-link-token")]
@@ -33,23 +35,16 @@ namespace budgetWebApp.Server.Controllers
         [HttpPost("link")]
         public async Task<IActionResult> LinkPlaidAccount([FromBody] PlaidLinkRequestDto link)
         {
-            var exchange = await _plaidAuth.GetAccessTokenAsync(link.PublicToken);
+            if (link == null || link.Accounts == null)
+                return BadRequest("Invalid Plaid link request.");
 
-            var item = _mapper.Map<PlaidItem>(link);
+            var ownershipResult = ValidateOwnership(link.UserId);
+            if (ownershipResult != null)
+                return ownershipResult;
 
-            item.ItemId = exchange.ItemId;
-            item.AccessToken = exchange.AccessToken;
+            var newItem = await _plaidRepository.AddPlaidItemAndAccountsTransactionAsync(link);
 
-            // TODO Add repo call to save data
-
-            var accounts = _mapper.Map<List<PlaidAccount>>(link.Accounts);
-
-            foreach (var acc in accounts)
-                acc.PlaidItemId = item.PlaidItemId;
-
-            // TODO Add repo call to save data
-
-            return Ok();
+            return Ok(newItem);
         }
     }
 }

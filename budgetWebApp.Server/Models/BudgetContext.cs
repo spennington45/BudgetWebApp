@@ -27,6 +27,8 @@ public partial class BudgetContext : DbContext
 
     public virtual DbSet<PlaidItem> PlaidItems { get; set; }
 
+    public virtual DbSet<PlaidSyncCursor> PlaidSyncCursors { get; set; }
+
     public virtual DbSet<RecurringExpense> RecurringExpenses { get; set; }
 
     public virtual DbSet<SourceType> SourceTypes { get; set; }
@@ -41,11 +43,11 @@ public partial class BudgetContext : DbContext
     {
         modelBuilder.Entity<Budget>(entity =>
         {
-            entity.HasKey(e => e.BudgetId).HasName("PK__Budget__E38E7924F1B4A737");
+            entity.HasKey(e => e.BudgetId).HasName("PK__Budget__E38E7924D2204806");
 
             entity.ToTable("Budget");
 
-            entity.Property(e => e.Date).HasColumnType("datetime");
+            entity.HasIndex(e => new { e.UserId, e.Year, e.Month }, "UQ_Budget_AccountId_UserId_Year_Month").IsUnique();
 
             entity.HasOne(d => d.User).WithMany(p => p.Budgets)
                 .HasForeignKey(d => d.UserId)
@@ -55,13 +57,18 @@ public partial class BudgetContext : DbContext
 
         modelBuilder.Entity<BudgetLineItem>(entity =>
         {
-            entity.HasKey(e => e.BudgetLineItemId).HasName("PK__BudgetLi__B7246DBE05255538");
+            entity.HasKey(e => e.BudgetLineItemId).HasName("PK__BudgetLi__B7246DBE8F4732CC");
 
             entity.ToTable("BudgetLineItem");
 
-            entity.Property(e => e.Label)
-                .HasMaxLength(250)
-                .IsUnicode(false);
+            entity.HasIndex(e => e.TransactionId, "UQ_BudgetLineItem_TransactionId").IsUnique();
+
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
+            entity.Property(e => e.MerchantName).HasMaxLength(255);
+            entity.Property(e => e.Name).HasMaxLength(255);
+            entity.Property(e => e.PendingTransactionId).HasMaxLength(255);
+            entity.Property(e => e.TransactionId).HasMaxLength(255);
+            entity.Property(e => e.UpdatedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.Value).HasColumnType("decimal(18, 2)");
 
             entity.HasOne(d => d.Budget).WithMany(p => p.BudgetLineItems)
@@ -74,14 +81,20 @@ public partial class BudgetContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BugetLineItem_Category");
 
+            entity.HasOne(d => d.PlaidAccount).WithMany(p => p.BudgetLineItems)
+                .HasForeignKey(d => d.PlaidAccountId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_BudgetLineItem_PlaidAccount");
+
             entity.HasOne(d => d.SourceType).WithMany(p => p.BudgetLineItems)
                 .HasForeignKey(d => d.SourceTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BudgetLineItem_SourceType");
         });
 
         modelBuilder.Entity<BudgetTotal>(entity =>
         {
-            entity.HasKey(e => e.BudgetTotalId).HasName("PK__BudgetTo__B82C6DFD89C1F253");
+            entity.HasKey(e => e.BudgetTotalId).HasName("PK__BudgetTo__B82C6DFD83BB3167");
 
             entity.ToTable("BudgetTotal");
 
@@ -95,7 +108,7 @@ public partial class BudgetContext : DbContext
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A0B94C1DC93");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A0B957D6BF9");
 
             entity.ToTable("Category");
 
@@ -104,11 +117,11 @@ public partial class BudgetContext : DbContext
 
         modelBuilder.Entity<PlaidAccount>(entity =>
         {
-            entity.HasKey(e => e.PlaidAccountId).HasName("PK__PlaidAcc__F8772F1AAE6E49AF");
+            entity.HasKey(e => e.PlaidAccountId).HasName("PK__PlaidAcc__F8772F1AA7120CF8");
 
             entity.ToTable("PlaidAccount");
 
-            entity.HasIndex(e => e.AccountId, "UQ_PlaidAccount_AccountId").IsUnique();
+            entity.HasIndex(e => new { e.AccountId, e.PlaidItemId }, "UQ_PlaidAccount_AccountId_ItemId").IsUnique();
 
             entity.Property(e => e.AccountId).HasMaxLength(200);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
@@ -125,7 +138,7 @@ public partial class BudgetContext : DbContext
 
         modelBuilder.Entity<PlaidItem>(entity =>
         {
-            entity.HasKey(e => e.PlaidItemId).HasName("PK__PlaidIte__C0BAAEB82D641F31");
+            entity.HasKey(e => e.PlaidItemId).HasName("PK__PlaidIte__C0BAAEB8F17DA19B");
 
             entity.ToTable("PlaidItem");
 
@@ -141,9 +154,24 @@ public partial class BudgetContext : DbContext
                 .HasConstraintName("FK_PlaidItem_User");
         });
 
+        modelBuilder.Entity<PlaidSyncCursor>(entity =>
+        {
+            entity.HasKey(e => e.PlaidItemId).HasName("PK__PlaidSyn__C0BAAEB8B2173A2A");
+
+            entity.ToTable("PlaidSyncCursor");
+
+            entity.Property(e => e.PlaidItemId).ValueGeneratedNever();
+            entity.Property(e => e.UpdatedAt).HasDefaultValueSql("(sysutcdatetime())");
+
+            entity.HasOne(d => d.PlaidItem).WithOne(p => p.PlaidSyncCursor)
+                .HasForeignKey<PlaidSyncCursor>(d => d.PlaidItemId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PlaidSyncCursor_PlaidItem");
+        });
+
         modelBuilder.Entity<RecurringExpense>(entity =>
         {
-            entity.HasKey(e => e.RecurringExpenseId).HasName("PK__Recurrin__D07473416C2BE2DB");
+            entity.HasKey(e => e.RecurringExpenseId).HasName("PK__Recurrin__D074734113172BE8");
 
             entity.ToTable("RecurringExpense");
 
@@ -159,6 +187,7 @@ public partial class BudgetContext : DbContext
 
             entity.HasOne(d => d.SourceType).WithMany(p => p.RecurringExpenses)
                 .HasForeignKey(d => d.SourceTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_RecurringExpenses_SourceType");
 
             entity.HasOne(d => d.User).WithMany(p => p.RecurringExpenses)
@@ -169,18 +198,16 @@ public partial class BudgetContext : DbContext
 
         modelBuilder.Entity<SourceType>(entity =>
         {
-            entity.HasKey(e => e.SourceTypeId).HasName("PK__SourceTy__7E17EC2F7CAF1BCA");
+            entity.HasKey(e => e.SourceTypeId).HasName("PK__SourceTy__7E17EC2F4F94D95D");
 
             entity.ToTable("SourceType");
 
-            entity.Property(e => e.SourceName)
-                .HasMaxLength(250)
-                .IsUnicode(false);
+            entity.Property(e => e.SourceName).HasMaxLength(250);
         });
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__User__1788CC4CD4F6C9B6");
+            entity.HasKey(e => e.UserId).HasName("PK__User__1788CC4C495692B8");
 
             entity.ToTable("User");
 

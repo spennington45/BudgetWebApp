@@ -23,5 +23,7 @@ public partial class PlaidAccount
 
     public DateTime CreatedAt { get; set; }
 
+    public virtual ICollection<BudgetLineItem> BudgetLineItems { get; set; } = new List<BudgetLineItem>();
+
     public virtual PlaidItem PlaidItem { get; set; } = null!;
 }

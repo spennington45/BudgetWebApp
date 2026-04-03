@@ -11,7 +11,7 @@ public partial class RecurringExpense
 
     public long CategoryId { get; set; }
 
-    public long? SourceTypeId { get; set; }
+    public long SourceTypeId { get; set; }
 
     public decimal Value { get; set; }
 
@@ -19,7 +19,7 @@ public partial class RecurringExpense
 
     public virtual Category Category { get; set; } = null!;
 
-    public virtual SourceType? SourceType { get; set; }
+    public virtual SourceType SourceType { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;
 }
