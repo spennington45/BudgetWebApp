@@ -12,5 +12,11 @@ namespace budgetWebApp.Server.Interfaces
         Task<List<PlaidAccount>> AddPlaidAccountsAsync(List<PlaidAccount> link);
 
         Task<PlaidAccount> AddPlaidAccountAsync(PlaidAccount item);
+
+        Task SyncTransactionsForItemAsync(long plaidItemId);
+
+        Task<ICollection<PlaidItem>> GetPladItemsByUserId(long userId);
+
+        Task<PlaidItem> GetPlaidItemByItemId(string itemId);
     }
 }

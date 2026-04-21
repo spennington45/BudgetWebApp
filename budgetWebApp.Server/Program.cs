@@ -4,6 +4,7 @@ using budgetWebApp.Server.Mapper;
 using budgetWebApp.Server.Models;
 using budgetWebApp.Server.Repositories;
 using budgetWebApp.Server.Services;
+using Going.Plaid;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -34,6 +35,12 @@ builder.Services.AddScoped<IRecurringExpenseRepository, RecurringExpenseReposito
 builder.Services.AddScoped<IPlaidRepository, PlaidRepository>();
 builder.Services.AddHttpClient<PlaidAuthService>();
 builder.Services.AddScoped<PlaidService>();
+builder.Services.AddSingleton(new PlaidClient(
+    Going.Plaid.Environment.Sandbox,
+    System.Environment.GetEnvironmentVariable("PLAID_CLIENT_ID"),
+    System.Environment.GetEnvironmentVariable("PLAID_SANDBOX_SECRET")
+));
+
 builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddProfile<BudgetMapper>();

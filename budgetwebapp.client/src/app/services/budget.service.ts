@@ -24,7 +24,8 @@ export class BudgetService {
   updateBudget(budget: Budget): Observable<Budget> {
     const payload = {
       budgetId: budget.budgetId,
-      date: budget.date,
+      year: budget.year,
+      month: budget.month,
       userId: budget.userId
     }
     return this.http.put<Budget>(`${env.BASE_URL}/Budget/UpdateBudget`, payload);
@@ -33,7 +34,8 @@ export class BudgetService {
   addBudget(budget: Budget): Observable<Budget> {
     const payload = {
       userId: budget.user.userId,
-      date: budget.date,
+      year: budget.year,
+      month: budget.month
     }
     return this.http.post<Budget>(`${env.BASE_URL}/Budget/AddBudget`, payload);
   }

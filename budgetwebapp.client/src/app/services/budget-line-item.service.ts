@@ -25,7 +25,7 @@ export class BudgetLineItemService {
       value: lineItem.value,
       budgetId: lineItem.budgetId,
       sourceTypeId: lineItem.sourceTypeId,
-      label: lineItem.label,
+      label: lineItem.name,
     };
     console.log(payload);
     return this.http.post<BudgetLineItems>(`${env.BASE_URL}/BudgetLineItem/AddBudgetLineItem`, payload);
@@ -38,7 +38,7 @@ export class BudgetLineItemService {
       value: lineItem.value,
       budgetId: lineItem.budgetId,
       sourceTypeId: lineItem.sourceTypeId,
-      label: lineItem.label,
+      label: lineItem.name,
     };
     return this.http.put<BudgetLineItems>(`${env.BASE_URL}/BudgetLineItem/UpdateBudgetLineItem`, payload);
   }

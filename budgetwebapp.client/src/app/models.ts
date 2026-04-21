@@ -4,7 +4,8 @@ import { MAT_DATE_FORMATS } from '@angular/material/core';
 export interface Budget {
   budgetId: number;
   userId: number;
-  date: Date;
+  year: number;
+  month: number;
   budgetLineItems: Array<BudgetLineItems>;
   user: User;
   displayDate?: string;
@@ -20,13 +21,32 @@ export interface APIResponse<T> {
 
 export interface BudgetLineItems {
   budgetLineItemId: number;
-  categoryId: number;
-  value: number;
   budgetId: number;
+  transactionId: string;
+  pendingTransactionId?: string | null;
+  date: string;
+  value: number;
+  name?: string | null;
+  merchantName?: string | null;
+  pending: boolean;
+  categoryId: number;
+  plaidAccountId: number;
+  userId: number;
   sourceTypeId: number;
-  label: string;
+  createdAt: string;
+  updatedAt: string;
   category: Category;
   sourceType: SourceType;
+  budget?: Budget;
+  plaidAccount?: PlaidAccount;
+}
+export interface PlaidAccount {
+  accountId: string;
+  name?: string | null;
+  mask?: string | null;
+  type?: string | null;
+  subtype?: string | null;
+  officialName?: string | null;
 }
 export interface User {
   userId: number;

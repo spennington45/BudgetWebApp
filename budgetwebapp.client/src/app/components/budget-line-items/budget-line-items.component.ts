@@ -78,7 +78,7 @@ export class BudgetLineItemsComponent implements OnInit {
   };
   barChartType: 'bar' = 'bar';
 
-  displayedColumns: string[] = ['label', 'value', 'category', 'sourceType', 'actions'];
+  displayedColumns: string[] = ['name', 'value', 'category', 'sourceType', 'actions'];
 
   newLineItem: BudgetLineItems | null = null;
   editingLineItemId: number | null = null;
@@ -253,14 +253,27 @@ export class BudgetLineItemsComponent implements OnInit {
   addNewLineItem() {
     const tempId = 0
     this.newLineItem = {
-      budgetLineItemId: tempId,
-      categoryId: 0,
-      value: 0,
+      budgetLineItemId: 0,
       budgetId: Number(this.budgetId),
+
+      transactionId: '',
+      pendingTransactionId: null,
+      date: new Date().toISOString().split('T')[0],
+      value: 0,
+      name: '',
+      merchantName: '',
+      pending: false,
+
+      categoryId: 0,
+      plaidAccountId: 0,
+      userId: this.currentUser?.userId ?? 0,
       sourceTypeId: 0,
-      label: '',
+
+      createdAt: '',
+      updatedAt: '',
+
       category: {} as Category,
-      sourceType: {} as SourceType,
+      sourceType: {} as SourceType
     };
     this.budgetLineItems.unshift(this.newLineItem);
     this.editingLineItemId = tempId;
@@ -269,14 +282,14 @@ export class BudgetLineItemsComponent implements OnInit {
 
   isNewLineItemValid(): boolean {
     return !!this.newLineItem &&
-      this.newLineItem.label.trim() !== '' &&
+      this.newLineItem.name?.trim() !== '' &&
       this.newLineItem.value != 0 &&
       !!this.newLineItem.category &&
       !!this.newLineItem.sourceType;
   }
 
   isLineItemValid(item: BudgetLineItems): boolean {
-    return item.label?.trim() !== '' &&
+    return item.name?.trim() !== '' &&
       item.value != 0 &&
       !!item.category &&
       !!item.sourceType;
@@ -376,7 +389,7 @@ export class BudgetLineItemsComponent implements OnInit {
   }
 
   deleteLineItem(lineItem: BudgetLineItems): void {
-    if (confirm(`Are you sure you want to delete "${lineItem.label}"?`)) {
+    if (confirm(`Are you sure you want to delete "${lineItem.name}"?`)) {
       this.budgetLineItemService.deleteBudgetLineItem(lineItem.budgetLineItemId).subscribe(() => {
         this.snackBar.open('Line item deleted', 'Close', { duration: 2000 });
         this.getLineItemData();
@@ -416,7 +429,7 @@ export class BudgetLineItemsComponent implements OnInit {
           const converted = this.convertRecurringToBudgetItem(exp);
 
           const isDuplicate = this.budgetLineItems.some(item =>
-            item.label === converted.label &&
+            item.name === converted.name &&
             item.categoryId === converted.categoryId &&
             item.sourceTypeId === converted.sourceTypeId &&
             item.value === converted.value
@@ -428,7 +441,7 @@ export class BudgetLineItemsComponent implements OnInit {
             newItems.push(converted);
           }
           else {
-            this.snackbarQueue.push(`${converted.label} is a duplicate line item.`);
+            this.snackbarQueue.push(`${converted.name} is a duplicate line item.`);
             this.showQueuedSnackbars();
           }
         });
@@ -461,9 +474,18 @@ export class BudgetLineItemsComponent implements OnInit {
       value: exp.value,
       budgetId: this.currentBudgetId,
       sourceTypeId: exp.sourceTypeId,
-      label: exp.label,
+      name: exp.label,
+      merchantName: exp.label,
+      pending: false,
+      transactionId: '',
+      pendingTransactionId: null,
+      date: new Date().toISOString().split('T')[0],
+      plaidAccountId: 0,
+      userId: this.currentUser?.userId ?? 0,
+      createdAt: '',
+      updatedAt: '',
       category: category,
-      sourceType: sourceType
+      sourceType: sourceType,
     };
   }
 

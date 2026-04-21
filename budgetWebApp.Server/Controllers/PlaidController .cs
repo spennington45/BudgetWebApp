@@ -46,5 +46,43 @@ namespace budgetWebApp.Server.Controllers
 
             return Ok(newItem);
         }
+
+        [HttpPost("syncPladItemByItemId")]
+        public async Task<IActionResult> SyncPladItemByItemId([FromBody] PlaidItemSyncDto itemSync)
+        {
+            if (itemSync == null || itemSync.pladItemId == string.Empty)
+                return BadRequest();
+
+            var ownershipResult = ValidateOwnership(itemSync.userId);
+            if (ownershipResult != null)
+                return ownershipResult;
+
+            var existingItem = await _plaidRepository.GetPlaidItemByItemId(itemSync.pladItemId);
+            if (existingItem == null)
+                return NotFound();
+
+            await _plaidRepository.SyncTransactionsForItemAsync(existingItem.PlaidItemId);
+            return Ok();
+        }
+
+        [HttpPost("syncPladItemsByUserId")]
+        public async Task<IActionResult> SyncPladItemsByUserId([FromBody] PlaidItemSyncDto itemSync)
+        {
+            if (itemSync == null)
+                return BadRequest();
+
+            var ownershipResult = ValidateOwnership(itemSync.userId);
+            if (ownershipResult != null)
+                return ownershipResult;
+
+            var existingItems = await _plaidRepository.GetPladItemsByUserId(itemSync.userId);
+            if (existingItems == null)
+                return NotFound();
+
+            foreach (var item in existingItems)
+                await _plaidRepository.SyncTransactionsForItemAsync(item.PlaidItemId);
+
+            return Ok();
+        }
     }
 }

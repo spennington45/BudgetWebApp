@@ -85,7 +85,8 @@ namespace budgetWebApp.Server.Controllers
             if (ownershipResult != null)
                 return ownershipResult;
 
-            esitingBudget.Date = budget.Date;
+            esitingBudget.Year = budget.Year;
+            esitingBudget.Month = budget.Month;
             var updatedBudget = await _budgetRepository.UpdateBudgetAsync(esitingBudget);
             if (updatedBudget == null)
             {

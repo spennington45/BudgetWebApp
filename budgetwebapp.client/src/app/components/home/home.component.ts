@@ -21,7 +21,7 @@ export class HomeComponent implements OnInit {
 
   loading = true;
   dataSource: Budget[] = [];
-  displayedColumns: string[] = ['date', 'total', 'actions'];
+  displayedColumns: string[] = ['month', 'total', 'actions'];
   groupedData: { year: number, data: MatTableDataSource<Budget> }[] = [];
   currentUser: User | null = null;
 
@@ -48,8 +48,7 @@ export class HomeComponent implements OnInit {
   }
 
   navigateToBudgetDetails(budget: Budget) {
-    const formattedDate = budget.date.toISOString().split('T')[0];
-    this.router.navigate(['/budget', formattedDate, budget.budgetId]);
+    this.router.navigate(['/budget', budget.year, budget.month, budget.budgetId]);
   }
 
   sumOfBudget(budget: Budget) {
@@ -72,7 +71,8 @@ export class HomeComponent implements OnInit {
         this.dataSource = response.map(item => ({
           budgetId: item.budgetId,
           userId: item.userId,
-          date: new Date(item.date),
+          year: item.year,
+          month: item.month,
           budgetLineItems: item.budgetLineItems,
           user: item.user
         }));
@@ -131,7 +131,7 @@ export class HomeComponent implements OnInit {
     const groupedByYear: { [year: number]: Budget[] } = {};
 
     this.dataSource.forEach(budget => {
-      const year = budget.date.getFullYear();
+      const year = budget.year;
       if (!groupedByYear[year]) groupedByYear[year] = [];
       groupedByYear[year].push(budget);
     });

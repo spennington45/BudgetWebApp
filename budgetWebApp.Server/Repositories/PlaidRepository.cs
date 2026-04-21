@@ -3,6 +3,10 @@ using budgetWebApp.Server.Interfaces;
 using budgetWebApp.Server.Models;
 using budgetWebApp.Server.Models.DTOs;
 using budgetWebApp.Server.Services;
+using Going.Plaid;
+using Going.Plaid.Entity;
+using Going.Plaid.Transactions;
+using Microsoft.EntityFrameworkCore;
 
 namespace budgetWebApp.Server.Repositories
 {
@@ -11,12 +15,16 @@ namespace budgetWebApp.Server.Repositories
         private readonly BudgetContext _context;
         private readonly IMapper _mapper;
         private readonly PlaidAuthService _plaidAuth;
+        private readonly IBudgetRepository _budgetRepository;
+        private readonly PlaidClient _plaid;
 
-        public PlaidRepository(BudgetContext context, IMapper mapper, PlaidAuthService plaidAuthService)
+        public PlaidRepository(BudgetContext context, IMapper mapper, PlaidAuthService plaidAuthService, IBudgetRepository budgetRepository, PlaidClient plaidClient)
         {
             _context = context;
             _mapper = mapper;
             _plaidAuth = plaidAuthService;
+            _budgetRepository = budgetRepository;
+            _plaid = plaidClient;
         }
 
         public async Task<PlaidAccount> AddPlaidAccountAsync(PlaidAccount accounts)
@@ -77,5 +85,193 @@ namespace budgetWebApp.Server.Repositories
             return newItem.Entity; ;
         }
 
+        public async Task SyncTransactionsForItemAsync(long plaidItemId)
+        {
+            var item = await _context.PlaidItems
+                .Include(i => i.PlaidAccounts)
+                .FirstAsync(i => i.PlaidItemId == plaidItemId);
+
+            var cursorRow = await _context.PlaidSyncCursors
+                .FirstOrDefaultAsync(c => c.PlaidItemId == plaidItemId);
+
+            var cursor = cursorRow?.Cursor;
+
+            var request = new TransactionsSyncRequest
+            {
+                AccessToken = item.AccessToken,
+                Cursor = cursor
+            };
+
+            bool hasMore = true;
+
+            while (hasMore)
+            {
+                var response = await _plaid.TransactionsSyncAsync(request);
+
+                foreach (var added in response.Added)
+                    await UpsertBudgetLineItemAsync(added, item);
+
+                foreach (var modified in response.Modified)
+                    await UpsertBudgetLineItemAsync(modified, item);
+
+                foreach (var removed in response.Removed)
+                    await RemoveBudgetLineItemAsync(removed.TransactionId);
+
+                request.Cursor = response.NextCursor;
+                hasMore = response.HasMore;
+            }
+
+            if (cursorRow == null)
+            {
+                _context.PlaidSyncCursors.Add(new PlaidSyncCursor
+                {
+                    PlaidItemId = plaidItemId,
+                    Cursor = request.Cursor,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+            else
+            {
+                cursorRow.Cursor = request.Cursor;
+                cursorRow.UpdatedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task UpsertBudgetLineItemAsync(Transaction txn, PlaidItem item)
+        {
+            var existing = await _context.BudgetLineItems
+                .FirstOrDefaultAsync(t => t.TransactionId == txn.TransactionId);
+
+            var account = item.PlaidAccounts
+                .First(a => a.AccountId == txn.AccountId);
+
+            var plaidSourceType = await _context.SourceTypes.FirstOrDefaultAsync(st => st.SourceName == "Plaid");
+            long plaidSourceTypeId;
+            if (plaidSourceType == null)
+            {
+                var newSourceType = new SourceType
+                {
+                    SourceName = "Plaid"
+                };
+                _context.SourceTypes.Add(newSourceType);
+                await _context.SaveChangesAsync();
+                plaidSourceTypeId = newSourceType.SourceTypeId;
+            }
+            else
+            {
+                plaidSourceTypeId = plaidSourceType.SourceTypeId;
+            }
+
+            var budgetId = await GetOrCreateBudgetForMonth(item.UserId, (DateOnly)txn.Date);
+
+            if (existing == null)
+            {
+                var newItem = new BudgetLineItem
+                {
+                    TransactionId = txn.TransactionId,
+                    PendingTransactionId = txn.PendingTransactionId,
+                    Date = (DateOnly)txn.Date,
+                    Value = (decimal)txn.Amount,
+                    Name = txn.Name,
+                    MerchantName = txn.MerchantName,
+                    Pending = (bool)txn.Pending,
+                    CategoryId = MapPlaidCategory((IList<string>?)txn.Category),
+                    PlaidAccountId = account.PlaidAccountId,
+                    UserId = item.UserId,
+                    SourceTypeId = plaidSourceTypeId,
+                    BudgetId = budgetId,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                _context.BudgetLineItems.Add(newItem);
+            }
+            else
+            {
+                existing.Value = (decimal)txn.Amount;
+                existing.Pending = (bool)txn.Pending;
+                existing.Date = (DateOnly)txn.Date;
+                existing.MerchantName = txn.MerchantName;
+                existing.Name = txn.Name;
+                existing.CategoryId = MapPlaidCategory((IList<string>?)txn.Category);
+                existing.UpdatedAt = DateTime.UtcNow;
+                existing.BudgetId = budgetId;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task RemoveBudgetLineItemAsync(string transactionId)
+        {
+            var existing = await _context.BudgetLineItems
+                .FirstOrDefaultAsync(t => t.TransactionId == transactionId);
+
+            if (existing != null)
+            {
+                _context.BudgetLineItems.Remove(existing);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        private async Task<long> GetOrCreateBudgetForMonth(long userId, DateOnly date)
+        {
+            var year = date.Year;
+            var month = date.Month;
+
+            var budget = await _context.Budgets
+                .FirstOrDefaultAsync(b => b.UserId == userId &&
+                                          b.Year == year &&
+                                          b.Month == month);
+
+            if (budget != null)
+                return budget.BudgetId;
+
+            var newBudget = new Budget
+            {
+                UserId = userId,
+                Year = year,
+                Month = month,
+            };
+
+            _context.Budgets.Add(newBudget);
+            await _context.SaveChangesAsync();
+
+            return newBudget.BudgetId;
+        }
+
+        private long MapPlaidCategory(IList<string>? plaidCategory)
+        {
+            if (plaidCategory == null || plaidCategory.Count == 0)
+                return -1;
+
+            var name = plaidCategory.Last();
+
+            var category = _context.Categories
+                .FirstOrDefault(c => c.CategoryName == name);
+
+            if (category != null)
+                return category.CategoryId;
+
+            var newCat = new Models.Category { CategoryName = name };
+            _context.Categories.Add(newCat);
+            _context.SaveChanges();
+
+            return newCat.CategoryId;
+        }
+
+        public async Task<ICollection<PlaidItem>> GetPladItemsByUserId(long userId)
+        {
+            return await _context.PlaidItems
+                .Where(c => c.UserId == userId)
+                .ToListAsync();
+        }
+
+        public async Task<PlaidItem> GetPlaidItemByItemId(string itemId)
+        {
+            return await _context.PlaidItems
+                .FirstOrDefaultAsync(i => i.ItemId == itemId);
+        }
     }
 }

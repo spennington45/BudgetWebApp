@@ -1,12 +1,8 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import * as _moment from 'moment';
-import { default as _rollupMoment } from 'moment';
 import { BudgetService } from '../../services/budget.service';
 import { Budget, User } from '../../models';
 import { AuthService } from '../../services/auth.service';
-
-const moment = _rollupMoment || _moment;
 
 @Component({
   selector: 'app-create-budget-dialog',
@@ -21,15 +17,15 @@ export class CreateBudgetDialogComponent implements OnInit {
 
   years: number[] = [];
   selectedYear!: number;
-  selectedMonth!: number;
+  selectedMonth!: number; 
   user!: User;
 
   constructor(
     public dialogRef: MatDialogRef<CreateBudgetDialogComponent>,
     private budgetService: BudgetService,
     private authService: AuthService,
-    @Inject(MAT_DIALOG_DATA) 
-    public data: { existingBudgets: Budget[], budgetToEdit?: Budget}
+    @Inject(MAT_DIALOG_DATA)
+    public data: { existingBudgets: Budget[], budgetToEdit?: Budget }
   ) {}
 
   ngOnInit() {
@@ -37,9 +33,8 @@ export class CreateBudgetDialogComponent implements OnInit {
     this.years = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i);
 
     if (this.data.budgetToEdit) {
-      const date = new Date(this.data.budgetToEdit.date);
-      this.selectedYear = date.getFullYear();
-      this.selectedMonth = date.getMonth();
+      this.selectedYear = this.data.budgetToEdit.year;
+      this.selectedMonth = this.data.budgetToEdit.month - 1;
     } else {
       this.selectedYear = currentYear;
       this.selectedMonth = new Date().getMonth();
@@ -60,12 +55,12 @@ export class CreateBudgetDialogComponent implements OnInit {
   }
 
   onSaveClick(): void {
-    const selectedDate = new Date(this.selectedYear, this.selectedMonth, 1);
+    const year = this.selectedYear;
+    const month = this.selectedMonth + 1; 
 
     if (!this.data.budgetToEdit) {
       const exists = this.data.existingBudgets.some(b =>
-        b.date.getFullYear() === selectedDate.getFullYear() &&
-        b.date.getMonth() === selectedDate.getMonth()
+        b.year === year && b.month === month
       );
 
       if (exists) {
@@ -75,10 +70,10 @@ export class CreateBudgetDialogComponent implements OnInit {
     }
 
     if (this.data.budgetToEdit) {
-      const updatedBudget = {
+      const updatedBudget: Budget = {
         ...this.data.budgetToEdit,
-        date: selectedDate,
-        displayDate: moment(selectedDate).format('MMMM, YYYY')
+        year,
+        month
       };
 
       this.budgetService.updateBudget(updatedBudget).subscribe({
@@ -88,12 +83,12 @@ export class CreateBudgetDialogComponent implements OnInit {
 
     } else {
       const newBudget: Budget = {
+        budgetId: 0,
         userId: this.user.userId,
-        date: selectedDate,
+        year,
+        month,
         budgetLineItems: [],
-        user: this.user,
-        displayDate: moment(selectedDate).format('MMMM, YYYY'),
-        budgetId: 0
+        user: this.user
       };
 
       this.budgetService.addBudget(newBudget).subscribe({

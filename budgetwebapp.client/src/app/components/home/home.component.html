@@ -39,10 +39,10 @@
             <div class="mat-table-budget">
               <table mat-table [dataSource]="yearGroup.data" class="mat-table">
 
-                <ng-container matColumnDef="date">
-                  <th mat-header-cell *matHeaderCellDef> Date </th>
+                <ng-container matColumnDef="month">
+                  <th mat-header-cell *matHeaderCellDef> Month </th>
                   <td mat-cell *matCellDef="let budget">
-                    {{ budget.date.toLocaleString('default', { month: 'long' }) }}
+                    {{ budget.month.toLocaleString('default', { month: 'long' }) }}
                   </td>
                 </ng-container>
 

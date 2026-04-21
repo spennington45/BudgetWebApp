@@ -123,10 +123,17 @@ namespace budgetWebApp.Server.Controllers
             if (ownershipResult != null)
                 return ownershipResult;
 
-            existingBudgetLineItem.Label = lineItem.Label;
+            existingBudgetLineItem.Name = lineItem.Name;
+            existingBudgetLineItem.MerchantName = lineItem.MerchantName;
             existingBudgetLineItem.Value = lineItem.Value;
             existingBudgetLineItem.CategoryId = lineItem.CategoryId;
             existingBudgetLineItem.SourceTypeId = lineItem.SourceTypeId;
+            existingBudgetLineItem.Date = lineItem.Date;
+            existingBudgetLineItem.Pending = lineItem.Pending;
+            existingBudgetLineItem.PendingTransactionId = lineItem.PendingTransactionId;
+            existingBudgetLineItem.PlaidAccountId = lineItem.PlaidAccountId;
+            existingBudgetLineItem.UpdatedAt = DateTime.UtcNow;
+
 
             var updatedItem = await _lineItemRepository.UpdateBudgetLineItemAsync(existingBudgetLineItem);
             if (updatedItem == null)
