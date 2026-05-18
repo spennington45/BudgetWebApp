@@ -8,7 +8,6 @@ import { environment as env } from '../../environments/environment';
   providedIn: 'root'
 })
 export class BudgetLineItemService {
-
   constructor(private http: HttpClient) { }
 
   getBudgetLineItemsByBudgetId(id: number): Observable<BudgetLineItems[]> {
@@ -21,11 +20,19 @@ export class BudgetLineItemService {
 
   addBudgetLineItem(lineItem: BudgetLineItems): Observable<BudgetLineItems> {
     const payload = {
-      categoryId: lineItem.categoryId,
-      value: lineItem.value,
+      budgetLineItemId: lineItem.budgetLineItemId,
       budgetId: lineItem.budgetId,
-      sourceTypeId: lineItem.sourceTypeId,
-      label: lineItem.name,
+      transactionId: lineItem.transactionId ?? null,
+      pendingTransactionId: lineItem.pendingTransactionId ?? null,
+      date: lineItem.date,
+      value: lineItem.value,
+      name: lineItem.name,
+      merchantName: lineItem.merchantName,
+      pending: lineItem.pending,
+      categoryId: lineItem.categoryId,
+      plaidAccountId: lineItem.plaidAccountId ?? null,
+      userId: lineItem.userId,
+      sourceTypeId: lineItem.sourceTypeId
     };
     console.log(payload);
     return this.http.post<BudgetLineItems>(`${env.BASE_URL}/BudgetLineItem/AddBudgetLineItem`, payload);
@@ -34,11 +41,18 @@ export class BudgetLineItemService {
   updateBudgetLineItem(lineItem: BudgetLineItems): Observable<BudgetLineItems> {
     const payload = {
       budgetLineItemId: lineItem.budgetLineItemId,
-      categoryId: lineItem.categoryId,
-      value: lineItem.value,
       budgetId: lineItem.budgetId,
-      sourceTypeId: lineItem.sourceTypeId,
-      label: lineItem.name,
+      transactionId: lineItem.transactionId ?? null,
+      pendingTransactionId: lineItem.pendingTransactionId ?? null,
+      date: lineItem.date,
+      value: lineItem.value,
+      name: lineItem.name,
+      merchantName: lineItem.merchantName,
+      pending: lineItem.pending,
+      categoryId: lineItem.categoryId,
+      plaidAccountId: lineItem.plaidAccountId ?? null,
+      userId: lineItem.userId,
+      sourceTypeId: lineItem.sourceTypeId
     };
     return this.http.put<BudgetLineItems>(`${env.BASE_URL}/BudgetLineItem/UpdateBudgetLineItem`, payload);
   }

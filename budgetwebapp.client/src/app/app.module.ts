@@ -26,7 +26,11 @@ import { HeaderComponent } from './components/header/header.component';
 import { LoginComponent } from './components/login/login.component';
 import { AuthInterceptor } from './auth.interceptor';
 import { RecurringExpensesComponent } from './components/recurring-expenses/recurring-expenses.component';
-
+import { TransactionDetailsComponent } from './components/transaction-details/transaction-details.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { AddLookupDialogComponent } from './components/add-lookup-dialog/add-lookup-dialog.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +42,8 @@ import { RecurringExpensesComponent } from './components/recurring-expenses/recu
     HeaderComponent,
     LoginComponent,
     RecurringExpensesComponent,
+    TransactionDetailsComponent,
+    AddLookupDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -59,6 +65,9 @@ import { RecurringExpensesComponent } from './components/recurring-expenses/recu
     MatSelectModule,
     MatButtonModule,
     MatTooltipModule,
+    MatProgressSpinnerModule,
+    MatDividerModule,
+    MatCardModule,
   ],
   providers: [
     {

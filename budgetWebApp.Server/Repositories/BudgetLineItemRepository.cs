@@ -44,7 +44,9 @@ namespace budgetWebApp.Server.Repositories
 
         public async Task<List<BudgetLineItem>> GetBudgetLineItemsByBudgetIdAsync(long id)
         {
-            return await _context.BudgetLineItems.Where(x => x.BudgetId == id)
+            return await _context.BudgetLineItems
+                .AsNoTracking()
+                .Where(x => x.BudgetId == id)
                 .Include(x => x.Category)
                 .Include(x => x.SourceType)
                 .Include(x => x.Budget)

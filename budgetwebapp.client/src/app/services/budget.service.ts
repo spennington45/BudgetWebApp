@@ -11,10 +11,8 @@ export class BudgetService {
 
   constructor(private http: HttpClient) { }
 
-  async getBudgetByUserId(userId: number): Promise<Budget[]> {
-    return await lastValueFrom(
-      this.http.get<Budget[]>(`${env.BASE_URL}/Budget/GetBudgetByUserId/${userId}`)
-    );
+  getBudgetByUserId(userId: number): Observable<Budget[]> {
+    return this.http.get<Budget[]>(`${env.BASE_URL}/Budget/GetBudgetByUserId/${userId}`);
   }
 
   getBudgetByBudgetId(budgetId: number): Observable<Budget> {

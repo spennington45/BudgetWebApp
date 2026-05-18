@@ -4,6 +4,6 @@
     {
         public long userId { get; set; }
 
-        public string pladItemId { get; set; }
+        public string? pladItemId { get; set; }
     }
 }

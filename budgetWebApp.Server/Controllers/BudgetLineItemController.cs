@@ -111,7 +111,7 @@ namespace budgetWebApp.Server.Controllers
                 _logger.LogWarning("Invalid budget line item update request.");
                 return BadRequest("Invalid line item data.");
             }
-            var existingBudgetLineItem = await _lineItemRepository.GetBudgetLineItemByLineItemIdAsync(lineItem.BudgetId);
+            var existingBudgetLineItem = await _lineItemRepository.GetBudgetLineItemByLineItemIdAsync(lineItem.BudgetLineItemId);
 
             if (existingBudgetLineItem == null)
             {

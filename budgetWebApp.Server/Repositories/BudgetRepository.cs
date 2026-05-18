@@ -16,6 +16,7 @@ namespace budgetWebApp.Server.Repositories
         public async Task<IEnumerable<Budget>> GetBudgetsByUserIdAsync(long id)
         {
             return await _context.Budgets
+                .AsNoTracking()
                 .Where(x => x.UserId == id)
                 .Include(x => x.BudgetLineItems)
                 .ThenInclude(item => item.Category)

@@ -9,7 +9,7 @@ public partial class BudgetLineItem
 
     public long BudgetId { get; set; }
 
-    public string TransactionId { get; set; } = null!;
+    public string? TransactionId { get; set; }
 
     public string? PendingTransactionId { get; set; }
 
@@ -25,7 +25,7 @@ public partial class BudgetLineItem
 
     public long CategoryId { get; set; }
 
-    public long PlaidAccountId { get; set; }
+    public long? PlaidAccountId { get; set; }
 
     public long UserId { get; set; }
 
@@ -39,7 +39,7 @@ public partial class BudgetLineItem
 
     public virtual Category Category { get; set; } = null!;
 
-    public virtual PlaidAccount PlaidAccount { get; set; } = null!;
+    public virtual PlaidAccount? PlaidAccount { get; set; }
 
     public virtual SourceType SourceType { get; set; } = null!;
 }

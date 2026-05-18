@@ -92,7 +92,7 @@ CREATE TABLE PlaidAccount (
 CREATE TABLE BudgetLineItem (
     BudgetLineItemId BIGINT IDENTITY PRIMARY KEY,
     BudgetId BIGINT NOT NULL,
-    TransactionId NVARCHAR(255) NOT NULL,
+    TransactionId NVARCHAR(255),
     PendingTransactionId NVARCHAR(255),
     Date DATE NOT NULL,
     Value DECIMAL(18,2) NOT NULL,
@@ -100,7 +100,7 @@ CREATE TABLE BudgetLineItem (
     MerchantName NVARCHAR(255),
     Pending BIT NOT NULL,
     CategoryId BIGINT NOT NULL,
-    PlaidAccountId BIGINT NOT NULL,
+    PlaidAccountId BIGINT,
     UserId BIGINT NOT NULL,
     SourceTypeId BIGINT NOT NULL,
     CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
@@ -118,7 +118,6 @@ CREATE TABLE BudgetLineItem (
     CONSTRAINT FK_BudgetLineItem_PlaidAccount FOREIGN KEY (PlaidAccountId)
         REFERENCES PlaidAccount(PlaidAccountId)
         ON DELETE NO ACTION,
-    CONSTRAINT UQ_BudgetLineItem_TransactionId UNIQUE (TransactionId)
 );
 
 CREATE TABLE RecurringExpense (

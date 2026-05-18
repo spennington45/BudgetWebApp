@@ -22,7 +22,7 @@ export interface APIResponse<T> {
 export interface BudgetLineItems {
   budgetLineItemId: number;
   budgetId: number;
-  transactionId: string;
+  transactionId: string | null;
   pendingTransactionId?: string | null;
   date: string;
   value: number;
@@ -30,7 +30,7 @@ export interface BudgetLineItems {
   merchantName?: string | null;
   pending: boolean;
   categoryId: number;
-  plaidAccountId: number;
+  plaidAccountId: number | null;
   userId: number;
   sourceTypeId: number;
   createdAt: string;

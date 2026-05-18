@@ -17,20 +17,23 @@ namespace budgetWebApp.Server.Repositories
         private readonly PlaidAuthService _plaidAuth;
         private readonly IBudgetRepository _budgetRepository;
         private readonly PlaidClient _plaid;
+        private readonly ILogger<PlaidRepository> _logger;
 
-        public PlaidRepository(BudgetContext context, IMapper mapper, PlaidAuthService plaidAuthService, IBudgetRepository budgetRepository, PlaidClient plaidClient)
+        public PlaidRepository(BudgetContext context, IMapper mapper, PlaidAuthService plaidAuthService, IBudgetRepository budgetRepository, PlaidClient plaidClient, ILogger<PlaidRepository> logger)
         {
             _context = context;
             _mapper = mapper;
             _plaidAuth = plaidAuthService;
             _budgetRepository = budgetRepository;
             _plaid = plaidClient;
+            _logger = logger;
         }
 
         public async Task<PlaidAccount> AddPlaidAccountAsync(PlaidAccount accounts)
         {
             var newAccount = await _context.PlaidAccounts.AddAsync(accounts);
             await _context.SaveChangesAsync();
+            _logger.LogInformation($"Added Plaid Account {accounts.AccountId}");
             return newAccount.Entity;
         }
 
@@ -38,6 +41,7 @@ namespace budgetWebApp.Server.Repositories
         {
             await _context.PlaidAccounts.AddRangeAsync(accounts);
             await _context.SaveChangesAsync();
+            _logger.LogInformation($"Added Plaid Accounts: {accounts.Count()}");
             return accounts;
         }
 
@@ -87,6 +91,8 @@ namespace budgetWebApp.Server.Repositories
 
         public async Task SyncTransactionsForItemAsync(long plaidItemId)
         {
+            _logger.LogInformation($"Syncing Transactions for item {plaidItemId}");
+
             var item = await _context.PlaidItems
                 .Include(i => i.PlaidAccounts)
                 .FirstAsync(i => i.PlaidItemId == plaidItemId);
@@ -107,6 +113,9 @@ namespace budgetWebApp.Server.Repositories
             while (hasMore)
             {
                 var response = await _plaid.TransactionsSyncAsync(request);
+                _logger.LogInformation($"Transactions Added {response.Added.Count()}");
+                _logger.LogInformation($"Transactions Modified {response.Modified.Count()}");
+                _logger.LogInformation($"Transactions Removed {response.Removed.Count()}");
 
                 foreach (var added in response.Added)
                     await UpsertBudgetLineItemAsync(added, item);
@@ -173,7 +182,7 @@ namespace budgetWebApp.Server.Repositories
                     TransactionId = txn.TransactionId,
                     PendingTransactionId = txn.PendingTransactionId,
                     Date = (DateOnly)txn.Date,
-                    Value = (decimal)txn.Amount,
+                    Value = NormalizePlaidAmount((decimal)txn.Amount),
                     Name = txn.Name,
                     MerchantName = txn.MerchantName,
                     Pending = (bool)txn.Pending,
@@ -190,7 +199,7 @@ namespace budgetWebApp.Server.Repositories
             }
             else
             {
-                existing.Value = (decimal)txn.Amount;
+                existing.Value = NormalizePlaidAmount((decimal)txn.Amount);
                 existing.Pending = (bool)txn.Pending;
                 existing.Date = (DateOnly)txn.Date;
                 existing.MerchantName = txn.MerchantName;
@@ -243,8 +252,20 @@ namespace budgetWebApp.Server.Repositories
 
         private long MapPlaidCategory(IList<string>? plaidCategory)
         {
+            const string defaultCategoryName = "Uncategorized";
+
+            var defaultCategory = _context.Categories
+                .FirstOrDefault(c => c.CategoryName == defaultCategoryName);
+
+            if (defaultCategory == null)
+            {
+                defaultCategory = new Models.Category { CategoryName = defaultCategoryName };
+                _context.Categories.Add(defaultCategory);
+                _context.SaveChanges();
+            }
+
             if (plaidCategory == null || plaidCategory.Count == 0)
-                return -1;
+                return defaultCategory.CategoryId;
 
             var name = plaidCategory.Last();
 
@@ -273,5 +294,14 @@ namespace budgetWebApp.Server.Repositories
             return await _context.PlaidItems
                 .FirstOrDefaultAsync(i => i.ItemId == itemId);
         }
+
+        private decimal NormalizePlaidAmount(decimal amount)
+        {
+            if (amount > 0)
+                return -amount;
+
+            return Math.Abs(amount);
+        }
+
     }
 }

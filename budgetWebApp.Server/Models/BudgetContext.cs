@@ -83,7 +83,6 @@ public partial class BudgetContext : DbContext
 
             entity.HasOne(d => d.PlaidAccount).WithMany(p => p.BudgetLineItems)
                 .HasForeignKey(d => d.PlaidAccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BudgetLineItem_PlaidAccount");
 
             entity.HasOne(d => d.SourceType).WithMany(p => p.BudgetLineItems)

@@ -6,9 +6,9 @@
 
         public long BudgetId { get; set; }
 
-        public string TransactionId { get; set; } = null!;
+        public string? TransactionId { get; set; } = null;
 
-        public string? PendingTransactionId { get; set; }
+        public string? PendingTransactionId { get; set; } = null;
 
         public DateOnly Date { get; set; }
 
@@ -22,7 +22,7 @@
 
         public long CategoryId { get; set; }
 
-        public long PlaidAccountId { get; set; }
+        public long? PlaidAccountId { get; set; } = null;
 
         public long UserId { get; set; }
 

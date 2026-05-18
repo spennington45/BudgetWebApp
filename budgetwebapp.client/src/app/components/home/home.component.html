@@ -14,11 +14,15 @@
     </button>
 
     <button mat-raised-button color="accent" (click)="launchPlaid()">
-      Connect Bank Account
+      Connect Account with Plaid
     </button>
 
     <button mat-raised-button color="warn" (click)="navigateToRecurringExpenses()">
       Manage Recurring Expenses
+    </button>
+
+    <button mat-raised-button color="primary" (click)="syncPlaidItems()">
+      Sync Plaid Items
     </button>
   </div>
 
@@ -42,7 +46,7 @@
                 <ng-container matColumnDef="month">
                   <th mat-header-cell *matHeaderCellDef> Month </th>
                   <td mat-cell *matCellDef="let budget">
-                    {{ budget.month.toLocaleString('default', { month: 'long' }) }}
+                    {{ getMonthName(budget.month) }}
                   </td>
                 </ng-container>
 

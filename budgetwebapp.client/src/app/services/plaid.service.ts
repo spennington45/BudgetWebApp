@@ -50,4 +50,8 @@ export class PlaidService {
     return this.http.post(
       `${env.BASE_URL}/Plaid/link`, payload);
   }
+
+  syncPlaidItemsByUserId(payload: { userId: number }) {
+    return this.http.post(`${env.BASE_URL}/Plaid/syncPladItemsByUserId`, payload);
+  } 
 }

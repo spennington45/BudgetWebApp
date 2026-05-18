@@ -8,7 +8,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { BudgetService } from '../../services/budget.service';
 import { PlaidService } from '../../services/plaid.service';
 import { AuthService } from '../../services/auth.service';
-import { HttpClient } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
@@ -51,11 +50,15 @@ export class HomeComponent implements OnInit {
     this.router.navigate(['/budget', budget.year, budget.month, budget.budgetId]);
   }
 
+  getMonthName(month: number): string {
+    return new Date(2000, month - 1, 1).toLocaleString('en-US', { month: 'long' });
+  }
+
   sumOfBudget(budget: Budget) {
     return budget.budgetLineItems.reduce((sum, current) => sum + current.value, 0);
   }
 
-  async getBudgetByUserId() {
+  getBudgetByUserId() {
     this.loading = true;
     this.dataSource = [];
 
@@ -64,30 +67,32 @@ export class HomeComponent implements OnInit {
       return;
     }
 
-    try {
-      const response = await this.budgetService.getBudgetByUserId(this.currentUser.userId);
+    this.budgetService.getBudgetByUserId(this.currentUser.userId)
+      .subscribe({
+        next: (response) => {
+          if (response && response.length > 0) {
+            this.dataSource = response.map(item => ({
+              budgetId: item.budgetId,
+              userId: item.userId,
+              year: item.year,
+              month: item.month,
+              budgetLineItems: item.budgetLineItems,
+              user: item.user
+            }));
 
-      if (response && response.length > 0) {
-        this.dataSource = response.map(item => ({
-          budgetId: item.budgetId,
-          userId: item.userId,
-          year: item.year,
-          month: item.month,
-          budgetLineItems: item.budgetLineItems,
-          user: item.user
-        }));
-
-        this.groupDataByYear();
-      } else {
-        this.groupedData = [];
-      }
-
-    } catch (err) {
-      console.error("Error retrieving budgets", err);
-    }
-
-    this.loading = false;
-    this.cdr.detectChanges();
+            this.groupDataByYear();
+          } else {
+            this.groupedData = [];
+          }
+        },
+        error: (err) => {
+          console.error("Error retrieving budgets", err);
+        },
+        complete: () => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   launchPlaid() {
@@ -219,5 +224,27 @@ export class HomeComponent implements OnInit {
 
   navigateToRecurringExpenses() {
     this.router.navigate(['/recurring-expenses']);
+  }
+
+  syncPlaidItems() {
+    if (!this.currentUser) {
+      this.snackBar.open('No user logged in', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const payload = {
+      userId: this.currentUser.userId
+    };
+
+    this.plaidService.syncPlaidItemsByUserId(payload).subscribe({
+      next: () => {
+        this.snackBar.open('Plaid items synced successfully', 'Close', { duration: 3000 });
+        this.getBudgetByUserId(); // refresh budgets if needed
+      },
+      error: (err) => {
+        console.error(err);
+        this.snackBar.open('Failed to sync Plaid items', 'Close', { duration: 3000 });
+      }
+    });
   }
 }

@@ -7,7 +7,9 @@ import { SourceTypeService } from '../../services/source-type.service';
 import { CategoryService } from '../../services/category.service';
 import { RecurringExpenseService } from '../../services/recurring-expense.service';
 import { AuthService } from '../../services/auth.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AddLookupDialogComponent } from '../add-lookup-dialog/add-lookup-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-budget-line-items',
@@ -82,6 +84,8 @@ export class BudgetLineItemsComponent implements OnInit {
 
   newLineItem: BudgetLineItems | null = null;
   editingLineItemId: number | null = null;
+  categoryFilter = '';
+  sourceTypeFilter = '';
 
   pieChartLabels: string[] = [];
   pieChartData: ChartData<'pie', number[], string> = {
@@ -115,22 +119,26 @@ export class BudgetLineItemsComponent implements OnInit {
     private categoryService: CategoryService,
     private sourceTypeService: SourceTypeService,
     private recurringExpenseService: RecurringExpenseService,
-    private authService: AuthService) { }
+    private authService: AuthService,
+    private dialog: MatDialog,
+    private router: Router) { }
 
   ngOnInit() {
-    this.getLineItemData();
-    this.getSourceTypes();
-    this.getCategories();
     this.authService.currentUser$.subscribe(user => {
       if (user) {
         this.currentUser = user;
       }
     });
+
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       this.currentBudgetId = id ? Number(id) : 0;
+      this.getSourceTypes();
+      this.getCategories();
+      this.getLineItemData();
     });
   }
+
 
   getLineItemData() {
     this.budgetLineItems = [];
@@ -256,7 +264,7 @@ export class BudgetLineItemsComponent implements OnInit {
       budgetLineItemId: 0,
       budgetId: Number(this.budgetId),
 
-      transactionId: '',
+      transactionId: null,
       pendingTransactionId: null,
       date: new Date().toISOString().split('T')[0],
       value: 0,
@@ -265,7 +273,7 @@ export class BudgetLineItemsComponent implements OnInit {
       pending: false,
 
       categoryId: 0,
-      plaidAccountId: 0,
+      plaidAccountId: null,
       userId: this.currentUser?.userId ?? 0,
       sourceTypeId: 0,
 
@@ -477,10 +485,10 @@ export class BudgetLineItemsComponent implements OnInit {
       name: exp.label,
       merchantName: exp.label,
       pending: false,
-      transactionId: '',
+      transactionId: null,
       pendingTransactionId: null,
       date: new Date().toISOString().split('T')[0],
-      plaidAccountId: 0,
+      plaidAccountId: null,
       userId: this.currentUser?.userId ?? 0,
       createdAt: '',
       updatedAt: '',
@@ -510,4 +518,63 @@ export class BudgetLineItemsComponent implements OnInit {
       this.showQueuedSnackbars();
     });
   }
+
+  openTransaction(row: BudgetLineItems) {
+    this.router.navigate(['/budget', row.budget?.year, row.budget?.month, row.budgetId, "transaction", row.budgetLineItemId]);
+  }
+
+  openAddCategoryDialog(lineItem: BudgetLineItems) {
+    const dialogRef = this.dialog.open(AddLookupDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Add Category',
+        fieldLabel: 'Category Name',
+        existing: this.categories,
+        property: 'categoryName',
+        saveFn: (payload: any) => this.categoryService.addCategory(payload)
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((newCategory: Category) => {
+      if (newCategory) {
+        this.categories.push(newCategory);
+        lineItem.category = newCategory;
+        lineItem.categoryId = newCategory.categoryId;
+      }
+    });
+  }
+
+  openAddSourceTypeDialog(lineItem: BudgetLineItems) {
+    const dialogRef = this.dialog.open(AddLookupDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Add Source Type',
+        fieldLabel: 'Source Type Name',
+        existing: this.sourceTypes,
+        property: 'sourceName',
+        saveFn: (payload: any) => this.sourceTypeService.addSourceType(payload)
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((newType: SourceType) => {
+      if (newType) {
+        this.sourceTypes.push(newType);
+        lineItem.sourceType = newType;
+        lineItem.sourceTypeId = newType.sourceTypeId;
+      }
+    });
+  }
+  
+  get filteredCategories() {
+    return this.categories.filter(c =>
+      c.categoryName.toLowerCase().includes(this.categoryFilter.toLowerCase())
+    );
+  }
+
+  get filteredSourceTypes() {
+    return this.sourceTypes.filter(s =>
+      s.sourceName.toLowerCase().includes(this.sourceTypeFilter.toLowerCase())
+    );
+  }
+
 }
