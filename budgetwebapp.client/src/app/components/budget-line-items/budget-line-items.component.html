@@ -52,8 +52,8 @@
     <td mat-cell *matCellDef="let lineItem">
       <ng-container *ngIf="editingLineItemId === lineItem.budgetLineItemId; else categoryView">
         <div class="edit-field, select-row">
-          <mat-select [(ngModel)]="lineItem.category" [compareWith]="compareCategories"
-            (click)="$event.stopPropagation()">
+          <mat-select [(ngModel)]="lineItem.category" [compareWith]="compareCategories" panelClass="wide-select-panel"
+            [disableOptionCentering]="true" [panelClass]="'select-overlay'" (click)="$event.stopPropagation()">
             <mat-option disabled class="search-option">
               <mat-form-field appearance="outline" class="search-field">
                 <mat-label>Search</mat-label>
@@ -82,6 +82,7 @@
       <ng-container *ngIf="editingLineItemId === lineItem.budgetLineItemId; else sourceView">
         <div class="edit-field, select-row">
           <mat-select [(ngModel)]="lineItem.sourceType" [compareWith]="compareSourceTypes"
+            [disableOptionCentering]="true" [panelClass]="'select-overlay'" panelClass="wide-select-panel"
             (click)="$event.stopPropagation()">
             <mat-option disabled class="search-option">
               <mat-form-field appearance="outline" class="search-field">

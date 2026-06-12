@@ -162,6 +162,7 @@ export class HomeComponent implements OnInit {
           panelClass: ['success']
         });
 
+        this.dataSource.filter(x => x.budgetId != budget.budgetId);
         this.groupDataByYear();
       },
       error: err => {

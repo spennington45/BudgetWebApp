@@ -55,6 +55,8 @@ namespace budgetWebApp.Server.Repositories
             var budget = await GetBudgetByBudgetIdAsync(id);
             if (budget != null)
             {
+                var lineItems = await _context.BudgetLineItems.Where(x => x.BudgetId == id).ToListAsync();
+                _context.BudgetLineItems.RemoveRange(lineItems);
                 _context.Budgets.Remove(budget);
                 await _context.SaveChangesAsync();
                 return true;
