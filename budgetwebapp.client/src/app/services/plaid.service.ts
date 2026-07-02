@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment as env } from '../../environments/environment';
+import { PlaidAccount } from '../models';
 
 declare var Plaid: any;
 
@@ -54,4 +55,8 @@ export class PlaidService {
   syncPlaidItemsByUserId(payload: { userId: number }) {
     return this.http.post(`${env.BASE_URL}/Plaid/syncPladItemsByUserId`, payload);
   } 
+
+  getAccountsByUserId(id: number) {
+    return this.http.get<PlaidAccount[]>(`${env.BASE_URL}/Plaid/getPlaidAccounts/${id}`);
+  }
 }

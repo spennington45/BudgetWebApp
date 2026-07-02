@@ -1,13 +1,7 @@
 import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { BudgetLineItems, Category, RecurringExpense, SourceType, User } from '../../models';
 import {
-  ApexAxisChartSeries,
-  ApexChart,
-  ApexDataLabels,
-  ApexLegend,
-  ApexNonAxisChartSeries,
-  ApexPlotOptions,
-  ApexXAxis
+  ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexLegend, ApexNonAxisChartSeries, ApexPlotOptions, ApexTooltip, ApexXAxis, ApexYAxis
 } from 'ng-apexcharts';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BudgetLineItemService } from '../../services/budget-line-item.service';
@@ -20,11 +14,11 @@ import { AddLookupDialogComponent } from '../add-lookup-dialog/add-lookup-dialog
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({
-    selector: 'app-budget-line-items',
-    templateUrl: './budget-line-items.component.html',
-    styleUrls: ['./budget-line-items.component.css'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'app-budget-line-items',
+  templateUrl: './budget-line-items.component.html',
+  styleUrls: ['./budget-line-items.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false
 })
 export class BudgetLineItemsComponent implements OnInit {
   // Replace catigory color stuff eventually
@@ -35,6 +29,12 @@ export class BudgetLineItemsComponent implements OnInit {
     '#2ECC71', '#E67E22', '#1ABC9C', '#D35400'
   ];
   private colorIndex = 0;
+  private incomeColorMap: Map<string, string> = new Map();
+  private incomeColorPalette: string[] = [
+    '#2ECC71', '#27AE60', '#16A085', '#1ABC9C',
+    '#3498DB', '#2980B9', '#00C853', '#00BFA5'
+  ];
+  private incomeColorIndex = 0;
 
   @Input() budgetId: string = '';
   budgetLineItems: BudgetLineItems[] = [];
@@ -47,6 +47,16 @@ export class BudgetLineItemsComponent implements OnInit {
   public expensePieLabels: string[] = [];
   public expensePieColors: string[] = [];
 
+  public pieTooltip: ApexTooltip = {
+    y: {
+      formatter: (value: number) =>
+        `$${value.toLocaleString(undefined, {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2
+        })}`
+    }
+  };
+
   public expensePieChart: ApexChart = {
     type: 'pie',
     height: 350
@@ -57,15 +67,26 @@ export class BudgetLineItemsComponent implements OnInit {
   };
 
   public incomeExpenseSeries: ApexAxisChartSeries = [];
-
+  public incomeExpenseColors: string[] = [];
   public incomeExpenseChart: ApexChart = {
     type: 'bar',
     height: 350,
+    width: 400,
     stacked: true
   };
 
   public incomeExpenseXAxis: ApexXAxis = {
     categories: ['Income', 'Expenses']
+  };
+
+  public incomeExpenseYAxis: ApexYAxis = {
+    labels: {
+      formatter: (value: number) =>
+        `$${value.toLocaleString(undefined, {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2
+        })}`
+    }
   };
 
   public incomeExpensePlotOptions: ApexPlotOptions = {
@@ -75,7 +96,8 @@ export class BudgetLineItemsComponent implements OnInit {
   };
 
   public incomeExpenseDataLabels: ApexDataLabels = {
-    enabled: true
+    enabled: true,
+    formatter: (value: number) => `$${value.toFixed(2)}`
   };
 
   public incomeExpenseLegend: ApexLegend = {
@@ -180,15 +202,20 @@ export class BudgetLineItemsComponent implements OnInit {
 
     this.expensePieLabels = [...expenseMap.keys()];
     this.expensePieSeries = [...expenseMap.values()];
-    this.expensePieColors = this.generateColors(this.expensePieLabels.length);
+    this.expensePieColors = this.expensePieLabels.map(category =>
+      this.getColorForCategory(category)
+    );
 
     const series: ApexAxisChartSeries = [];
+    const colors: string[] = [];
 
     incomeMap.forEach((value, category) => {
       series.push({
         name: category,
         data: [value, 0]
       });
+
+      colors.push(this.getColorForIncomeCategory(category));
     });
 
     expenseMap.forEach((value, category) => {
@@ -196,9 +223,12 @@ export class BudgetLineItemsComponent implements OnInit {
         name: category,
         data: [0, value]
       });
+
+      colors.push(this.getColorForCategory(category));
     });
 
     this.incomeExpenseSeries = series;
+    this.incomeExpenseColors = colors;
   }
 
   getColorForCategory(category: string): string {
@@ -209,6 +239,22 @@ export class BudgetLineItemsComponent implements OnInit {
     const color = this.colorPalette[this.colorIndex % this.colorPalette.length];
     this.categoryColorMap.set(category, color);
     this.colorIndex++;
+
+    return color;
+  }
+
+  getColorForIncomeCategory(category: string): string {
+    if (this.incomeColorMap.has(category)) {
+      return this.incomeColorMap.get(category)!;
+    }
+
+    const color =
+      this.incomeColorPalette[
+      this.incomeColorIndex % this.incomeColorPalette.length
+      ];
+
+    this.incomeColorMap.set(category, color);
+    this.incomeColorIndex++;
 
     return color;
   }

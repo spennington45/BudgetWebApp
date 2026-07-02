@@ -4,7 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 @Component({
     selector: 'app-add-lookup-dialog',
     templateUrl: './add-lookup-dialog.component.html',
-    styleUrls: ['./add-lookup-dialog.component.scss'],
+    styleUrls: ['./add-lookup-dialog.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })

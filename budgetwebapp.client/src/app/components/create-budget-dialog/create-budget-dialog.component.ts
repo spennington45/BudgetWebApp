@@ -7,7 +7,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
     selector: 'app-create-budget-dialog',
     templateUrl: './create-budget-dialog.component.html',
-    styleUrls: ['./create-budget-dialog.component.scss'],
+    styleUrls: ['./create-budget-dialog.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })

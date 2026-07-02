@@ -9,13 +9,16 @@ import { BudgetService } from '../../services/budget.service';
 import { PlaidService } from '../../services/plaid.service';
 import { AuthService } from '../../services/auth.service';
 import { MatTableDataSource } from '@angular/material/table';
+import {
+  ApexTitleSubtitle, ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexLegend, ApexNonAxisChartSeries, ApexStroke, ApexXAxis, ApexYAxis, ApexTooltip
+} from 'ng-apexcharts';
 
 @Component({
-    selector: 'app-home',
-    templateUrl: './home.component.html',
-    styleUrl: './home.component.css',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false
 })
 export class HomeComponent implements OnInit {
   @ViewChild(MatSort) sort: MatSort = new MatSort();
@@ -25,6 +28,138 @@ export class HomeComponent implements OnInit {
   displayedColumns: string[] = ['month', 'total', 'actions'];
   groupedData: { year: number, data: MatTableDataSource<Budget> }[] = [];
   currentUser: User | null = null;
+  public incomeExpenseTrendSeries: ApexAxisChartSeries = [];
+  public incomeExpenseTrendChart: ApexChart = {
+    type: 'area',
+    height: 350,
+    toolbar: {
+      show: false
+    }
+  };
+
+  public incomeExpenseTrendXAxis: ApexXAxis = {
+    categories: []
+  };
+
+  public incomeExpenseTrendStroke: ApexStroke = {
+    curve: 'smooth'
+  };
+
+  public incomeExpenseTrendLegend: ApexLegend = {
+    position: 'bottom'
+  };
+
+  public expenseCategorySeries: ApexNonAxisChartSeries = [];
+  public expenseCategoryLabels: string[] = [];
+
+  public expenseCategoryChart: ApexChart = {
+    type: 'donut',
+    height: 350
+  };
+
+  public expenseCategoryLegend: ApexLegend = {
+    position: 'bottom'
+  };
+
+  public monthlyBudgetSeries: ApexAxisChartSeries = [];
+  public monthlyBudgetChart: ApexChart = {
+    type: 'area',
+    height: 350,
+    toolbar: {
+      show: false
+    }
+  };
+
+  public monthlyBudgetXAxis: ApexXAxis = {
+    categories: []
+  };
+
+  public monthlyBudgetStroke: ApexStroke = {
+    curve: 'smooth'
+  };
+
+  public monthlyBudgetYAxis: ApexYAxis = {
+    labels: {
+      formatter: (value: number) =>
+        `$${value.toLocaleString(undefined, {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2
+        })}`
+    }
+  };
+
+  public incomeExpenseTrendDataLabels: ApexDataLabels = {
+    enabled: false,
+    formatter: (value: number) =>
+      `$${value.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })}`
+  };
+
+  public incomeExpenseTrendTooltip: ApexTooltip = {
+    y: {
+      formatter: (value: number) =>
+        `$${value.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })}`
+    }
+  };
+
+  public monthlyBudgetDataLabels: ApexDataLabels = {
+    enabled: false,
+    formatter: (value: number) =>
+      `$${value.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })}`
+  };
+
+  public monthlyBudgetTooltip: ApexTooltip = {
+    y: {
+      formatter: (value: number) =>
+        `$${value.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })}`
+    }
+  };
+
+  public pieTooltip: ApexTooltip = {
+    y: {
+      formatter: (value: number) =>
+        `$${value.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })}`
+    }
+  };
+
+  public incomeExpenseTrendYAxis: ApexYAxis = {
+    labels: {
+      formatter: (value: number) =>
+        `$${value.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })}`
+    }
+  };
+
+  public incomeExpenseTrendTitle: ApexTitleSubtitle = {
+    text: 'Income vs Expenses Over Time',
+    align: 'center'
+  };
+
+  public expenseCategoryTitle: ApexTitleSubtitle = {
+    text: 'Expense Category Breakdown',
+    align: 'center'
+  };
+
+  public monthlyBudgetTitle: ApexTitleSubtitle = {
+    text: 'Net Budget Trend',
+    align: 'center'
+  };
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -49,7 +184,7 @@ export class HomeComponent implements OnInit {
   }
 
   navigateToBudgetDetails(budget: Budget) {
-    this.router.navigate(['/budget', budget.year, budget.month, budget.budgetId]);
+    this.router.navigate(['/budget', budget.month, budget.year, budget.budgetId]);
   }
 
   getMonthName(month: number): string {
@@ -83,6 +218,7 @@ export class HomeComponent implements OnInit {
             }));
 
             this.groupDataByYear();
+            this.buildDashboardCharts();
           } else {
             this.groupedData = [];
           }
@@ -143,10 +279,14 @@ export class HomeComponent implements OnInit {
       groupedByYear[year].push(budget);
     });
 
+
     this.groupedData = Object.keys(groupedByYear)
       .map(year => ({
         year: parseInt(year),
-        data: new MatTableDataSource(groupedByYear[parseInt(year)])
+        data: new MatTableDataSource(
+          groupedByYear[parseInt(year)]
+            .sort((a, b) => b.month - a.month)
+        )
       }))
       .sort((a, b) => b.year - a.year);
   }
@@ -182,7 +322,7 @@ export class HomeComponent implements OnInit {
     dialogConfig.width = '300px';
     dialogConfig.data = {
       existingBudgets: this.dataSource,
-      budgetToEdit: budget   // <-- pass the budget
+      budgetToEdit: budget
     };
 
     const dialogRef = this.dialog.open(CreateBudgetDialogComponent, dialogConfig);
@@ -210,7 +350,7 @@ export class HomeComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.getBudgetByUserId(); // reload from server
+        this.getBudgetByUserId();
         this.snackBar.open('Budget created successfully', 'Close', {
           duration: 3000,
           panelClass: ['success']
@@ -242,12 +382,117 @@ export class HomeComponent implements OnInit {
     this.plaidService.syncPlaidItemsByUserId(payload).subscribe({
       next: () => {
         this.snackBar.open('Plaid items synced successfully', 'Close', { duration: 3000 });
-        this.getBudgetByUserId(); // refresh budgets if needed
+        this.getBudgetByUserId();
       },
       error: (err) => {
         console.error(err);
         this.snackBar.open('Failed to sync Plaid items', 'Close', { duration: 3000 });
       }
     });
+  }
+
+  buildDashboardCharts() {
+    const sortedBudgets = [...this.dataSource].sort((a, b) => {
+      if (a.year !== b.year) {
+        return a.year - b.year;
+      }
+
+      return a.month - b.month;
+    });
+
+    const monthLabels: string[] = [];
+    const incomeData: number[] = [];
+    const expenseData: number[] = [];
+    const netBudgetData: number[] = [];
+
+    const expenseCategoryMap = new Map<string, number>();
+
+    sortedBudgets.forEach(budget => {
+      monthLabels.push(
+        `${this.getMonthName(budget.month)} ${budget.year}`
+      );
+
+      let monthlyIncome = 0;
+      let monthlyExpense = 0;
+
+      budget.budgetLineItems.forEach(item => {
+        if (item.value > 0) {
+          monthlyIncome += item.value;
+        } else {
+          monthlyExpense += Math.abs(item.value);
+
+          const categoryName =
+            item.category?.categoryName ?? 'Unknown';
+
+          expenseCategoryMap.set(
+            categoryName,
+            (expenseCategoryMap.get(categoryName) || 0) +
+            Math.abs(item.value)
+          );
+        }
+      });
+
+      incomeData.push(monthlyIncome);
+      expenseData.push(monthlyExpense);
+      netBudgetData.push(monthlyIncome - monthlyExpense);
+    });
+
+    this.incomeExpenseTrendXAxis = {
+      categories: monthLabels
+    };
+
+    this.incomeExpenseTrendSeries = [
+      {
+        name: 'Income',
+        data: incomeData
+      },
+      {
+        name: 'Expenses',
+        data: expenseData
+      }
+    ];
+
+    this.monthlyBudgetXAxis = {
+      categories: monthLabels
+    };
+
+    this.monthlyBudgetSeries = [
+      {
+        name: 'Net Budget',
+        data: netBudgetData
+      }
+    ];
+
+    this.expenseCategoryLabels = [...expenseCategoryMap.keys()];
+    this.expenseCategorySeries = [...expenseCategoryMap.values()];
+  }
+
+  getTotalIncome(): number {
+    return this.dataSource
+      .flatMap(x => x.budgetLineItems)
+      .filter(x => x.value > 0)
+      .reduce((sum, x) => sum + x.value, 0);
+  }
+
+  getTotalExpenses(): number {
+    return this.dataSource
+      .flatMap(x => x.budgetLineItems)
+      .filter(x => x.value < 0)
+      .reduce((sum, x) => sum + Math.abs(x.value), 0);
+  }
+
+  getSavings(): number {
+    return this.getTotalIncome() - this.getTotalExpenses();
+  }
+
+  private formatCurrency(value: number): string {
+    return `$${value.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })}`;
+  }
+
+  navigateToAccountDashboard() {
+    this.router.navigate(['/account-dashboard']);
   }
 }

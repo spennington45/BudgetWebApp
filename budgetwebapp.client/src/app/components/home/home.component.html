@@ -1,78 +1,134 @@
 @if (!currentUser) {
-  <p>Please log in before any budget information can be displayed.</p>
+<p>Please log in before any budget information can be displayed.</p>
 }
 
 @if (currentUser) {
-  <h2>Budgets</h2>
-  <div class="grand-total">
-    Total of all budgets: {{ getTotalOfAllBudgets() | currency }}
+<h2 class="">Budgets</h2>
+<div class="grand-total">
+  Total of all budgets: {{ getTotalOfAllBudgets() | currency }}
+</div>
+<div class="action-buttons">
+  <button mat-raised-button color="primary" (click)="createNewBudget()">
+    Create New Budget
+  </button>
+  <button mat-raised-button color="warn" (click)="navigateToRecurringExpenses()">
+    Manage Recurring Expenses
+  </button>
+  <button mat-raised-button color="accent" (click)="launchPlaid()">
+    Connect Account with Plaid
+  </button>
+  <button mat-raised-button color="primary" (click)="syncPlaidItems()">
+    Sync Plaid Items
+  </button>
+  <button mat-raised-button color="warn" (click)="navigateToAccountDashboard()">
+    Account Dashboard
+  </button>
+</div>
+@if (!loading) {
+<div class="dashboard-cards">
+  <mat-card>
+    <mat-card-content>
+      <h3>Total Income</h3>
+      <h2>{{ getTotalIncome() | currency }}</h2>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-content>
+      <h3>Total Expenses</h3>
+      <h2>{{ getTotalExpenses() | currency }}</h2>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-content>
+      <h3>Net Savings</h3>
+      <h2>{{ getSavings() | currency }}</h2>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-content>
+      <h3>Total Budgets</h3>
+      <h2>{{ dataSource.length }}</h2>
+    </mat-card-content>
+  </mat-card>
+</div>
+<div class="dashboard-section">
+  <div class="dashboard-chart">
+    <apx-chart [series]="incomeExpenseTrendSeries" [chart]="incomeExpenseTrendChart" [xaxis]="incomeExpenseTrendXAxis"
+      [dataLabels]="incomeExpenseTrendDataLabels" [tooltip]="incomeExpenseTrendTooltip"
+      [title]="incomeExpenseTrendTitle" [yaxis]="incomeExpenseTrendYAxis" [stroke]="incomeExpenseTrendStroke"
+      [legend]="incomeExpenseTrendLegend">
+    </apx-chart>
   </div>
-  <div class="action-buttons">
-    <button mat-raised-button color="primary" (click)="createNewBudget()">
-      Create New Budget
-    </button>
-    <button mat-raised-button color="warn" (click)="navigateToRecurringExpenses()">
-      Manage Recurring Expenses
-    </button>
-    <button mat-raised-button color="accent" (click)="launchPlaid()">
-      Connect Account with Plaid
-    </button>
-    <button mat-raised-button color="primary" (click)="syncPlaidItems()">
-      Sync Plaid Items
-    </button>
+
+  @if (groupedData.length > 0) {
+  <div class="budget-history-panels">
+    <h2 class="title budget-history-title">Budget History</h2>
+    <div class="expansion-panel">
+      <mat-accordion>
+        @for (yearGroup of groupedData; track yearGroup) {
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{ yearGroup.year }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div class="mat-table-budget">
+            <table mat-table [dataSource]="yearGroup.data" class="mat-table">
+              <ng-container matColumnDef="month">
+                <th mat-header-cell *matHeaderCellDef> Month </th>
+                <td mat-cell *matCellDef="let budget">
+                  {{ getMonthName(budget.month) }}
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="total">
+                <th mat-header-cell *matHeaderCellDef> Total </th>
+                <td mat-cell *matCellDef="let budget">
+                  {{ sumOfBudget(budget) | currency }}
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef> Actions </th>
+                <td mat-cell *matCellDef="let budget" (click)="$event.stopPropagation()">
+                  <button mat-icon-button title="Delete" (click)="deleteBudget(budget)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                  <button mat-icon-button title="Edit" (click)="updateBudget(budget)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="navigateToBudgetDetails(row)">
+              </tr>
+            </table>
+          </div>
+        </mat-expansion-panel>
+        }
+      </mat-accordion>
+    </div>
   </div>
-  @if (!loading) {
-    @if (groupedData.length > 0) {
-      <div class="expansion-panel">
-        <mat-accordion>
-          @for (yearGroup of groupedData; track yearGroup) {
-            <mat-expansion-panel>
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  {{ yearGroup.year }}
-                </mat-panel-title>
-              </mat-expansion-panel-header>
-              <div class="mat-table-budget">
-                <table mat-table [dataSource]="yearGroup.data" class="mat-table">
-                  <ng-container matColumnDef="month">
-                    <th mat-header-cell *matHeaderCellDef> Month </th>
-                    <td mat-cell *matCellDef="let budget">
-                      {{ getMonthName(budget.month) }}
-                    </td>
-                  </ng-container>
-                  <ng-container matColumnDef="total">
-                    <th mat-header-cell *matHeaderCellDef> Total </th>
-                    <td mat-cell *matCellDef="let budget">
-                      {{ sumOfBudget(budget) | currency }}
-                    </td>
-                  </ng-container>
-                  <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef> Actions </th>
-                    <td mat-cell *matCellDef="let budget" (click)="$event.stopPropagation()">
-                      <button mat-icon-button title="Delete" (click)="deleteBudget(budget)">
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                      <button mat-icon-button title="Edit" (click)="updateBudget(budget)">
-                        <mat-icon>edit</mat-icon>
-                      </button>
-                    </td>
-                  </ng-container>
-                  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                  <tr mat-row *matRowDef="let row; columns: displayedColumns"
-                    (click)="navigateToBudgetDetails(row)">
-                  </tr>
-                </table>
-              </div>
-            </mat-expansion-panel>
-          }
-        </mat-accordion>
-      </div>
-    } @else {
-      <p>No budgets available. Create one to get started!</p>
-    }
   } @else {
-    <p>Loading budgets...</p>
+  <p>No budgets available. Create one to get started!</p>
   }
+  <div class="dashboard-chart-row">
+    <div class="dashboard-chart-half">
+      <apx-chart [series]="expenseCategorySeries" [chart]="expenseCategoryChart" [labels]="expenseCategoryLabels"
+        [legend]="expenseCategoryLegend" [title]="expenseCategoryTitle">
+      </apx-chart>
+    </div>
+
+    <div class="dashboard-chart-half">
+      <apx-chart [series]="monthlyBudgetSeries" [chart]="monthlyBudgetChart" [xaxis]="monthlyBudgetXAxis"
+        [dataLabels]="monthlyBudgetDataLabels" [tooltip]="monthlyBudgetTooltip" [yaxis]="monthlyBudgetYAxis"
+        [stroke]="monthlyBudgetStroke" [title]="monthlyBudgetTitle">
+      </apx-chart>
+    </div>
+  </div>
+</div>
+} @else {
+<p>Loading budgets...</p>
 }
-
-
+}

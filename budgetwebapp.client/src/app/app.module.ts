@@ -32,6 +32,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { AddLookupDialogComponent } from './components/add-lookup-dialog/add-lookup-dialog.component';
 import { NgApexchartsModule } from 'ng-apexcharts';
+import { AccountDashboardComponent } from './components/account-dashboard/account-dashboard.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -44,6 +45,7 @@ import { NgApexchartsModule } from 'ng-apexcharts';
         RecurringExpensesComponent,
         TransactionDetailsComponent,
         AddLookupDialogComponent,
+        AccountDashboardComponent,
     ],
     bootstrap: [AppComponent], imports: [BrowserModule,
         NgChartsModule,

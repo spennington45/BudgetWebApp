@@ -10,7 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 @Component({
     selector: 'app-transaction-details',
     templateUrl: './transaction-details.component.html',
-    styleUrls: ['./transaction-details.component.scss'],
+    styleUrls: ['./transaction-details.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })

@@ -1,0 +1,62 @@
+.account-dashboard {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.account-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.account-kpis mat-card {
+  text-align: center;
+}
+
+.account-chart-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.chart-half {
+  flex: 1;
+  min-width: 450px;
+}
+
+.account-table-card {
+  margin-bottom: 40px;
+}
+
+table {
+  width: 100%;
+}
+
+h2 {
+  margin: 0;
+  color: #1976d2;
+}
+
+h3 {
+  margin-bottom: 8px;
+}
+
+@media (max-width: 900px) {
+
+  .account-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .chart-half {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .account-kpis {
+    grid-template-columns: 1fr;
+  }
+}

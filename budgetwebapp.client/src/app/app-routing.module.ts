@@ -4,6 +4,7 @@ import { HomeComponent } from './components/home/home.component';
 import { RecurringExpensesComponent } from './components/recurring-expenses/recurring-expenses.component';
 import { BudgetDetailsComponent } from './components/budget-details/budget-details.component';
 import { TransactionDetailsComponent } from './components/transaction-details/transaction-details.component';
+import { AccountDashboardComponent } from './components/account-dashboard/account-dashboard.component';
 
 const routes: Routes = [
   {
@@ -26,6 +27,10 @@ const routes: Routes = [
   { 
     path: 'budget/:year/:month/:id/transaction/:transactionId', 
     component: TransactionDetailsComponent 
+  },
+  { 
+    path: 'account-dashboard', 
+    component: AccountDashboardComponent 
   },
 ];
 

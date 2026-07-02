@@ -3,11 +3,11 @@ import { ActivatedRoute } from '@angular/router';
 
 
 @Component({
-    selector: 'app-budget-details',
-    templateUrl: './budget-details.component.html',
-    styleUrl: './budget-details.component.css',
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'app-budget-details',
+  templateUrl: './budget-details.component.html',
+  styleUrl: './budget-details.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false
 })
 export class BudgetDetailsComponent implements OnInit {
   budgetId: string = "";
@@ -19,11 +19,12 @@ export class BudgetDetailsComponent implements OnInit {
 
   ngOnInit() {
     this.route.params.subscribe(params => {
-      this.date = params['date'];
+      const month = Number(params['month']);
+      const year = Number(params['year']);
+
       this.budgetId = params['id'];
 
-      const [year, month, day] = this.date.split('-').map(Number);
-      const parsed = new Date(year, month - 1, day);
+      const parsed = new Date(year, month - 1, 1);
 
       this.formattedDate = parsed.toLocaleString('default', {
         month: 'long',

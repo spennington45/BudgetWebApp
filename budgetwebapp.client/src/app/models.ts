@@ -47,6 +47,7 @@ export interface PlaidAccount {
   type?: string | null;
   subtype?: string | null;
   officialName?: string | null;
+  currentBalance?: number | null;
 }
 export interface User {
   userId: number;

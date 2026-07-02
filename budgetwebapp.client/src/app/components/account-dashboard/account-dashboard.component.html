@@ -1,0 +1,117 @@
+<div class="account-dashboard">
+
+  <div class="account-kpis">
+
+    <mat-card>
+      <mat-card-content>
+        <h3>Net Worth</h3>
+        <h2>{{ netWorth | currency }}</h2>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-content>
+        <h3>Total Assets</h3>
+        <h2>{{ totalAssets | currency }}</h2>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-content>
+        <h3>Total Debt</h3>
+        <h2>{{ totalDebt | currency }}</h2>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-content>
+        <h3>Total Cash</h3>
+        <h2>{{ totalCash | currency }}</h2>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+
+  <div class="account-chart-row">
+
+    <div class="chart-half">
+      <apx-chart
+        [series]="accountBalanceSeries"
+        [chart]="accountBalanceChart"
+        [plotOptions]="accountBalancePlotOptions"
+        [xaxis]="accountBalanceXAxis"
+        [yaxis]="accountBalanceYAxis"
+        [tooltip]="accountBalanceTooltip"
+        [dataLabels]="accountBalanceDataLabels"
+        [title]="accountBalanceTitle">
+      </apx-chart>
+    </div>
+
+    <div class="chart-half">
+      <apx-chart
+        [series]="accountTypeSeries"
+        [chart]="accountTypeChart"
+        [labels]="accountTypeLabels"
+        [legend]="accountTypeLegend"
+        [tooltip]="accountTypeTooltip"
+        [title]="accountTypeTitle">
+      </apx-chart>
+    </div>
+
+  </div>
+
+  <mat-card class="account-table-card">
+
+    <mat-card-header>
+      <mat-card-title>Connected Accounts</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+
+      <table mat-table [dataSource]="accounts">
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Account</th>
+          <td mat-cell *matCellDef="let row">
+            {{ row.name }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef>Type</th>
+          <td mat-cell *matCellDef="let row">
+            {{ row.type }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="subtype">
+          <th mat-header-cell *matHeaderCellDef>Subtype</th>
+          <td mat-cell *matCellDef="let row">
+            {{ row.subtype }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="currentBalance">
+          <th mat-header-cell *matHeaderCellDef>Current Balance</th>
+          <td mat-cell *matCellDef="let row">
+            {{ row.currentBalance | currency }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="availableBalance">
+          <th mat-header-cell *matHeaderCellDef>Available</th>
+          <td mat-cell *matCellDef="let row">
+            {{ row.availableBalance | currency }}
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+      </table>
+
+    </mat-card-content>
+
+  </mat-card>
+
+</div>
