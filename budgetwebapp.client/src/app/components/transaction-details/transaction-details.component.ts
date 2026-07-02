@@ -8,9 +8,10 @@ import { AddLookupDialogComponent } from '../add-lookup-dialog/add-lookup-dialog
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-transaction-details',
-  templateUrl: './transaction-details.component.html',
-  styleUrls: ['./transaction-details.component.scss']
+    selector: 'app-transaction-details',
+    templateUrl: './transaction-details.component.html',
+    styleUrls: ['./transaction-details.component.scss'],
+    standalone: false
 })
 export class TransactionDetailsComponent implements OnInit {
 

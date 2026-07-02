@@ -5,9 +5,10 @@ import { Budget, User } from '../../models';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-create-budget-dialog',
-  templateUrl: './create-budget-dialog.component.html',
-  styleUrls: ['./create-budget-dialog.component.scss']
+    selector: 'app-create-budget-dialog',
+    templateUrl: './create-budget-dialog.component.html',
+    styleUrls: ['./create-budget-dialog.component.scss'],
+    standalone: false
 })
 export class CreateBudgetDialogComponent implements OnInit {
   months = [

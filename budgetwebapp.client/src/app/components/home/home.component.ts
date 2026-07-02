@@ -11,9 +11,10 @@ import { AuthService } from '../../services/auth.service';
 import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.css'
+    selector: 'app-home',
+    templateUrl: './home.component.html',
+    styleUrl: './home.component.css',
+    standalone: false
 })
 export class HomeComponent implements OnInit {
   @ViewChild(MatSort) sort: MatSort = new MatSort();

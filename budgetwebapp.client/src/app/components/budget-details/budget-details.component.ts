@@ -3,9 +3,10 @@ import { ActivatedRoute } from '@angular/router';
 
 
 @Component({
-  selector: 'app-budget-details',
-  templateUrl: './budget-details.component.html',
-  styleUrl: './budget-details.component.css'
+    selector: 'app-budget-details',
+    templateUrl: './budget-details.component.html',
+    styleUrl: './budget-details.component.css',
+    standalone: false
 })
 export class BudgetDetailsComponent implements OnInit {
   budgetId: string = "";

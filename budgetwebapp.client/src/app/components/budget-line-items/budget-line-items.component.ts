@@ -20,9 +20,10 @@ import { AddLookupDialogComponent } from '../add-lookup-dialog/add-lookup-dialog
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-budget-line-items',
-  templateUrl: './budget-line-items.component.html',
-  styleUrls: ['./budget-line-items.component.css']
+    selector: 'app-budget-line-items',
+    templateUrl: './budget-line-items.component.html',
+    styleUrls: ['./budget-line-items.component.css'],
+    standalone: false
 })
 export class BudgetLineItemsComponent implements OnInit {
   // Replace catigory color stuff eventually

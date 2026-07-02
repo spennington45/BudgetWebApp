@@ -7,9 +7,10 @@ import { AuthService } from '../../services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
-  selector: 'app-recurring-expenses',
-  templateUrl: './recurring-expenses.component.html',
-  styleUrls: ['./recurring-expenses.component.css']
+    selector: 'app-recurring-expenses',
+    templateUrl: './recurring-expenses.component.html',
+    styleUrls: ['./recurring-expenses.component.css'],
+    standalone: false
 })
 export class RecurringExpensesComponent implements OnInit {
 
