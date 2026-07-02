@@ -8,14 +8,20 @@
         <a routerLink="/home" class="app-title-link">My Budget App</a>
       </span>
     </div>
-    <div class="right-section" *ngIf="user">
-      <span class="user-name">Welcome, {{ user.name }}</span>
-      <img *ngIf="user.pictureUrl" [src]="user.pictureUrl" alt="User picture" class="user-picture"/>
-      <button mat-button (click)="logout()">Logout</button>
-    </div>
+    @if (user) {
+      <div class="right-section">
+        <span class="user-name">Welcome, {{ user.name }}</span>
+        @if (user.pictureUrl) {
+          <img [src]="user.pictureUrl" alt="User picture" class="user-picture"/>
+        }
+        <button mat-button (click)="logout()">Logout</button>
+      </div>
+    }
 
-    <div class="right-section" *ngIf="!user">
-      <button mat-button (click)="login()">Login</button>
-    </div>
+    @if (!user) {
+      <div class="right-section">
+        <button mat-button (click)="login()">Login</button>
+      </div>
+    }
   </div>
 </header>

@@ -6,7 +6,9 @@
     <input matInput [(ngModel)]="value">
   </mat-form-field>
 
-  <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+  @if (errorMessage) {
+    <div class="error">{{ errorMessage }}</div>
+  }
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">

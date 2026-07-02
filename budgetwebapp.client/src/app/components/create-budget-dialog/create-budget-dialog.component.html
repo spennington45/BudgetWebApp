@@ -7,18 +7,22 @@
     <mat-form-field appearance="fill" class="w-100">
       <mat-label>Year</mat-label>
       <mat-select [(value)]="selectedYear">
-        <mat-option *ngFor="let year of years" [value]="year">
-          {{ year }}
-        </mat-option>
+        @for (year of years; track year) {
+          <mat-option [value]="year">
+            {{ year }}
+          </mat-option>
+        }
       </mat-select>
     </mat-form-field>
 
     <mat-form-field appearance="fill" class="w-100">
       <mat-label>Month</mat-label>
       <mat-select [(value)]="selectedMonth">
-        <mat-option *ngFor="let month of months; let i = index" [value]="i">
-          {{ month }}
-        </mat-option>
+        @for (month of months; track month; let i = $index) {
+          <mat-option [value]="i">
+            {{ month }}
+          </mat-option>
+        }
       </mat-select>
     </mat-form-field>
   </mat-dialog-content>
