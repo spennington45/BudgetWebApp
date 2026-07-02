@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BudgetLineItemService } from '../../services/budget-line-item.service';
 import { BudgetLineItems, Category, SourceType } from '../../models';
@@ -11,6 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
     selector: 'app-transaction-details',
     templateUrl: './transaction-details.component.html',
     styleUrls: ['./transaction-details.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TransactionDetailsComponent implements OnInit {

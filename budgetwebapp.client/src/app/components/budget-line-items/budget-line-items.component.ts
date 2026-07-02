@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { BudgetLineItems, Category, RecurringExpense, SourceType, User } from '../../models';
 import {
   ApexAxisChartSeries,
@@ -23,6 +23,7 @@ import { MatDialog } from '@angular/material/dialog';
     selector: 'app-budget-line-items',
     templateUrl: './budget-line-items.component.html',
     styleUrls: ['./budget-line-items.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class BudgetLineItemsComponent implements OnInit {

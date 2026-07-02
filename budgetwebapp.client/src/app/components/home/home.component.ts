@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { Budget, User } from '../../models';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
@@ -14,6 +14,7 @@ import { MatTableDataSource } from '@angular/material/table';
     selector: 'app-home',
     templateUrl: './home.component.html',
     styleUrl: './home.component.css',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class HomeComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RecurringExpense, Category, SourceType, User } from '../../models';
 import { RecurringExpenseService } from '../../services/recurring-expense.service';
 import { CategoryService } from '../../services/category.service';
@@ -10,6 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     selector: 'app-recurring-expenses',
     templateUrl: './recurring-expenses.component.html',
     styleUrls: ['./recurring-expenses.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class RecurringExpensesComponent implements OnInit {

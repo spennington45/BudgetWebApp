@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { BudgetService } from '../../services/budget.service';
 import { Budget, User } from '../../models';
@@ -8,6 +8,7 @@ import { AuthService } from '../../services/auth.service';
     selector: 'app-create-budget-dialog',
     templateUrl: './create-budget-dialog.component.html',
     styleUrls: ['./create-budget-dialog.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CreateBudgetDialogComponent implements OnInit {

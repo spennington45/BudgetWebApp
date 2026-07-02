@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 
@@ -6,6 +6,7 @@ import { ActivatedRoute } from '@angular/router';
     selector: 'app-budget-details',
     templateUrl: './budget-details.component.html',
     styleUrl: './budget-details.component.css',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class BudgetDetailsComponent implements OnInit {
