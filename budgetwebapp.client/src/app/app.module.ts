@@ -1,4 +1,4 @@
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -33,51 +33,45 @@ import { MatDividerModule } from '@angular/material/divider';
 import { AddLookupDialogComponent } from './components/add-lookup-dialog/add-lookup-dialog.component';
 import { NgApexchartsModule } from 'ng-apexcharts';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    HomeComponent,
-    BudgetDetailsComponent,
-    BudgetLineItemsComponent,
-    CreateBudgetDialogComponent,
-    HeaderComponent,
-    LoginComponent,
-    RecurringExpensesComponent,
-    TransactionDetailsComponent,
-    AddLookupDialogComponent,
-  ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    NgChartsModule,
-    AppRoutingModule,
-    NgChartsModule,
-    MatTableModule,
-    MatExpansionModule,
-    BrowserAnimationsModule,
-    MatDialogModule,
-    MatDatepickerModule,
-    MatFormFieldModule,
-    FormsModule,
-    MatNativeDateModule,
-    MatInputModule,
-    MatSnackBarModule,
-    MatIconModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
-    MatDividerModule,
-    MatCardModule,
-    NgApexchartsModule,
-  ],
-  providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
-      multi: true
-    }
-  ],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        HomeComponent,
+        BudgetDetailsComponent,
+        BudgetLineItemsComponent,
+        CreateBudgetDialogComponent,
+        HeaderComponent,
+        LoginComponent,
+        RecurringExpensesComponent,
+        TransactionDetailsComponent,
+        AddLookupDialogComponent,
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        NgChartsModule,
+        AppRoutingModule,
+        NgChartsModule,
+        MatTableModule,
+        MatExpansionModule,
+        BrowserAnimationsModule,
+        MatDialogModule,
+        MatDatepickerModule,
+        MatFormFieldModule,
+        FormsModule,
+        MatNativeDateModule,
+        MatInputModule,
+        MatSnackBarModule,
+        MatIconModule,
+        MatSelectModule,
+        MatButtonModule,
+        MatTooltipModule,
+        MatProgressSpinnerModule,
+        MatDividerModule,
+        MatCardModule,
+        NgApexchartsModule], providers: [
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: AuthInterceptor,
+            multi: true
+        },
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class AppModule { }
