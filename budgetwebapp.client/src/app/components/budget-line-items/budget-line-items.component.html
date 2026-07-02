@@ -1,9 +1,14 @@
 <div class="chart-container">
   <div class="chart-wrapper">
-    <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="'pie'"></canvas>
+    <apx-chart [series]="expensePieSeries" [chart]="expensePieChart" [labels]="expensePieLabels"
+      [colors]="expensePieColors" [legend]="pieLegend">
+    </apx-chart>
   </div>
+
   <div class="chart-wrapper">
-    <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'"></canvas>
+    <apx-chart [series]="incomeExpenseSeries" [chart]="incomeExpenseChart" [xaxis]="incomeExpenseXAxis"
+      [plotOptions]="incomeExpensePlotOptions" [dataLabels]="incomeExpenseDataLabels" [legend]="incomeExpenseLegend">
+    </apx-chart>
   </div>
 </div>
 

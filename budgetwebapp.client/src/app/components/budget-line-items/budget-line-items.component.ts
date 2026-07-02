@@ -1,6 +1,14 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { BudgetLineItems, Category, RecurringExpense, SourceType, User } from '../../models';
-import { ChartData, ChartType, ChartOptions, ChartDataset } from 'chart.js';
+import {
+  ApexAxisChartSeries,
+  ApexChart,
+  ApexDataLabels,
+  ApexLegend,
+  ApexNonAxisChartSeries,
+  ApexPlotOptions,
+  ApexXAxis
+} from 'ng-apexcharts';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BudgetLineItemService } from '../../services/budget-line-item.service';
 import { SourceTypeService } from '../../services/source-type.service';
@@ -32,53 +40,48 @@ export class BudgetLineItemsComponent implements OnInit {
   categories: Category[] = [];
   sourceTypes: SourceType[] = [];
   currentUser: User | null = null;
-  currentBudgetId: number = 0;
-  barChartLabels = ['Income', 'Expenses'];
-  barChartData: ChartData<'bar'> = {
-    labels: [],
-    datasets: [
-      {
-        label: 'Expenses',
-        data: [],
-        backgroundColor: [],
-        yAxisID: 'y',
-      },
-      {
-        label: 'Income (100%)',
-        data: [],
-        backgroundColor: '#4CAF50',
-        yAxisID: 'y1',
-      }
-    ]
+
+  public expensePieSeries: ApexNonAxisChartSeries = [];
+  public expensePieLabels: string[] = [];
+  public expensePieColors: string[] = [];
+
+  public expensePieChart: ApexChart = {
+    type: 'pie',
+    height: 350
   };
 
-  barChartOptions: ChartOptions<'bar'> = {
-    responsive: true,
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Amount ($)'
-        }
-      },
-      y1: {
-        beginAtZero: true,
-        position: 'right',
-        title: {
-          display: true,
-          text: 'Income %'
-        },
-        ticks: {
-          callback: value => `${value}%`
-        },
-        grid: {
-          drawOnChartArea: false
-        }
-      }
+  public pieLegend: ApexLegend = {
+    position: 'bottom'
+  };
+
+  public incomeExpenseSeries: ApexAxisChartSeries = [];
+
+  public incomeExpenseChart: ApexChart = {
+    type: 'bar',
+    height: 350,
+    stacked: true
+  };
+
+  public incomeExpenseXAxis: ApexXAxis = {
+    categories: ['Income', 'Expenses']
+  };
+
+  public incomeExpensePlotOptions: ApexPlotOptions = {
+    bar: {
+      horizontal: false
     }
   };
-  barChartType: 'bar' = 'bar';
+
+  public incomeExpenseDataLabels: ApexDataLabels = {
+    enabled: true
+  };
+
+  public incomeExpenseLegend: ApexLegend = {
+    position: 'bottom'
+  };
+
+  currentBudgetId: number = 0;
+  barChartLabels = ['Income', 'Expenses'];
 
   displayedColumns: string[] = ['name', 'value', 'category', 'sourceType', 'actions'];
 
@@ -88,29 +91,6 @@ export class BudgetLineItemsComponent implements OnInit {
   sourceTypeFilter = '';
 
   pieChartLabels: string[] = [];
-  pieChartData: ChartData<'pie', number[], string> = {
-    labels: [],
-    datasets: [{ data: [], label: 'Budget Categories' }]
-  };
-  pieChartType: ChartType = 'pie';
-  pieChartOptions: ChartOptions<'pie'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'bottom'
-      },
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            const label = context.label || '';
-            const value = context.raw as number;
-            return `${label}: $${value.toFixed(2)}`;
-          }
-        }
-      }
-    }
-  };
 
   constructor(
     private budgetLineItemService: BudgetLineItemService,
@@ -172,57 +152,51 @@ export class BudgetLineItemsComponent implements OnInit {
   }
 
   getChartData() {
-    const expenseItems = this.budgetLineItems.filter(item => item.value <= 0);
-    const incomeItems = this.budgetLineItems.filter(item => item.value > 0);
+    const expenseItems = this.budgetLineItems.filter(x => x.value <= 0);
+    const incomeItems = this.budgetLineItems.filter(x => x.value > 0);
 
     const expenseMap = new Map<string, number>();
     const incomeMap = new Map<string, number>();
 
     expenseItems.forEach(item => {
-      const catName = item.category?.categoryName ?? 'Unknown';
-      const currentTotal = expenseMap.get(catName) || 0;
-      expenseMap.set(catName, currentTotal + Math.abs(item.value));
+      const category = item.category?.categoryName || 'Unknown';
+
+      expenseMap.set(
+        category,
+        (expenseMap.get(category) || 0) + Math.abs(item.value)
+      );
     });
 
     incomeItems.forEach(item => {
-      const catName = item.category?.categoryName ?? 'Unknown';
-      const currentTotal = incomeMap.get(catName) || 0;
-      incomeMap.set(catName, currentTotal + item.value);
+      const category = item.category?.categoryName || 'Unknown';
+
+      incomeMap.set(
+        category,
+        (incomeMap.get(category) || 0) + item.value
+      );
     });
 
-    this.pieChartLabels = Array.from(expenseMap.keys());
-    this.pieChartData.labels = this.pieChartLabels;
-    this.pieChartData.datasets[0].data = Array.from(expenseMap.values());
-    this.pieChartData.datasets[0].label = 'Expense Breakdown';
-    this.pieChartData.datasets[0].backgroundColor = this.generateColors(this.pieChartLabels.length);
+    this.expensePieLabels = [...expenseMap.keys()];
+    this.expensePieSeries = [...expenseMap.values()];
+    this.expensePieColors = this.generateColors(this.expensePieLabels.length);
 
-    const barDatasets: ChartDataset<'bar'>[] = [];
+    const series: ApexAxisChartSeries = [];
 
     incomeMap.forEach((value, category) => {
-      barDatasets.push({
-        label: category,
-        data: [value, 0],
-        backgroundColor: this.getColorForCategory(category),
-        stack: 'income'
+      series.push({
+        name: category,
+        data: [value, 0]
       });
     });
 
     expenseMap.forEach((value, category) => {
-      barDatasets.push({
-        label: category,
-        data: [0, value],
-        backgroundColor: this.getColorForCategory(category),
-        stack: 'expense'
+      series.push({
+        name: category,
+        data: [0, value]
       });
     });
 
-    this.barChartData = {
-      labels: this.barChartLabels,
-      datasets: barDatasets
-    };
-
-    this.pieChartData = { ...this.pieChartData };
-    this.barChartData = { ...this.barChartData };
+    this.incomeExpenseSeries = series;
   }
 
   getColorForCategory(category: string): string {
@@ -564,7 +538,7 @@ export class BudgetLineItemsComponent implements OnInit {
       }
     });
   }
-  
+
   get filteredCategories() {
     return this.categories.filter(c =>
       c.categoryName.toLowerCase().includes(this.categoryFilter.toLowerCase())
