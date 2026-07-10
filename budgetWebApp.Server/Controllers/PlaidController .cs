@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using budgetWebApp.Server.Interfaces;
+using budgetWebApp.Server.Models;
 using budgetWebApp.Server.Models.DTOs;
 using budgetWebApp.Server.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -83,6 +84,21 @@ namespace budgetWebApp.Server.Controllers
                 await _plaidRepository.SyncTransactionsForItemAsync(item.PlaidItemId);
 
             return Ok();
+        }
+
+        [HttpGet("getPlaidAccounts/{userId}")]
+        public async Task<ActionResult<ICollection<PlaidAccount>>> GetPlaidAccounts(long userId)
+        {
+            if (userId <= 0)
+                return BadRequest();
+
+            var ownershipResult = ValidateOwnership(userId);
+            if (ownershipResult != null)
+                return ownershipResult;
+
+            var accounts = await _plaidRepository.GetPlaidAccountsByUserId(userId);
+
+            return Ok(accounts);
         }
     }
 }

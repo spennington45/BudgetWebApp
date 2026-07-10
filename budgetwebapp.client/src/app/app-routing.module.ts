@@ -17,7 +17,7 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: 'budget/:month/:year/:id',
+    path: 'budget/:year/:month/:id',
     component: BudgetDetailsComponent,
   },
   { 

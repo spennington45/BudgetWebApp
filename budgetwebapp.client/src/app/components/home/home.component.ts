@@ -184,7 +184,7 @@ export class HomeComponent implements OnInit {
   }
 
   navigateToBudgetDetails(budget: Budget) {
-    this.router.navigate(['/budget', budget.month, budget.year, budget.budgetId]);
+    this.router.navigate(['/budget', budget.year, budget.month, budget.budgetId]);
   }
 
   getMonthName(month: number): string {
@@ -470,14 +470,14 @@ export class HomeComponent implements OnInit {
   getTotalIncome(): number {
     return this.dataSource
       .flatMap(x => x.budgetLineItems)
-      .filter(x => x.value > 0)
+      .filter(x => x.value > 0 && !x.isTransfer)
       .reduce((sum, x) => sum + x.value, 0);
   }
 
   getTotalExpenses(): number {
     return this.dataSource
       .flatMap(x => x.budgetLineItems)
-      .filter(x => x.value < 0)
+      .filter(x => x.value < 0 && !x.isTransfer)
       .reduce((sum, x) => sum + Math.abs(x.value), 0);
   }
 

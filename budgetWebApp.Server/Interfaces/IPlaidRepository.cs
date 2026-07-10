@@ -18,5 +18,7 @@ namespace budgetWebApp.Server.Interfaces
         Task<ICollection<PlaidItem>> GetPladItemsByUserId(long userId);
 
         Task<PlaidItem> GetPlaidItemByItemId(string itemId);
+
+        Task<ICollection<PlaidAccount>> GetPlaidAccountsByUserId(long userId);
     }
 }

@@ -1,9 +1,9 @@
 BEGIN TRANSACTION
 
 DROP TABLE IF EXISTS PlaidSyncCursor;
+DROP TABLE IF EXISTS BudgetLineItem;
 DROP TABLE IF EXISTS PlaidAccount;
 DROP TABLE IF EXISTS PlaidItem;
-DROP TABLE IF EXISTS BudgetLineItem;
 DROP TABLE IF EXISTS RecurringExpense;
 DROP TABLE IF EXISTS BudgetTotal;
 DROP TABLE IF EXISTS Budget;
@@ -81,6 +81,8 @@ CREATE TABLE PlaidAccount (
     Type NVARCHAR(50) NULL,                 -- "depository", "credit", etc.
     Subtype NVARCHAR(50) NULL,              -- "checking", "savings", etc.
     OfficialName NVARCHAR(200) NULL,        -- optional
+    CurrentBalance DECIMAL(18,2) NULL,
+    AvailableBalance DECIMAL(18,2) NULL,
     CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
 
     CONSTRAINT FK_PlaidAccount_PlaidItem FOREIGN KEY (PlaidItemId)
@@ -103,6 +105,7 @@ CREATE TABLE BudgetLineItem (
     PlaidAccountId BIGINT,
     UserId BIGINT NOT NULL,
     SourceTypeId BIGINT NOT NULL,
+    IsTransfer BIT NOT NULL DEFAULT 0,
     CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
     UpdatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
 

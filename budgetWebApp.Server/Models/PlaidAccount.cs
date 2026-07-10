@@ -21,6 +21,10 @@ public partial class PlaidAccount
 
     public string? OfficialName { get; set; }
 
+    public decimal? CurrentBalance { get; set; }
+
+    public decimal? AvailableBalance { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public virtual ICollection<BudgetLineItem> BudgetLineItems { get; set; } = new List<BudgetLineItem>();

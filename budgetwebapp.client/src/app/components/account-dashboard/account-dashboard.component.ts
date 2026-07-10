@@ -11,7 +11,7 @@ import {
   ApexYAxis,
   ApexTitleSubtitle
 } from 'ng-apexcharts';
-
+import { ChangeDetectorRef } from '@angular/core';
 import { PlaidService } from '../../services/plaid.service';
 import { AuthService } from '../../services/auth.service';
 import { PlaidAccount, User } from '../../models';
@@ -121,19 +121,17 @@ export class AccountDashboardComponent implements OnInit {
 
   constructor(
     private plaidService: PlaidService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(user => {
       if (user) {
         this.currentUser = user;
+        this.loadAccounts(this.currentUser.userId);
       }
     });
-
-    if (this.currentUser) {
-      this.loadAccounts(this.currentUser.userId);
-    }
   }
 
   loadAccounts(userId: number): void {
@@ -143,6 +141,8 @@ export class AccountDashboardComponent implements OnInit {
 
         this.calculateSummary();
         this.buildCharts();
+
+        this.cdr.detectChanges();
       });
   }
 

@@ -176,8 +176,8 @@ export class BudgetLineItemsComponent implements OnInit {
   }
 
   getChartData() {
-    const expenseItems = this.budgetLineItems.filter(x => x.value <= 0);
-    const incomeItems = this.budgetLineItems.filter(x => x.value > 0);
+    const expenseItems = this.budgetLineItems.filter(x => x.value <= 0 && !x.isTransfer);
+    const incomeItems = this.budgetLineItems.filter(x => x.value > 0 && !x.isTransfer);
 
     const expenseMap = new Map<string, number>();
     const incomeMap = new Map<string, number>();
@@ -293,7 +293,7 @@ export class BudgetLineItemsComponent implements OnInit {
       name: '',
       merchantName: '',
       pending: false,
-
+      isTransfer: false,
       categoryId: 0,
       plaidAccountId: null,
       userId: this.currentUser?.userId ?? 0,
@@ -514,6 +514,7 @@ export class BudgetLineItemsComponent implements OnInit {
       userId: this.currentUser?.userId ?? 0,
       createdAt: '',
       updatedAt: '',
+      isTransfer: false,
       category: category,
       sourceType: sourceType,
     };

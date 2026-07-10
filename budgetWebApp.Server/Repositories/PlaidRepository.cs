@@ -4,6 +4,7 @@ using budgetWebApp.Server.Models;
 using budgetWebApp.Server.Models.DTOs;
 using budgetWebApp.Server.Services;
 using Going.Plaid;
+using Going.Plaid.Accounts;
 using Going.Plaid.Entity;
 using Going.Plaid.Transactions;
 using Microsoft.EntityFrameworkCore;
@@ -50,7 +51,6 @@ namespace budgetWebApp.Server.Repositories
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-
                 var exchange = await _plaidAuth.GetAccessTokenAsync(link.PublicToken);
 
                 var item = _mapper.Map<PlaidItem>(link);
@@ -61,10 +61,34 @@ namespace budgetWebApp.Server.Repositories
                 var newItem = await _context.PlaidItems.AddAsync(item);
                 await _context.SaveChangesAsync();
 
+                var accountsResponse = await _plaid.AccountsGetAsync(
+                    new AccountsGetRequest
+                    {
+                        AccessToken = exchange.AccessToken
+                    });
+
                 var accounts = _mapper.Map<List<PlaidAccount>>(link.Accounts);
 
                 foreach (var acc in accounts)
+                {
                     acc.PlaidItemId = newItem.Entity.PlaidItemId;
+
+                    var plaidAccount = accountsResponse.Accounts
+                        .FirstOrDefault(a => a.AccountId == acc.AccountId);
+
+                    if (plaidAccount != null)
+                    {
+                        acc.CurrentBalance =
+                            plaidAccount.Balances?.Current != null
+                                ? (decimal?)plaidAccount.Balances.Current
+                                : null;
+
+                        acc.AvailableBalance =
+                            plaidAccount.Balances?.Available != null
+                                ? (decimal?)plaidAccount.Balances.Available
+                                : null;
+                    }
+                }
 
                 await _context.PlaidAccounts.AddRangeAsync(accounts);
                 await _context.SaveChangesAsync();
@@ -96,6 +120,8 @@ namespace budgetWebApp.Server.Repositories
             var item = await _context.PlaidItems
                 .Include(i => i.PlaidAccounts)
                 .FirstAsync(i => i.PlaidItemId == plaidItemId);
+
+            await UpdateAccountBalancesAsync(item);
 
             var cursorRow = await _context.PlaidSyncCursors
                 .FirstOrDefaultAsync(c => c.PlaidItemId == plaidItemId);
@@ -177,6 +203,8 @@ namespace budgetWebApp.Server.Repositories
 
             if (existing == null)
             {
+                var isTransfer = await IsTransferAsync(txn, item.UserId);
+
                 var newItem = new BudgetLineItem
                 {
                     TransactionId = txn.TransactionId,
@@ -191,6 +219,7 @@ namespace budgetWebApp.Server.Repositories
                     UserId = item.UserId,
                     SourceTypeId = plaidSourceTypeId,
                     BudgetId = budgetId,
+                    //IsTransfer = isTransfer,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
@@ -210,6 +239,25 @@ namespace budgetWebApp.Server.Repositories
             }
 
             await _context.SaveChangesAsync();
+        }
+
+        private async Task<bool> IsTransferAsync(Transaction txn, long userId)
+        {
+            var accountIds = await _context.PlaidAccounts
+                .Where(a => a.PlaidItem.UserId == userId)
+                .Select(a => a.AccountId)
+                .ToListAsync();
+
+            var text = $"{txn.Name} {txn.MerchantName}"
+                .ToLowerInvariant();
+
+            bool containsTransferKeywords =
+                text.Contains("transfer") ||
+                text.Contains("xfer") ||
+                text.Contains("payment");
+
+            return accountIds.Contains(txn.AccountId) &&
+                   containsTransferKeywords;
         }
 
         private async Task RemoveBudgetLineItemAsync(string transactionId)
@@ -303,5 +351,55 @@ namespace budgetWebApp.Server.Repositories
             return Math.Abs(amount);
         }
 
+        public async Task<ICollection<PlaidAccount>> GetPlaidAccountsByUserId(long userId)
+        {
+            return await _context.PlaidAccounts
+                .Include(a => a.PlaidItem)
+                .Where(a => a.PlaidItem.UserId == userId)
+                .OrderBy(a => a.Type)
+                .ThenBy(a => a.Name)
+                .ToListAsync();
+        }
+
+        private async Task UpdateAccountBalancesAsync(PlaidItem item)
+        {
+            var request = new AccountsGetRequest
+            {
+                AccessToken = item.AccessToken
+            };
+
+            var response = await _plaid.AccountsGetAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning(
+                    "Failed to update balances for Plaid Item {PlaidItemId}",
+                    item.PlaidItemId);
+                return;
+            }
+
+            foreach (var plaidAccount in response.Accounts)
+            {
+                var account = await _context.PlaidAccounts
+                    .FirstOrDefaultAsync(a =>
+                        a.PlaidItemId == item.PlaidItemId &&
+                        a.AccountId == plaidAccount.AccountId);
+
+                if (account == null)
+                    continue;
+
+                account.CurrentBalance =
+                    plaidAccount.Balances?.Current != null
+                        ? (decimal?)plaidAccount.Balances.Current
+                        : null;
+
+                account.AvailableBalance =
+                    plaidAccount.Balances?.Available != null
+                        ? (decimal?)plaidAccount.Balances.Available
+                        : null;
+            }
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

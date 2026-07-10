@@ -35,26 +35,15 @@
   <div class="account-chart-row">
 
     <div class="chart-half">
-      <apx-chart
-        [series]="accountBalanceSeries"
-        [chart]="accountBalanceChart"
-        [plotOptions]="accountBalancePlotOptions"
-        [xaxis]="accountBalanceXAxis"
-        [yaxis]="accountBalanceYAxis"
-        [tooltip]="accountBalanceTooltip"
-        [dataLabels]="accountBalanceDataLabels"
-        [title]="accountBalanceTitle">
+      <apx-chart [series]="accountBalanceSeries" [chart]="accountBalanceChart" [plotOptions]="accountBalancePlotOptions"
+        [xaxis]="accountBalanceXAxis" [yaxis]="accountBalanceYAxis" [tooltip]="accountBalanceTooltip"
+        [dataLabels]="accountBalanceDataLabels" [title]="accountBalanceTitle">
       </apx-chart>
     </div>
 
     <div class="chart-half">
-      <apx-chart
-        [series]="accountTypeSeries"
-        [chart]="accountTypeChart"
-        [labels]="accountTypeLabels"
-        [legend]="accountTypeLegend"
-        [tooltip]="accountTypeTooltip"
-        [title]="accountTypeTitle">
+      <apx-chart [series]="accountTypeSeries" [chart]="accountTypeChart" [labels]="accountTypeLabels"
+        [legend]="accountTypeLegend" [tooltip]="accountTypeTooltip" [title]="accountTypeTitle">
       </apx-chart>
     </div>
 
@@ -67,7 +56,6 @@
     </mat-card-header>
 
     <mat-card-content>
-
       <table mat-table [dataSource]="accounts">
 
         <ng-container matColumnDef="name">

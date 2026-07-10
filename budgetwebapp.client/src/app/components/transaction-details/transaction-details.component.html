@@ -47,6 +47,10 @@
             <span class="value">{{ transaction.pending ? 'Yes' : 'No' }}</span>
           </div>
           <div class="detail-row">
+            <span class="label">Transfer:</span>
+            <span class="value">{{ transaction.isTransfer ? 'Yes' : 'No' }}</span>
+          </div>
+          <div class="detail-row">
             <span class="label">Merchant:</span>
             <span class="value">{{ transaction.merchantName || 'N/A' }}</span>
           </div>
@@ -135,6 +139,15 @@
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Pending</mat-label>
               <mat-select [(ngModel)]="editModel.pending">
+                <mat-option [value]="true">Yes</mat-option>
+                <mat-option [value]="false">No</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="form-field">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Transfer</mat-label>
+              <mat-select [(ngModel)]="editModel.isTransfer">
                 <mat-option [value]="true">Yes</mat-option>
                 <mat-option [value]="false">No</mat-option>
               </mat-select>

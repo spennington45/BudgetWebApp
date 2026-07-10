@@ -37,6 +37,7 @@ export interface BudgetLineItems {
   updatedAt: string;
   category: Category;
   sourceType: SourceType;
+  isTransfer: boolean;
   budget?: Budget;
   plaidAccount?: PlaidAccount;
 }
@@ -48,6 +49,7 @@ export interface PlaidAccount {
   subtype?: string | null;
   officialName?: string | null;
   currentBalance?: number | null;
+  availableBalance?: number | null;
 }
 export interface User {
   userId: number;

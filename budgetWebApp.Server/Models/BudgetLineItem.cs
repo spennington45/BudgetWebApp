@@ -35,6 +35,8 @@ public partial class BudgetLineItem
 
     public DateTime UpdatedAt { get; set; }
 
+    public bool IsTransfer { get; set; }
+
     public virtual Budget Budget { get; set; } = null!;
 
     public virtual Category Category { get; set; } = null!;

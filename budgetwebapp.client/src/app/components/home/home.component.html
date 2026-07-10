@@ -3,10 +3,6 @@
 }
 
 @if (currentUser) {
-<h2 class="">Budgets</h2>
-<div class="grand-total">
-  Total of all budgets: {{ getTotalOfAllBudgets() | currency }}
-</div>
 <div class="action-buttons">
   <button mat-raised-button color="primary" (click)="createNewBudget()">
     Create New Budget
